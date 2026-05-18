@@ -23,6 +23,20 @@ export type {
 export { createJwtAwareAnonSupabaseClient } from './entitlementReaderSupabase';
 
 export {
+  getOrCreateBrowserSupabaseAuthClient,
+  type BrowserSupabaseAuthClientConfig,
+} from './browserSupabaseAuthClient';
+
+export {
+  resolveSaasProfileAuthReaction,
+  shouldApplyAuthCallbackSession,
+  shouldShowSaasProfileFullPageLoading,
+  type ResolveSaasProfileAuthReactionInput,
+  type SaasProfileAuthReaction,
+  type SessionWithAccessToken,
+} from './saasProfileAuthSync';
+
+export {
   queryPlatformAppMirrorResolutionDetail,
   type PlatformAppMirrorQueryResult,
   type PlatformAppMirrorResolutionDetailInput,

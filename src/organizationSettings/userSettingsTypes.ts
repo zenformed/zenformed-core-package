@@ -1,0 +1,34 @@
+/** Wire shape for ZenformedCore `GET|PATCH /users/me/settings`. */
+export type ZenformedUserSettingsDto = {
+  readonly email: string | null;
+  readonly firstName: string | null;
+  readonly lastName: string | null;
+  readonly marketingEmailOptIn: boolean;
+  readonly smsOptIn: boolean;
+};
+
+export type ZenformedUserSettingsPatch = {
+  readonly firstName?: string | null;
+  readonly lastName?: string | null;
+  readonly marketingEmailOptIn?: boolean;
+  readonly smsOptIn?: boolean;
+};
+
+export type SettingsSaveStatus = 'idle' | 'loading' | 'saving' | 'saved' | 'error';
+
+export type OrganizationSettingsPersistence = {
+  readonly isLoading?: boolean;
+  readonly loadError?: string | null;
+  readonly hasLiveData?: boolean;
+  readonly accountSaveStatus?: SettingsSaveStatus;
+  readonly notificationsSaveStatus?: SettingsSaveStatus;
+  readonly saveErrorMessage?: string | null;
+  readonly onSaveAccount?: (payload: {
+    firstName: string;
+    lastName: string;
+  }) => Promise<boolean>;
+  readonly onSaveNotifications?: (payload: {
+    marketingEmailOptIn: boolean;
+    smsOptIn: boolean;
+  }) => Promise<boolean>;
+};

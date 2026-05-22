@@ -44,4 +44,10 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   upgrade: 'Upgrade',
   mockDataNote:
     'Some fields use sample data until organization membership, invites, and billing APIs are connected.',
+  save: 'Save',
+  saving: 'Saving…',
+  saved: 'Saved',
+  saveFailed: 'Could not save. Try again.',
+  unsavedChanges: 'Unsaved changes',
+  loadingSettings: 'Loading your settings…',
 };

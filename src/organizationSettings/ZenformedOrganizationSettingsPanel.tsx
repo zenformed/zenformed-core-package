@@ -11,6 +11,7 @@ import { NotificationsSection } from './sections/NotificationsSection';
 import { OrganizationSection } from './sections/OrganizationSection';
 import type {
   OrganizationSettingsLabels,
+  OrganizationSettingsPersistence,
   OrganizationSettingsShellContext,
   OrganizationSettingsViewModel,
 } from './types';
@@ -20,6 +21,7 @@ const panelClassNames = pickOrganizationSettingsClassNames(orgStyles);
 export type ZenformedOrganizationSettingsPanelProps = {
   readonly shellContext?: OrganizationSettingsShellContext | null;
   readonly viewModelOverrides?: Partial<OrganizationSettingsViewModel> | null;
+  readonly persistence?: OrganizationSettingsPersistence | null;
   readonly labels?: Partial<OrganizationSettingsLabels>;
   readonly showMockNote?: boolean;
 };
@@ -27,15 +29,25 @@ export type ZenformedOrganizationSettingsPanelProps = {
 export function ZenformedOrganizationSettingsPanel({
   shellContext,
   viewModelOverrides,
+  persistence,
   labels: labelOverrides,
   showMockNote = true,
 }: ZenformedOrganizationSettingsPanelProps) {
   const labels = { ...DEFAULT_ORGANIZATION_SETTINGS_LABELS, ...labelOverrides };
   const viewModel = mergeOrganizationSettingsViewModel(shellContext, viewModelOverrides);
+  const showOrgMockNote = showMockNote && !persistence?.hasLiveData;
 
   return (
     <div className={panelClassNames.panel}>
-      {showMockNote ? (
+      {persistence?.isLoading ? (
+        <p className={panelClassNames.saveStatus}>{labels.loadingSettings}</p>
+      ) : null}
+      {persistence?.loadError ? (
+        <p className={`${panelClassNames.saveStatus} ${panelClassNames.saveStatusError}`}>
+          {persistence.loadError}
+        </p>
+      ) : null}
+      {showOrgMockNote ? (
         <p className={panelClassNames.placeholderNote}>{labels.mockDataNote}</p>
       ) : null}
       <div className={panelClassNames.accordion}>
@@ -56,7 +68,12 @@ export function ZenformedOrganizationSettingsPanel({
           defaultOpen
           classNames={panelClassNames}
         >
-          <AccountSection viewModel={viewModel} labels={labels} classNames={panelClassNames} />
+          <AccountSection
+            viewModel={viewModel}
+            labels={labels}
+            classNames={panelClassNames}
+            persistence={persistence}
+          />
         </ZenformedSettingsAccordionSection>
 
         <ZenformedSettingsAccordionSection
@@ -68,6 +85,7 @@ export function ZenformedOrganizationSettingsPanel({
             viewModel={viewModel}
             labels={labels}
             classNames={panelClassNames}
+            persistence={persistence}
           />
         </ZenformedSettingsAccordionSection>
 

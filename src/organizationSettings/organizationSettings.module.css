@@ -375,6 +375,25 @@
   background: transparent;
 }
 
+.saveStatus {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--zf-text-muted, #9aa3b2);
+}
+
+.saveStatusSuccess {
+  color: #8fd4b0;
+}
+
+.saveStatusError {
+  color: #f0a8a8;
+}
+
+.saveStatusMuted {
+  font-style: italic;
+}
+
 @media (prefers-color-scheme: light) {
   .input,
   .select,

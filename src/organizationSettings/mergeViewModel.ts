@@ -2,7 +2,24 @@ import { DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL } from './defaultViewModel';
 import type {
   OrganizationSettingsShellContext,
   OrganizationSettingsViewModel,
+  ZenformedUserSettingsDto,
 } from './types';
+
+export function userSettingsToViewModelOverrides(
+  settings: ZenformedUserSettingsDto
+): Partial<OrganizationSettingsViewModel> {
+  return {
+    account: {
+      firstName: settings.firstName ?? '',
+      lastName: settings.lastName ?? '',
+      email: settings.email ?? '',
+    },
+    notifications: {
+      marketingEmailOptIn: settings.marketingEmailOptIn,
+      smsOptIn: settings.smsOptIn,
+    },
+  };
+}
 
 export function mergeOrganizationSettingsViewModel(
   shell?: OrganizationSettingsShellContext | null,

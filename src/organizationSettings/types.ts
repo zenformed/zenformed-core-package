@@ -110,6 +110,10 @@ export type OrganizationSettingsClassNames = {
   readonly checkbox: string;
   readonly divider: string;
   readonly placeholderNote: string;
+  readonly saveStatus: string;
+  readonly saveStatusSuccess: string;
+  readonly saveStatusError: string;
+  readonly saveStatusMuted: string;
 };
 
 export type OrganizationSettingsDrawerClassNames = {
@@ -165,4 +169,12 @@ export type OrganizationSettingsLabels = {
   readonly buy: string;
   readonly upgrade: string;
   readonly mockDataNote: string;
+  readonly save: string;
+  readonly saving: string;
+  readonly saved: string;
+  readonly saveFailed: string;
+  readonly unsavedChanges: string;
+  readonly loadingSettings: string;
 };
+
+export type { OrganizationSettingsPersistence, SettingsSaveStatus, ZenformedUserSettingsDto } from './userSettingsTypes';

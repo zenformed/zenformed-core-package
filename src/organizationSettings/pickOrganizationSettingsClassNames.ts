@@ -47,6 +47,10 @@ export function pickOrganizationSettingsClassNames(
     'checkbox',
     'divider',
     'placeholderNote',
+    'saveStatus',
+    'saveStatusSuccess',
+    'saveStatusError',
+    'saveStatusMuted',
   ];
 
   const out: Record<string, string> = {};

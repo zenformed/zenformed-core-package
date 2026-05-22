@@ -4,9 +4,9 @@ This module is UI-first. The following are expected platform migrations and APIs
 
 ## User / account profile
 
-- `first_name`, `last_name` on user profile
-- Password change via auth provider API
-- `marketing_email_opt_in`, `sms_opt_in` preference columns
+- Implemented: `first_name`, `last_name`, `marketing_email_opt_in`, `sms_opt_in` on `profiles`
+- Implemented: ZenformedCore `GET|PATCH /users/me/settings` + app BFF `/api/internal/users-me-settings`
+- Password change via auth provider API (not in settings drawer yet)
 
 ## Organization
 

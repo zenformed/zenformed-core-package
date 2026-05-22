@@ -7,7 +7,18 @@ export { ZenformedSettingsGroup } from './components/ZenformedSettingsGroup';
 export { ZenformedSettingsField } from './components/ZenformedSettingsField';
 export { DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL } from './defaultViewModel';
 export { DEFAULT_ORGANIZATION_SETTINGS_LABELS } from './defaultLabels';
-export { mergeOrganizationSettingsViewModel } from './mergeViewModel';
+export { mergeOrganizationSettingsViewModel, userSettingsToViewModelOverrides } from './mergeViewModel';
+export { useZenformedUserSettings } from './useZenformedUserSettings';
+export type {
+  UseZenformedUserSettingsOptions,
+  UseZenformedUserSettingsResult,
+} from './useZenformedUserSettings';
+export type {
+  OrganizationSettingsPersistence,
+  SettingsSaveStatus,
+  ZenformedUserSettingsDto,
+  ZenformedUserSettingsPatch,
+} from './userSettingsTypes';
 export { pickOrganizationSettingsClassNames } from './pickOrganizationSettingsClassNames';
 export { pickOrganizationSettingsDrawerClassNames } from './pickOrganizationSettingsDrawerClassNames';
 export type {

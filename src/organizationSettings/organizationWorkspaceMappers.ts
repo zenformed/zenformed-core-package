@@ -1,0 +1,90 @@
+import type {
+  OrganizationSettingsAppAccess,
+  OrganizationSettingsMember,
+  OrganizationSettingsPendingInvite,
+  OrganizationSettingsPlan,
+  OrganizationSettingsViewModel,
+} from './types';
+import type { OrganizationWorkspaceSnapshot } from './organizationWorkspaceTypes';
+
+function mapMemberRole(
+  role: 'owner' | 'admin' | 'member'
+): OrganizationSettingsMember['role'] {
+  if (role === 'owner' || role === 'admin') return 'admin';
+  return 'member';
+}
+
+function mapBillingApps(
+  appAccess: OrganizationWorkspaceSnapshot['appAccess']
+): OrganizationSettingsAppAccess[] {
+  if (appAccess == null) return [];
+  const billingApps: OrganizationSettingsAppAccess[] = [];
+  if (appAccess.entries.length > 0) {
+    for (const entry of appAccess.entries) {
+      const active = entry.accessStatus === 'active';
+      billingApps.push({
+        id: `${entry.userId}-${entry.appSlug}`,
+        name: `${entry.displayName} · ${entry.appName}`,
+        planLabel: entry.planLabel ?? '—',
+        statusLabel: active ? 'Active' : entry.accessStatus,
+        actionLabel: active ? 'Manage' : 'Buy',
+        isActive: active,
+      });
+    }
+    return billingApps;
+  }
+  for (const app of appAccess.orgApps) {
+    billingApps.push({
+      id: app.appSlug,
+      name: app.appName,
+      planLabel: app.planLabel ?? '—',
+      statusLabel: app.statusLabel,
+      actionLabel: app.isActive ? 'Manage' : 'Buy',
+      isActive: app.isActive,
+    });
+  }
+  return billingApps;
+}
+
+export function workspaceSnapshotToViewModelOverrides(
+  snapshot: OrganizationWorkspaceSnapshot
+): Partial<OrganizationSettingsViewModel> {
+  const members: OrganizationSettingsMember[] | undefined =
+    snapshot.members != null
+      ? snapshot.members.map((m) => ({
+          id: m.id,
+          name: m.email ? `${m.displayName} (${m.email})` : m.displayName,
+          role: mapMemberRole(m.role),
+        }))
+      : undefined;
+
+  const pendingInvites: OrganizationSettingsPendingInvite[] | undefined =
+    snapshot.invites != null
+      ? snapshot.invites.map((inv) => ({
+          id: inv.id,
+          email: inv.email,
+          sentLabel: inv.sentLabel,
+        }))
+      : undefined;
+
+  let plan: OrganizationSettingsPlan | undefined;
+  if (snapshot.seats != null) {
+    const planName = snapshot.seats.planName?.trim() || 'Organization';
+    plan = {
+      planName,
+      seatsUsed: snapshot.seats.seatsUsed,
+      seatsTotal: snapshot.seats.seatLimit,
+      statusLabel:
+        snapshot.seats.source === 'entitlement_tier' ? 'Connected' : 'Default tier',
+    };
+  }
+
+  const billingApps = mapBillingApps(snapshot.appAccess);
+
+  return {
+    ...(members != null ? { members } : {}),
+    ...(pendingInvites != null ? { pendingInvites } : {}),
+    ...(plan != null ? { plan } : {}),
+    ...(billingApps.length > 0 ? { billingApps, appAccess: billingApps } : {}),
+  };
+}

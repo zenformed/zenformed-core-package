@@ -197,6 +197,7 @@ export type OrganizationSettingsLabels = {
   readonly industryPlumbing: string;
   readonly industryNone: string;
   readonly timezoneSearchPlaceholder: string;
+  readonly inviteComingSoon: string;
 };
 
 export type OrganizationBrandingProfileDto = {

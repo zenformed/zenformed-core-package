@@ -1,4 +1,5 @@
 import type { OrganizationSettingsBrandingPersistence } from './types';
+import type { OrganizationSettingsWorkspacePersistence } from './organizationWorkspaceTypes';
 
 /** Wire shape for ZenformedCore `GET|PATCH /users/me/settings`. */
 export type ZenformedUserSettingsDto = {
@@ -34,4 +35,5 @@ export type OrganizationSettingsPersistence = {
     smsOptIn: boolean;
   }) => Promise<boolean>;
   readonly branding?: OrganizationSettingsBrandingPersistence;
+  readonly workspace?: OrganizationSettingsWorkspacePersistence;
 };

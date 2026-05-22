@@ -7,20 +7,26 @@ import type {
   OrganizationSettingsLabels,
   OrganizationSettingsViewModel,
 } from '../types';
+import type { OrganizationSettingsWorkspacePersistence } from '../organizationWorkspaceTypes';
 
 type Props = {
   readonly viewModel: OrganizationSettingsViewModel;
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
+  readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
 
-export function AppsBillingSection({ viewModel, labels, classNames }: Props) {
+export function AppsBillingSection({ viewModel, labels, classNames, workspace }: Props) {
   const { plan, billingApps } = viewModel;
   const planConnected = plan.seatsTotal > 0 && plan.planName !== '—';
+  const workspaceLive = workspace?.hasLiveData ?? false;
+  const showBillingPlaceholder = !workspaceLive;
 
   return (
     <>
-      <PlaceholderSectionNote message={labels.billingPlaceholderNote} classNames={classNames} />
+      {showBillingPlaceholder ? (
+        <PlaceholderSectionNote message={labels.billingPlaceholderNote} classNames={classNames} />
+      ) : null}
 
       <ZenformedSettingsGroup title={labels.organizationPlan} classNames={classNames}>
         {planConnected ? (
@@ -41,6 +47,9 @@ export function AppsBillingSection({ viewModel, labels, classNames }: Props) {
                 {plan.statusLabel}
               </span>
             </div>
+            {workspace?.snapshot?.seats?.notes ? (
+              <p className={classNames.hint}>{workspace.snapshot.seats.notes}</p>
+            ) : null}
           </>
         ) : (
           <p className={classNames.hint}>{labels.planNotConnected}</p>
@@ -54,7 +63,16 @@ export function AppsBillingSection({ viewModel, labels, classNames }: Props) {
           billingApps.map((app) => (
             <div key={app.id} className={classNames.row}>
               <span className={classNames.rowLabel}>{app.name}</span>
-              <span className={classNames.rowValue}>{app.planLabel}</span>
+              <span className={classNames.rowValue}>
+                {app.planLabel}{' '}
+                <span
+                  className={
+                    app.isActive ? classNames.badgeSuccess : classNames.badgeMuted
+                  }
+                >
+                  {app.statusLabel}
+                </span>
+              </span>
               <button
                 type="button"
                 className={`${classNames.btn} ${classNames.btnSmall}`}

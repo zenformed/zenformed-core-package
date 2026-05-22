@@ -64,6 +64,7 @@ export function ZenformedOrganizationSettingsPanel({
             labels={labels}
             classNames={panelClassNames}
             branding={persistence?.branding}
+            workspace={persistence?.workspace}
           />
         </ZenformedSettingsAccordionSection>
 
@@ -103,6 +104,7 @@ export function ZenformedOrganizationSettingsPanel({
             viewModel={viewModel}
             labels={labels}
             classNames={panelClassNames}
+            workspace={persistence?.workspace}
           />
         </ZenformedSettingsAccordionSection>
       </div>

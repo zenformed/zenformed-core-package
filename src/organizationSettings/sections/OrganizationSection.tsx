@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
+import { OrganizationPendingInvitesGroup } from '../components/OrganizationPendingInvitesGroup';
+import { OrganizationTeamMembersGroup } from '../components/OrganizationTeamMembersGroup';
 import { SettingsSaveStatusLine } from '../components/SettingsSaveStatusLine';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
@@ -13,19 +14,15 @@ import type {
   OrganizationSettingsLabels,
   OrganizationSettingsViewModel,
 } from '../types';
+import type { OrganizationSettingsWorkspacePersistence } from '../organizationWorkspaceTypes';
 
 type Props = {
   readonly viewModel: OrganizationSettingsViewModel;
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
   readonly branding?: OrganizationSettingsBrandingPersistence | null;
+  readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
-
-const ROLE_OPTIONS = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'member', label: 'Member' },
-  { value: 'lead', label: 'Lead' },
-] as const;
 
 const INDUSTRY_OPTIONS = [
   { value: '', labelKey: 'industryNone' as const },
@@ -34,7 +31,13 @@ const INDUSTRY_OPTIONS = [
   { value: 'plumbing', labelKey: 'industryPlumbing' as const },
 ] as const;
 
-export function OrganizationSection({ viewModel, labels, classNames, branding }: Props) {
+export function OrganizationSection({
+  viewModel,
+  labels,
+  classNames,
+  branding,
+  workspace,
+}: Props) {
   const { organization, plan, members, pendingInvites } = viewModel;
   const [companyName, setCompanyName] = useState(organization.companyName);
   const [industry, setIndustry] = useState(organization.industry);
@@ -51,6 +54,8 @@ export function OrganizationSection({ viewModel, labels, classNames, branding }:
   const logoUrl = organization.logoUrl;
   const initial = companyName.trim().charAt(0).toUpperCase() || 'O';
   const seatsConnected = plan.seatsTotal > 0;
+  const workspaceLoading = workspace?.isLoading ?? false;
+  const workspaceLive = workspace?.hasLiveData ?? false;
 
   const profileDirty = useMemo(() => {
     const savedIndustry = (organization.industry ?? '').trim();
@@ -158,77 +163,31 @@ export function OrganizationSection({ viewModel, labels, classNames, branding }:
         </div>
       </ZenformedSettingsGroup>
 
-      <ZenformedSettingsGroup title={labels.teamMembers} classNames={classNames}>
-        <PlaceholderSectionNote
-          message={labels.organizationPlaceholderNote}
-          classNames={classNames}
-        />
-        {seatsConnected ? (
-          <p className={classNames.seatsSummary}>
-            {labels.seatsUsed}: {plan.seatsUsed} / {plan.seatsTotal}
-          </p>
-        ) : (
-          <p className={classNames.hint}>{labels.seatsNotConnected}</p>
-        )}
-        <div className={classNames.actions}>
-          <button type="button" className={`${classNames.btn} ${classNames.btnPrimary}`} disabled>
-            {labels.inviteMember}
-          </button>
-        </div>
-        {members.length === 0 ? (
-          <p className={classNames.hint}>{labels.noTeamMembersYet}</p>
-        ) : (
-          <ul className={classNames.memberList}>
-            {members.map((member) => (
-              <li key={member.id} className={classNames.memberRow}>
-                <span className={classNames.memberName}>{member.name}</span>
-                <select
-                  className={`${classNames.select} ${classNames.memberRoleSelect}`}
-                  defaultValue={member.role}
-                  disabled
-                  aria-label={`Role for ${member.name}`}
-                >
-                  {ROLE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </li>
-            ))}
-          </ul>
-        )}
-      </ZenformedSettingsGroup>
+      {workspaceLoading && !workspaceLive ? (
+        <p className={classNames.saveStatus}>{labels.loadingSettings}</p>
+      ) : null}
+      {workspace?.loadError && !workspaceLive ? (
+        <p className={`${classNames.saveStatus} ${classNames.saveStatusMuted}`}>
+          {workspace.loadError}
+        </p>
+      ) : null}
 
-      <ZenformedSettingsGroup title={labels.pendingInvites} classNames={classNames}>
-        <p className={classNames.hint}>{labels.noPendingInvitesYet}</p>
-        {pendingInvites.length > 0
-          ? pendingInvites.map((invite) => (
-              <div key={invite.id} className={classNames.row}>
-                <div>
-                  <div className={classNames.rowValue}>{invite.email}</div>
-                  <div className={classNames.hint}>{invite.sentLabel}</div>
-                </div>
-                <div className={classNames.actions}>
-                  <button
-                    type="button"
-                    className={`${classNames.btn} ${classNames.btnSmall}`}
-                    disabled
-                  >
-                    {labels.resend}
-                  </button>
-                  <button
-                    type="button"
-                    className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
-                    disabled
-                  >
-                    {labels.cancel}
-                  </button>
-                </div>
-              </div>
-            ))
-          : null}
-      </ZenformedSettingsGroup>
+      <OrganizationTeamMembersGroup
+        members={members}
+        plan={plan}
+        labels={labels}
+        classNames={classNames}
+        isLoading={workspaceLoading}
+        seatsConnected={seatsConnected}
+        inviteDisabled={workspace?.inviteActionsDisabled ?? true}
+      />
+
+      <OrganizationPendingInvitesGroup
+        invites={pendingInvites}
+        labels={labels}
+        classNames={classNames}
+        actionsDisabled={workspace?.inviteActionsDisabled ?? true}
+      />
     </>
   );
 }

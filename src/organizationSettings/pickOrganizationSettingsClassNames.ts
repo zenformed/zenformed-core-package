@@ -51,6 +51,9 @@ export function pickOrganizationSettingsClassNames(
     'saveStatusSuccess',
     'saveStatusError',
     'saveStatusMuted',
+    'timezoneList',
+    'timezoneOption',
+    'industrySelect',
   ];
 
   const out: Record<string, string> = {};

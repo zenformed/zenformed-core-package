@@ -43,7 +43,7 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   buy: 'Buy',
   upgrade: 'Upgrade',
   mockDataNote:
-    'Account and notification preferences are saved to your profile. Organization team, seats, and billing sections below are not connected yet.',
+    'Account, notification preferences, and organization profile (name, logo, industry, timezone) are saved to your organization. Team, seats, invites, and billing below are not connected yet.',
   organizationPlaceholderNote:
     'Preview only — team, seats, invites, and app access are not connected to your organization yet.',
   billingPlaceholderNote:
@@ -61,4 +61,12 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   saveFailed: 'Could not save. Try again.',
   unsavedChanges: 'Unsaved changes',
   loadingSettings: 'Loading your settings…',
+  uploadLogo: 'Upload logo',
+  uploadingLogo: 'Uploading…',
+  saveOrganizationProfile: 'Save organization profile',
+  industryCnc: 'CNC / Manufacturing',
+  industryHvac: 'HVAC',
+  industryPlumbing: 'Plumbing',
+  industryNone: 'Not set',
+  timezoneSearchPlaceholder: 'Search timezones…',
 };

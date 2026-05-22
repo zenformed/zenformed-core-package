@@ -1,3 +1,6 @@
+import type { ChangeEvent, RefObject } from 'react';
+import type { SettingsSaveStatus } from './userSettingsTypes';
+
 export type OrganizationSettingsMemberRole = 'admin' | 'member' | 'lead';
 
 export type OrganizationSettingsMember = {
@@ -114,6 +117,9 @@ export type OrganizationSettingsClassNames = {
   readonly saveStatusSuccess: string;
   readonly saveStatusError: string;
   readonly saveStatusMuted: string;
+  readonly timezoneList: string;
+  readonly timezoneOption: string;
+  readonly industrySelect: string;
 };
 
 export type OrganizationSettingsDrawerClassNames = {
@@ -183,6 +189,39 @@ export type OrganizationSettingsLabels = {
   readonly noAppAccessYet: string;
   readonly seatsNotConnected: string;
   readonly planNotConnected: string;
+  readonly uploadLogo: string;
+  readonly uploadingLogo: string;
+  readonly saveOrganizationProfile: string;
+  readonly industryCnc: string;
+  readonly industryHvac: string;
+  readonly industryPlumbing: string;
+  readonly industryNone: string;
+  readonly timezoneSearchPlaceholder: string;
+};
+
+export type OrganizationBrandingProfileDto = {
+  readonly shopName: string;
+  readonly hasLogo: boolean;
+  readonly industry: string | null;
+  readonly timezone: string | null;
+  readonly logoUrl?: string | null;
+};
+
+export type OrganizationSettingsBrandingPersistence = {
+  readonly isLoading?: boolean;
+  readonly loadError?: string | null;
+  readonly hasLiveData?: boolean;
+  readonly profileSaveStatus?: SettingsSaveStatus;
+  readonly saveErrorMessage?: string | null;
+  readonly logoUploading?: boolean;
+  readonly onSaveOrganizationProfile?: (payload: {
+    companyName: string;
+    industry: string | null;
+    timezone: string | null;
+  }) => Promise<boolean>;
+  readonly onUploadLogoClick?: () => void;
+  readonly logoInputRef?: RefObject<HTMLInputElement>;
+  readonly onLogoFileChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
 export type { OrganizationSettingsPersistence, SettingsSaveStatus, ZenformedUserSettingsDto } from './userSettingsTypes';

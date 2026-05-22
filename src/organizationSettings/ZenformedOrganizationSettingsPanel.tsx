@@ -63,6 +63,7 @@ export function ZenformedOrganizationSettingsPanel({
             viewModel={viewModel}
             labels={labels}
             classNames={panelClassNames}
+            branding={persistence?.branding}
           />
         </ZenformedSettingsAccordionSection>
 

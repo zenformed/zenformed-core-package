@@ -15,8 +15,20 @@ export type {
 } from './organizationSettingsReadModels';
 export { DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL } from './defaultViewModel';
 export { DEFAULT_ORGANIZATION_SETTINGS_LABELS } from './defaultLabels';
-export { mergeOrganizationSettingsViewModel, userSettingsToViewModelOverrides } from './mergeViewModel';
+export {
+  brandingProfileToViewModelOverrides,
+  mergeOrganizationSettingsViewModel,
+  mergeViewModelOverrides,
+  userSettingsToViewModelOverrides,
+} from './mergeViewModel';
 export { useZenformedUserSettings } from './useZenformedUserSettings';
+export { useZenformedOrganizationBranding } from './useZenformedOrganizationBranding';
+export type {
+  UseZenformedOrganizationBrandingOptions,
+  UseZenformedOrganizationBrandingResult,
+} from './useZenformedOrganizationBranding';
+export { ZenformedTimezoneSelect } from './components/ZenformedTimezoneSelect';
+export { listIanaTimezones, resolveDefaultTimezone, formatTimezoneLabel } from './timezoneData';
 export type {
   UseZenformedUserSettingsOptions,
   UseZenformedUserSettingsResult,
@@ -42,4 +54,6 @@ export type {
   OrganizationSettingsProfile,
   OrganizationSettingsShellContext,
   OrganizationSettingsViewModel,
+  OrganizationBrandingProfileDto,
+  OrganizationSettingsBrandingPersistence,
 } from './types';

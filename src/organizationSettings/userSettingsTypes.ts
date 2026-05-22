@@ -1,3 +1,5 @@
+import type { OrganizationSettingsBrandingPersistence } from './types';
+
 /** Wire shape for ZenformedCore `GET|PATCH /users/me/settings`. */
 export type ZenformedUserSettingsDto = {
   readonly email: string | null;
@@ -31,4 +33,5 @@ export type OrganizationSettingsPersistence = {
     marketingEmailOptIn: boolean;
     smsOptIn: boolean;
   }) => Promise<boolean>;
+  readonly branding?: OrganizationSettingsBrandingPersistence;
 };

@@ -394,6 +394,37 @@
   font-style: italic;
 }
 
+.timezoneList {
+  margin: 0.25rem 0 0;
+  padding: 0.25rem 0;
+  max-height: 12rem;
+  overflow: auto;
+  list-style: none;
+  border-radius: 6px;
+  background: var(--zf-surface-raised, #1a1f28);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.timezoneOption {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.65rem;
+  border: none;
+  background: transparent;
+  color: var(--zf-text-primary, #e8eaed);
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.timezoneOption:hover {
+  background: var(--zf-surface-hover, #252b36);
+}
+
+.industrySelect {
+  width: 100%;
+}
+
 @media (prefers-color-scheme: light) {
   .input,
   .select,

@@ -1,9 +1,24 @@
 import { DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL } from './defaultViewModel';
+import { resolveDefaultTimezone } from './timezoneData';
 import type {
+  OrganizationBrandingProfileDto,
   OrganizationSettingsShellContext,
   OrganizationSettingsViewModel,
   ZenformedUserSettingsDto,
 } from './types';
+
+export function brandingProfileToViewModelOverrides(
+  profile: OrganizationBrandingProfileDto
+): Partial<OrganizationSettingsViewModel> {
+  return {
+    organization: {
+      companyName: profile.shopName,
+      industry: profile.industry ?? '',
+      timezone: resolveDefaultTimezone(profile.timezone),
+      logoUrl: profile.logoUrl ?? null,
+    },
+  };
+}
 
 export function userSettingsToViewModelOverrides(
   settings: ZenformedUserSettingsDto
@@ -19,6 +34,44 @@ export function userSettingsToViewModelOverrides(
       smsOptIn: settings.smsOptIn,
     },
   };
+}
+
+export function mergeViewModelOverrides(
+  ...parts: (Partial<OrganizationSettingsViewModel> | undefined | null)[]
+): Partial<OrganizationSettingsViewModel> | undefined {
+  let result: Partial<OrganizationSettingsViewModel> = {};
+  for (const part of parts) {
+    if (part == null) continue;
+    result = {
+      ...result,
+      ...part,
+      ...(part.organization != null
+        ? {
+            organization: {
+              ...(result.organization ?? {}),
+              ...part.organization,
+            } as OrganizationSettingsViewModel['organization'],
+          }
+        : {}),
+      ...(part.account != null
+        ? {
+            account: {
+              ...(result.account ?? {}),
+              ...part.account,
+            } as OrganizationSettingsViewModel['account'],
+          }
+        : {}),
+      ...(part.notifications != null
+        ? {
+            notifications: {
+              ...(result.notifications ?? {}),
+              ...part.notifications,
+            } as OrganizationSettingsViewModel['notifications'],
+          }
+        : {}),
+    };
+  }
+  return Object.keys(result).length > 0 ? result : undefined;
 }
 
 export function mergeOrganizationSettingsViewModel(

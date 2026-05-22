@@ -23,8 +23,8 @@ export const DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL: OrganizationSettingsViewM
     email: '',
   },
   notifications: {
-    marketingEmailOptIn: false,
-    smsOptIn: false,
+    marketingEmailOptIn: true,
+    smsOptIn: true,
   },
   billingApps: [],
 };

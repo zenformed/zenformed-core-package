@@ -175,6 +175,14 @@ export type OrganizationSettingsLabels = {
   readonly saveFailed: string;
   readonly unsavedChanges: string;
   readonly loadingSettings: string;
+  readonly organizationPlaceholderNote: string;
+  readonly billingPlaceholderNote: string;
+  readonly passwordChangeComingSoon: string;
+  readonly noTeamMembersYet: string;
+  readonly noPendingInvitesYet: string;
+  readonly noAppAccessYet: string;
+  readonly seatsNotConnected: string;
+  readonly planNotConnected: string;
 };
 
 export type { OrganizationSettingsPersistence, SettingsSaveStatus, ZenformedUserSettingsDto } from './userSettingsTypes';

@@ -24,6 +24,8 @@ export type ZenformedOrganizationSettingsPanelProps = {
   readonly persistence?: OrganizationSettingsPersistence | null;
   readonly labels?: Partial<OrganizationSettingsLabels>;
   readonly showMockNote?: boolean;
+  /** Remount password fields when the drawer opens (pass `open` from drawer). */
+  readonly passwordFormKey?: string;
 };
 
 export function ZenformedOrganizationSettingsPanel({
@@ -32,10 +34,11 @@ export function ZenformedOrganizationSettingsPanel({
   persistence,
   labels: labelOverrides,
   showMockNote = true,
+  passwordFormKey,
 }: ZenformedOrganizationSettingsPanelProps) {
   const labels = { ...DEFAULT_ORGANIZATION_SETTINGS_LABELS, ...labelOverrides };
   const viewModel = mergeOrganizationSettingsViewModel(shellContext, viewModelOverrides);
-  const showOrgMockNote = showMockNote && !persistence?.hasLiveData;
+  const showTopNote = showMockNote;
 
   return (
     <div className={panelClassNames.panel}>
@@ -47,7 +50,7 @@ export function ZenformedOrganizationSettingsPanel({
           {persistence.loadError}
         </p>
       ) : null}
-      {showOrgMockNote ? (
+      {showTopNote ? (
         <p className={panelClassNames.placeholderNote}>{labels.mockDataNote}</p>
       ) : null}
       <div className={panelClassNames.accordion}>
@@ -73,6 +76,7 @@ export function ZenformedOrganizationSettingsPanel({
             labels={labels}
             classNames={panelClassNames}
             persistence={persistence}
+            passwordFormKey={passwordFormKey}
           />
         </ZenformedSettingsAccordionSection>
 

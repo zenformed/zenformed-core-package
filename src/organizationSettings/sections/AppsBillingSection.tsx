@@ -1,5 +1,6 @@
 'use client';
 
+import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import type {
   OrganizationSettingsClassNames,
@@ -15,38 +16,55 @@ type Props = {
 
 export function AppsBillingSection({ viewModel, labels, classNames }: Props) {
   const { plan, billingApps } = viewModel;
+  const planConnected = plan.seatsTotal > 0 && plan.planName !== '—';
 
   return (
     <>
+      <PlaceholderSectionNote message={labels.billingPlaceholderNote} classNames={classNames} />
+
       <ZenformedSettingsGroup title={labels.organizationPlan} classNames={classNames}>
-        <div className={classNames.row}>
-          <span className={classNames.rowLabel}>Plan</span>
-          <span className={classNames.rowValue}>{plan.planName}</span>
-        </div>
-        <div className={classNames.row}>
-          <span className={classNames.rowLabel}>{labels.seatsUsed}</span>
-          <span className={classNames.rowValue}>
-            {plan.seatsUsed} / {plan.seatsTotal}
-          </span>
-        </div>
-        <div className={classNames.row}>
-          <span className={classNames.rowLabel}>Status</span>
-          <span className={`${classNames.badge} ${classNames.badgeSuccess}`}>
-            {plan.statusLabel}
-          </span>
-        </div>
+        {planConnected ? (
+          <>
+            <div className={classNames.row}>
+              <span className={classNames.rowLabel}>Plan</span>
+              <span className={classNames.rowValue}>{plan.planName}</span>
+            </div>
+            <div className={classNames.row}>
+              <span className={classNames.rowLabel}>{labels.seatsUsed}</span>
+              <span className={classNames.rowValue}>
+                {plan.seatsUsed} / {plan.seatsTotal}
+              </span>
+            </div>
+            <div className={classNames.row}>
+              <span className={classNames.rowLabel}>Status</span>
+              <span className={`${classNames.badge} ${classNames.badgeSuccess}`}>
+                {plan.statusLabel}
+              </span>
+            </div>
+          </>
+        ) : (
+          <p className={classNames.hint}>{labels.planNotConnected}</p>
+        )}
       </ZenformedSettingsGroup>
 
       <ZenformedSettingsGroup title={labels.apps} classNames={classNames}>
-        {billingApps.map((app) => (
-          <div key={app.id} className={classNames.row}>
-            <span className={classNames.rowLabel}>{app.name}</span>
-            <span className={classNames.rowValue}>{app.planLabel}</span>
-            <button type="button" className={`${classNames.btn} ${classNames.btnSmall}`} disabled>
-              {app.actionLabel}
-            </button>
-          </div>
-        ))}
+        {billingApps.length === 0 ? (
+          <p className={classNames.hint}>{labels.noAppAccessYet}</p>
+        ) : (
+          billingApps.map((app) => (
+            <div key={app.id} className={classNames.row}>
+              <span className={classNames.rowLabel}>{app.name}</span>
+              <span className={classNames.rowValue}>{app.planLabel}</span>
+              <button
+                type="button"
+                className={`${classNames.btn} ${classNames.btnSmall}`}
+                disabled
+              >
+                {app.actionLabel}
+              </button>
+            </div>
+          ))
+        )}
       </ZenformedSettingsGroup>
 
       <ZenformedSettingsGroup title={labels.billingActions} classNames={classNames}>

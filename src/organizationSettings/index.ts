@@ -5,6 +5,14 @@ export type { ZenformedOrganizationSettingsPanelProps } from './ZenformedOrganiz
 export { ZenformedSettingsAccordionSection } from './components/ZenformedSettingsAccordionSection';
 export { ZenformedSettingsGroup } from './components/ZenformedSettingsGroup';
 export { ZenformedSettingsField } from './components/ZenformedSettingsField';
+export { AccountPasswordGroup } from './components/AccountPasswordGroup';
+export type {
+  OrganizationAppAccessReadModel,
+  OrganizationMemberReadModel,
+  OrganizationPendingInviteReadModel,
+  OrganizationSeatUsageReadModel,
+  OrganizationWorkspaceSettingsReadModel,
+} from './organizationSettingsReadModels';
 export { DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL } from './defaultViewModel';
 export { DEFAULT_ORGANIZATION_SETTINGS_LABELS } from './defaultLabels';
 export { mergeOrganizationSettingsViewModel, userSettingsToViewModelOverrides } from './mergeViewModel';

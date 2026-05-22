@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import type {
@@ -27,6 +28,7 @@ export function OrganizationSection({ viewModel, labels, classNames }: Props) {
   const [industry, setIndustry] = useState(organization.industry);
   const [timezone, setTimezone] = useState(organization.timezone);
   const initial = companyName.trim().charAt(0).toUpperCase() || 'O';
+  const seatsConnected = plan.seatsTotal > 0;
 
   return (
     <>
@@ -68,77 +70,104 @@ export function OrganizationSection({ viewModel, labels, classNames }: Props) {
       </ZenformedSettingsGroup>
 
       <ZenformedSettingsGroup title={labels.teamMembers} classNames={classNames}>
-        <p className={classNames.seatsSummary}>
-          {labels.seatsUsed}: {plan.seatsUsed} / {plan.seatsTotal}
-        </p>
+        <PlaceholderSectionNote
+          message={labels.organizationPlaceholderNote}
+          classNames={classNames}
+        />
+        {seatsConnected ? (
+          <p className={classNames.seatsSummary}>
+            {labels.seatsUsed}: {plan.seatsUsed} / {plan.seatsTotal}
+          </p>
+        ) : (
+          <p className={classNames.hint}>{labels.seatsNotConnected}</p>
+        )}
         <div className={classNames.actions}>
           <button type="button" className={`${classNames.btn} ${classNames.btnPrimary}`} disabled>
             {labels.inviteMember}
           </button>
         </div>
-        <ul className={classNames.memberList}>
-          {members.map((member) => (
-            <li key={member.id} className={classNames.memberRow}>
-              <span className={classNames.memberName}>{member.name}</span>
-              <select
-                className={`${classNames.select} ${classNames.memberRoleSelect}`}
-                defaultValue={member.role}
-                disabled
-                aria-label={`Role for ${member.name}`}
-              >
-                {ROLE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </li>
-          ))}
-        </ul>
-      </ZenformedSettingsGroup>
-
-      <ZenformedSettingsGroup title={labels.pendingInvites} classNames={classNames}>
-        {pendingInvites.length === 0 ? (
-          <p className={classNames.hint}>No pending invites.</p>
+        {members.length === 0 ? (
+          <p className={classNames.hint}>{labels.noTeamMembersYet}</p>
         ) : (
-          pendingInvites.map((invite) => (
-            <div key={invite.id} className={classNames.row}>
-              <div>
-                <div className={classNames.rowValue}>{invite.email}</div>
-                <div className={classNames.hint}>{invite.sentLabel}</div>
-              </div>
-              <div className={classNames.actions}>
-                <button type="button" className={`${classNames.btn} ${classNames.btnSmall}`} disabled>
-                  {labels.resend}
-                </button>
-                <button type="button" className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`} disabled>
-                  {labels.cancel}
-                </button>
-              </div>
-            </div>
-          ))
+          <ul className={classNames.memberList}>
+            {members.map((member) => (
+              <li key={member.id} className={classNames.memberRow}>
+                <span className={classNames.memberName}>{member.name}</span>
+                <select
+                  className={`${classNames.select} ${classNames.memberRoleSelect}`}
+                  defaultValue={member.role}
+                  disabled
+                  aria-label={`Role for ${member.name}`}
+                >
+                  {ROLE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </li>
+            ))}
+          </ul>
         )}
       </ZenformedSettingsGroup>
 
+      <ZenformedSettingsGroup title={labels.pendingInvites} classNames={classNames}>
+        <p className={classNames.hint}>{labels.noPendingInvitesYet}</p>
+        {pendingInvites.length > 0
+          ? pendingInvites.map((invite) => (
+              <div key={invite.id} className={classNames.row}>
+                <div>
+                  <div className={classNames.rowValue}>{invite.email}</div>
+                  <div className={classNames.hint}>{invite.sentLabel}</div>
+                </div>
+                <div className={classNames.actions}>
+                  <button
+                    type="button"
+                    className={`${classNames.btn} ${classNames.btnSmall}`}
+                    disabled
+                  >
+                    {labels.resend}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
+                    disabled
+                  >
+                    {labels.cancel}
+                  </button>
+                </div>
+              </div>
+            ))
+          : null}
+      </ZenformedSettingsGroup>
+
       <ZenformedSettingsGroup title={labels.appAccess} classNames={classNames}>
-        {appAccess.map((app) => (
-          <div key={app.id} className={classNames.row}>
-            <span className={classNames.rowLabel}>{app.name}</span>
-            <span className={classNames.rowValue}>
-              {app.planLabel}{' '}
-              <span
-                className={
-                  app.isActive ? classNames.badgeSuccess : classNames.badgeMuted
-                }
-              >
-                {app.statusLabel}
+        {appAccess.length === 0 ? (
+          <p className={classNames.hint}>{labels.noAppAccessYet}</p>
+        ) : (
+          appAccess.map((app) => (
+            <div key={app.id} className={classNames.row}>
+              <span className={classNames.rowLabel}>{app.name}</span>
+              <span className={classNames.rowValue}>
+                {app.planLabel}{' '}
+                <span
+                  className={
+                    app.isActive ? classNames.badgeSuccess : classNames.badgeMuted
+                  }
+                >
+                  {app.statusLabel}
+                </span>
               </span>
-            </span>
-            <button type="button" className={`${classNames.btn} ${classNames.btnSmall}`} disabled>
-              {app.actionLabel}
-            </button>
-          </div>
-        ))}
+              <button
+                type="button"
+                className={`${classNames.btn} ${classNames.btnSmall}`}
+                disabled
+              >
+                {app.actionLabel}
+              </button>
+            </div>
+          ))
+        )}
       </ZenformedSettingsGroup>
     </>
   );

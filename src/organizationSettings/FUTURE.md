@@ -1,44 +1,63 @@
 # Organization Settings — future data & APIs
 
-This module is UI-first. The following are expected platform migrations and APIs.
+## Implemented
 
-## User / account profile
+### User / account profile
 
-- Implemented: `first_name`, `last_name`, `marketing_email_opt_in`, `sms_opt_in` on `profiles`
-- Implemented: ZenformedCore `GET|PATCH /users/me/settings` + app BFF `/api/internal/users-me-settings`
-- Password change via auth provider API (not in settings drawer yet)
+- `first_name`, `last_name`, `marketing_email_opt_in`, `sms_opt_in` on `profiles`
+- ZenformedCore `GET|PATCH /users/me/settings` + app BFF `/api/internal/users-me-settings`
+- Shared UI: Account profile + Notification preferences with save states
 
-## Organization
+### Password
 
-- `organizations` profile: name, logo, industry, timezone
-- Organization branding sync with existing shop/tenant branding hooks
+- Settings drawer shows empty password fields only (no API hydration)
+- Real password change via auth provider / existing onboarding screens (TODO)
 
-## Membership & invites
+## Next backend milestone (read models)
 
-- `organization_members` (user_id, org_id, role)
-- `organization_invites` (email, status, sent_at, invited_by)
-- Seat counts from subscription / entitlement service
-- Invite send/resend/cancel APIs (no email infra in first pass)
+See `organizationSettingsReadModels.ts` for TypeScript contracts.
 
-## App entitlements
+### 1. Organization members
 
-- `organization_app_entitlements` (app_id, plan, status)
-- Per-app upgrade/buy flows via billing provider
+- Table: `organization_members` (org_id, user_id, role)
+- Core: `GET /users/me/organization/members` (list for resolved org)
+- UI: replace empty Team Members list
 
-## Billing
+### 2. Seat limit / seats used
 
-- Stripe (or provider) customer portal, invoices
-- Plan tier, seat limits, subscription status
+- Source: subscription or `organization_entitlements` seat cap
+- Core: include in `GET /users/me/organization/workspace` or billing snapshot
+- UI: real `Seats used: N / M` in Team Members
+
+### 3. App access / entitlements
+
+- Table: `organization_app_entitlements` or platform mirror + `platform_apps`
+- Core: `GET /users/me/organization/apps`
+- UI: App Access + Apps & Billing rows from entitlements (not demo rows)
+
+### 4. Pending invites
+
+- Table: `organization_invites` (email, status, sent_at, invited_by)
+- Core: `GET/POST/DELETE /users/me/organization/invites` (no email send in first pass)
+- UI: invite list, resend/cancel when APIs exist
+
+### Suggested aggregated endpoint
+
+`GET /users/me/organization/workspace` → `OrganizationWorkspaceSettingsReadModel`:
+
+- `members`, `seatUsage`, `appAccess`, `pendingInvites`
+
+### Not in next pass
+
+- Invite email delivery
+- Stripe billing portal
+- Full role/permission matrix
+
+## Organization profile (partial today)
+
+- Name/logo may come from branding hooks in apps
+- Industry/timezone org fields: align with `PATCH /users/me/organization/branding` or org settings API
 
 ## Permissions (later)
 
-- Org roles vs app-level roles
-- Audit logs, API keys, integrations, SSO, device management
-
-## Suggested API surface (illustrative)
-
-- `GET/PATCH /api/organization/settings`
-- `GET/PATCH /api/account/profile`
-- `GET/PATCH /api/account/notification-preferences`
-- `GET/POST/DELETE /api/organization/members`, `/invites`
-- `GET /api/organization/apps`, `/billing`
+- Org roles vs app-level roles, audit logs, API keys, SSO, device management

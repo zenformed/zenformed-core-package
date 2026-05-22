@@ -64,7 +64,10 @@ export function ZenformedOrganizationSettingsDrawer({
           </button>
         </header>
         <div className={classNames.settingsContent}>
-          <ZenformedOrganizationSettingsPanel {...panelProps} />
+          <ZenformedOrganizationSettingsPanel
+            {...panelProps}
+            passwordFormKey={open ? 'open' : 'closed'}
+          />
         </div>
       </aside>
     </div>

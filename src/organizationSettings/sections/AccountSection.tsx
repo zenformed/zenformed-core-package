@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { AccountPasswordGroup } from '../components/AccountPasswordGroup';
 import { SettingsSaveStatusLine } from '../components/SettingsSaveStatusLine';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
@@ -16,15 +17,19 @@ type Props = {
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
   readonly persistence?: OrganizationSettingsPersistence | null;
+  readonly passwordFormKey?: string;
 };
 
-export function AccountSection({ viewModel, labels, classNames, persistence }: Props) {
+export function AccountSection({
+  viewModel,
+  labels,
+  classNames,
+  persistence,
+  passwordFormKey,
+}: Props) {
   const { account } = viewModel;
   const [firstName, setFirstName] = useState(account.firstName);
   const [lastName, setLastName] = useState(account.lastName);
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     setFirstName(account.firstName);
@@ -50,6 +55,7 @@ export function AccountSection({ viewModel, labels, classNames, persistence }: P
           classNames={classNames}
           value={firstName}
           placeholder="—"
+          autoComplete="given-name"
           onChange={setFirstName}
           readOnly={savingAccount || persistence?.isLoading}
         />
@@ -58,6 +64,7 @@ export function AccountSection({ viewModel, labels, classNames, persistence }: P
           classNames={classNames}
           value={lastName}
           placeholder="—"
+          autoComplete="family-name"
           onChange={setLastName}
           readOnly={savingAccount || persistence?.isLoading}
         />
@@ -66,6 +73,7 @@ export function AccountSection({ viewModel, labels, classNames, persistence }: P
           classNames={classNames}
           value={account.email}
           placeholder="—"
+          autoComplete="email"
           readOnly
         />
         <SettingsSaveStatusLine
@@ -89,34 +97,11 @@ export function AccountSection({ viewModel, labels, classNames, persistence }: P
         </div>
       </ZenformedSettingsGroup>
 
-      <ZenformedSettingsGroup title={labels.password} classNames={classNames}>
-        <ZenformedSettingsField
-          label={labels.oldPassword}
-          classNames={classNames}
-          type="password"
-          value={oldPassword}
-          onChange={setOldPassword}
-        />
-        <ZenformedSettingsField
-          label={labels.newPassword}
-          classNames={classNames}
-          type="password"
-          value={newPassword}
-          onChange={setNewPassword}
-        />
-        <ZenformedSettingsField
-          label={labels.confirmPassword}
-          classNames={classNames}
-          type="password"
-          value={confirmPassword}
-          onChange={setConfirmPassword}
-        />
-        <div className={classNames.actions}>
-          <button type="button" className={`${classNames.btn} ${classNames.btnPrimary}`} disabled>
-            {labels.savePassword}
-          </button>
-        </div>
-      </ZenformedSettingsGroup>
+      <AccountPasswordGroup
+        labels={labels}
+        classNames={classNames}
+        formKey={passwordFormKey}
+      />
     </>
   );
 }

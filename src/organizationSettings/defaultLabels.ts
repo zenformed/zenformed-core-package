@@ -43,7 +43,18 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   buy: 'Buy',
   upgrade: 'Upgrade',
   mockDataNote:
-    'Some fields use sample data until organization membership, invites, and billing APIs are connected.',
+    'Account and notification preferences are saved to your profile. Organization team, seats, and billing sections below are not connected yet.',
+  organizationPlaceholderNote:
+    'Preview only — team, seats, invites, and app access are not connected to your organization yet.',
+  billingPlaceholderNote:
+    'Preview only — plan, apps, and billing actions are not connected to a subscription yet.',
+  passwordChangeComingSoon:
+    'Password changes are not available here yet. Use your sign-in flow when password reset is enabled.',
+  noTeamMembersYet: 'No team members to show. Member list will appear when organization membership is connected.',
+  noPendingInvitesYet: 'No pending invites.',
+  noAppAccessYet: 'No app entitlements to show yet.',
+  seatsNotConnected: 'Seat usage will appear when team and subscription management are connected.',
+  planNotConnected: 'Organization plan details are not connected yet.',
   save: 'Save',
   saving: 'Saving…',
   saved: 'Saved',

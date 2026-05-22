@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { resolveNotificationOptIn } from './notificationPreferences';
 import type {
   SettingsSaveStatus,
   ZenformedUserSettingsDto,
@@ -25,14 +26,18 @@ function parseSettingsDto(raw: unknown): ZenformedUserSettingsDto | null {
   if (firstName != null && typeof firstName !== 'string') return null;
   const lastName = o.lastName;
   if (lastName != null && typeof lastName !== 'string') return null;
-  if (typeof o.marketingEmailOptIn !== 'boolean') return null;
-  if (typeof o.smsOptIn !== 'boolean') return null;
+  const marketingRaw = o.marketingEmailOptIn;
+  const smsRaw = o.smsOptIn;
+  if (marketingRaw != null && typeof marketingRaw !== 'boolean') return null;
+  if (smsRaw != null && typeof smsRaw !== 'boolean') return null;
   return {
     email: email ?? null,
     firstName: firstName ?? null,
     lastName: lastName ?? null,
-    marketingEmailOptIn: o.marketingEmailOptIn,
-    smsOptIn: o.smsOptIn,
+    marketingEmailOptIn: resolveNotificationOptIn(
+      marketingRaw === true || marketingRaw === false ? marketingRaw : null
+    ),
+    smsOptIn: resolveNotificationOptIn(smsRaw === true || smsRaw === false ? smsRaw : null),
   };
 }
 

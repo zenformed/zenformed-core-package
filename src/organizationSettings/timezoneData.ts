@@ -81,13 +81,20 @@ export function resolveDefaultTimezone(saved: string | null | undefined): string
   return DEFAULT_ORGANIZATION_TIMEZONE;
 }
 
+/** Max rows rendered in the dropdown (full list is still searchable). */
+export const TIMEZONE_DROPDOWN_MAX_VISIBLE = 120;
+
 export function filterTimezones(query: string, zones: readonly string[]): string[] {
   const q = query.trim().toLowerCase();
-  if (!q) return zones.slice(0, 80);
+  if (!q) {
+    return zones.length <= TIMEZONE_DROPDOWN_MAX_VISIBLE
+      ? zones.slice()
+      : zones.slice(0, TIMEZONE_DROPDOWN_MAX_VISIBLE);
+  }
   return zones
     .filter((z) => {
       const label = formatTimezoneLabel(z).toLowerCase();
       return z.toLowerCase().includes(q) || label.includes(q);
     })
-    .slice(0, 80);
+    .slice(0, TIMEZONE_DROPDOWN_MAX_VISIBLE);
 }

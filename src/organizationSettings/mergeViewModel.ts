@@ -1,4 +1,5 @@
 import { DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL } from './defaultViewModel';
+import { resolveNotificationOptIn } from './notificationPreferences';
 import { resolveDefaultTimezone } from './timezoneData';
 import type {
   OrganizationBrandingProfileDto,
@@ -30,8 +31,8 @@ export function userSettingsToViewModelOverrides(
       email: settings.email ?? '',
     },
     notifications: {
-      marketingEmailOptIn: settings.marketingEmailOptIn,
-      smsOptIn: settings.smsOptIn,
+      marketingEmailOptIn: resolveNotificationOptIn(settings.marketingEmailOptIn),
+      smsOptIn: resolveNotificationOptIn(settings.smsOptIn),
     },
   };
 }

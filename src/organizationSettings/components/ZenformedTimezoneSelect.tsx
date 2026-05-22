@@ -25,29 +25,29 @@ export function ZenformedTimezoneSelect({
   onChange,
 }: Props) {
   const listId = useId();
-  const [query, setQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const zones = useMemo(() => listIanaTimezones(), []);
   const displayValue = value.trim() || resolveDefaultTimezone(null);
-
-  useEffect(() => {
-    setQuery(formatTimezoneLabel(displayValue));
-  }, [displayValue]);
+  const selectedLabel = formatTimezoneLabel(displayValue);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (containerRef.current?.contains(e.target as Node)) return;
       setOpen(false);
+      setSearchQuery('');
     };
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
   }, []);
 
   const options = useMemo(
-    () => filterTimezones(query, zones),
-    [query, zones]
+    () => filterTimezones(open ? searchQuery : '', zones),
+    [open, searchQuery, zones]
   );
+
+  const inputValue = open ? searchQuery : selectedLabel;
 
   return (
     <div className={classNames.field} ref={containerRef}>
@@ -61,39 +61,53 @@ export function ZenformedTimezoneSelect({
         role="combobox"
         aria-expanded={open}
         aria-autocomplete="list"
+        aria-controls={`${listId}-listbox`}
         disabled={disabled}
-        value={query}
-        onFocus={() => setOpen(true)}
+        value={inputValue}
+        placeholder={selectedLabel}
+        onFocus={() => {
+          setOpen(true);
+          setSearchQuery('');
+        }}
         onChange={(e) => {
-          setQuery(e.target.value);
+          setSearchQuery(e.target.value);
           setOpen(true);
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Escape') setOpen(false);
+          if (e.key === 'Escape') {
+            setOpen(false);
+            setSearchQuery('');
+          }
         }}
       />
       {open && !disabled ? (
         <ul
+          id={`${listId}-listbox`}
           className={classNames.timezoneList}
           role="listbox"
         >
-          {options.map((tz) => (
-            <li key={tz}>
-              <button
-                type="button"
-                className={classNames.timezoneOption}
-                role="option"
-                aria-selected={tz === displayValue}
-                onClick={() => {
-                  onChange(tz);
-                  setQuery(formatTimezoneLabel(tz));
-                  setOpen(false);
-                }}
-              >
-                {formatTimezoneLabel(tz)}
-              </button>
-            </li>
-          ))}
+          {options.length === 0 ? (
+            <li className={classNames.hint}>No matching timezones</li>
+          ) : (
+            options.map((tz) => (
+              <li key={tz}>
+                <button
+                  type="button"
+                  className={classNames.timezoneOption}
+                  role="option"
+                  aria-selected={tz === displayValue}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    onChange(tz);
+                    setSearchQuery('');
+                    setOpen(false);
+                  }}
+                >
+                  {formatTimezoneLabel(tz)}
+                </button>
+              </li>
+            ))
+          )}
         </ul>
       ) : null}
     </div>

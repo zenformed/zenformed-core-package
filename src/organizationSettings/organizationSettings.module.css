@@ -1,0 +1,384 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.section {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.65rem 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--zf-text-primary, #e8eaed);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sectionHeader:hover {
+  background: color-mix(in srgb, var(--zf-surface-hover, #252b36) 50%, transparent);
+  border-radius: 6px;
+}
+
+.sectionChevron {
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  opacity: 0.7;
+}
+
+.sectionOpen .sectionChevron {
+  transform: rotate(90deg);
+}
+
+.sectionBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.22s ease;
+}
+
+.sectionOpen .sectionBody {
+  grid-template-rows: 1fr;
+}
+
+.sectionBodyInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.sectionBodyContent {
+  padding: 0 0 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Nested collapsible groups (Organization Profile, Team Members, etc.) */
+.group {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  padding: 0.5rem 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--zf-text-primary, #e8eaed);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.groupHeader:hover {
+  background: color-mix(in srgb, var(--zf-surface-hover, #252b36) 45%, transparent);
+  border-radius: 6px;
+}
+
+.groupChevron {
+  display: inline-flex;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  opacity: 0.65;
+}
+
+.groupOpen .groupChevron {
+  transform: rotate(90deg);
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--zf-text-primary, #e8eaed);
+}
+
+.groupBody {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.22s ease;
+}
+
+.groupOpen .groupBody {
+  grid-template-rows: 1fr;
+}
+
+.groupBodyInner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.groupBodyContent {
+  padding: 0 0 0.5rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.35rem 0;
+}
+
+.rowLabel {
+  font-size: 0.875rem;
+  color: var(--zf-text-secondary, #c5cad4);
+}
+
+.rowValue {
+  font-size: 0.875rem;
+  color: var(--zf-text-primary, #e8eaed);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.fieldLabel {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--zf-text-secondary, #c5cad4);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--zf-input-bg, #12161d);
+  color: var(--zf-text-primary, #e8eaed);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--zf-accent, #5b8def) 55%, transparent);
+  outline-offset: 1px;
+}
+
+.textarea {
+  min-height: 4rem;
+  resize: vertical;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--zf-text-muted, #9aa3b2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--zf-surface-raised, #1a1f28);
+  color: var(--zf-text-primary, #e8eaed);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--zf-surface-hover, #252b36);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnPrimary {
+  background: color-mix(in srgb, var(--zf-accent, #5b8def) 22%, var(--zf-surface-raised, #1a1f28));
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--zf-accent, #5b8def) 32%, var(--zf-surface-raised, #1a1f28));
+}
+
+.btnGhost {
+  background: transparent;
+}
+
+.btnGhost:hover:not(:disabled) {
+  background: var(--zf-surface-hover, #252b36);
+}
+
+.btnSmall {
+  padding: 0.3rem 0.55rem;
+  font-size: 0.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badgeMuted {
+  background: color-mix(in srgb, var(--zf-text-muted, #9aa3b2) 18%, transparent);
+  color: var(--zf-text-secondary, #c5cad4);
+}
+
+.badgeSuccess {
+  background: color-mix(in srgb, #3d9a6a 25%, transparent);
+  color: #8fd4b0;
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.memberRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 0;
+  border: none;
+}
+
+.memberName {
+  font-size: 0.875rem;
+  color: var(--zf-text-primary, #e8eaed);
+}
+
+.memberRoleSelect {
+  min-width: 6.5rem;
+}
+
+.seatsSummary {
+  font-size: 0.8125rem;
+  color: var(--zf-text-muted, #9aa3b2);
+}
+
+.logoPreview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoInitial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--zf-accent, #5b8def) 25%, var(--zf-surface-raised, #1a1f28));
+  color: var(--zf-text-primary, #e8eaed);
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+}
+
+.logoInitial img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.checkboxRow {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  padding: 0.35rem 0;
+}
+
+.checkbox {
+  margin-top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  accent-color: var(--zf-accent, #5b8def);
+}
+
+.divider {
+  height: 0;
+  margin: 0.35rem 0;
+  border: none;
+  background: transparent;
+}
+
+.placeholderNote {
+  margin: 0 0 0.5rem;
+  padding: 0.65rem 0;
+  border: none;
+  border-radius: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--zf-text-muted, #9aa3b2);
+  background: transparent;
+}
+
+@media (prefers-color-scheme: light) {
+  .input,
+  .select,
+  .textarea {
+    background: var(--zf-input-bg, #f1f3f5);
+  }
+}

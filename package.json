@@ -18,6 +18,10 @@
     "./dashboard-shell": {
       "types": "./src/dashboardShell/index.ts",
       "default": "./src/dashboardShell/index.ts"
+    },
+    "./organization-settings": {
+      "types": "./src/organizationSettings/index.ts",
+      "default": "./src/organizationSettings/index.ts"
     }
   },
   "files": [

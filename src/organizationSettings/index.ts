@@ -1,3 +1,5 @@
+'use client';
+
 export { ZenformedOrganizationSettingsDrawer } from './ZenformedOrganizationSettingsDrawer';
 export type { ZenformedOrganizationSettingsDrawerProps } from './ZenformedOrganizationSettingsDrawer';
 export { ZenformedOrganizationSettingsPanel } from './ZenformedOrganizationSettingsPanel';
@@ -21,15 +23,17 @@ export {
   mergeViewModelOverrides,
   userSettingsToViewModelOverrides,
 } from './mergeViewModel';
-export { useZenformedUserSettings } from './useZenformedUserSettings';
-export { useZenformedOrganizationBranding } from './useZenformedOrganizationBranding';
-export { useZenformedOrganizationWorkspace } from './useZenformedOrganizationWorkspace';
+export {
+  useZenformedUserSettings,
+  useZenformedOrganizationBranding,
+  useZenformedOrganizationWorkspace,
+} from './hooks';
 export { workspaceSnapshotToViewModelOverrides } from './organizationWorkspaceMappers';
 export type {
   OrganizationWorkspaceApiUrls,
   UseZenformedOrganizationWorkspaceOptions,
   UseZenformedOrganizationWorkspaceResult,
-} from './useZenformedOrganizationWorkspace';
+} from './hooks';
 export type {
   OrganizationSettingsWorkspacePersistence,
   OrganizationWorkspaceSnapshot,
@@ -39,7 +43,11 @@ export { OrganizationPendingInvitesGroup } from './components/OrganizationPendin
 export type {
   UseZenformedOrganizationBrandingOptions,
   UseZenformedOrganizationBrandingResult,
-} from './useZenformedOrganizationBranding';
+} from './hooks';
+export type {
+  UseZenformedUserSettingsOptions,
+  UseZenformedUserSettingsResult,
+} from './hooks';
 export { ZenformedTimezoneSelect } from './components/ZenformedTimezoneSelect';
 export {
   listIanaTimezones,
@@ -52,10 +60,6 @@ export {
   resolveNotificationOptIn,
   DEFAULT_NOTIFICATION_PREFS,
 } from './notificationPreferences';
-export type {
-  UseZenformedUserSettingsOptions,
-  UseZenformedUserSettingsResult,
-} from './useZenformedUserSettings';
 export type {
   OrganizationSettingsPersistence,
   SettingsSaveStatus,

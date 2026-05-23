@@ -1,6 +1,6 @@
 {
   "name": "@zenformed/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "description": "Zenformed platform types, entitlement/capability helpers, and shared dashboard shell UI. Main entry is browser-safe; `@zenformed/core/server` exports the capability resolver (`node:crypto`). `@zenformed/core/dashboard-shell` is client-only React.",
   "type": "module",
@@ -9,18 +9,22 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
+      "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
     "./server": {
       "types": "./src/server.ts",
+      "import": "./src/server.ts",
       "default": "./src/server.ts"
     },
     "./dashboard-shell": {
       "types": "./src/dashboardShell/index.ts",
+      "import": "./src/dashboardShell/index.ts",
       "default": "./src/dashboardShell/index.ts"
     },
     "./organization-settings": {
       "types": "./src/organizationSettings/index.ts",
+      "import": "./src/organizationSettings/index.ts",
       "default": "./src/organizationSettings/index.ts"
     }
   },

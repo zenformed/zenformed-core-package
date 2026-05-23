@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { OrganizationInlineInviteRow } from './OrganizationInlineInviteRow';
 import { ZenformedSettingsGroup } from './ZenformedSettingsGroup';
 import type {
   OrganizationSettingsClassNames,
@@ -7,6 +9,7 @@ import type {
   OrganizationSettingsMember,
   OrganizationSettingsPlan,
 } from '../types';
+import type { OrganizationInviteCreatePayload } from '../organizationWorkspaceTypes';
 
 const ROLE_OPTIONS = [
   { value: 'admin', label: 'Admin' },
@@ -22,6 +25,9 @@ type Props = {
   readonly isLoading?: boolean;
   readonly seatsConnected: boolean;
   readonly inviteDisabled?: boolean;
+  readonly isCreatingInvite?: boolean;
+  readonly inviteMutationError?: string | null;
+  readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
 };
 
 export function OrganizationTeamMembersGroup({
@@ -32,7 +38,13 @@ export function OrganizationTeamMembersGroup({
   isLoading,
   seatsConnected,
   inviteDisabled = true,
+  isCreatingInvite = false,
+  inviteMutationError,
+  onCreateInvite,
 }: Props) {
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const canInvite = Boolean(onCreateInvite) && !inviteDisabled;
+
   return (
     <ZenformedSettingsGroup title={labels.teamMembers} classNames={classNames}>
       {seatsConnected ? (
@@ -46,12 +58,26 @@ export function OrganizationTeamMembersGroup({
         <button
           type="button"
           className={`${classNames.btn} ${classNames.btnPrimary}`}
-          disabled={inviteDisabled || isLoading}
-          title={labels.inviteComingSoon}
+          disabled={!canInvite || isLoading || showInviteForm}
+          onClick={() => setShowInviteForm(true)}
         >
           {labels.inviteMember}
         </button>
       </div>
+      {showInviteForm && canInvite ? (
+        <OrganizationInlineInviteRow
+          labels={labels}
+          classNames={classNames}
+          isSubmitting={isCreatingInvite}
+          errorMessage={inviteMutationError}
+          onCancel={() => setShowInviteForm(false)}
+          onSubmit={async (payload) => {
+            const ok = await onCreateInvite?.(payload);
+            if (ok) setShowInviteForm(false);
+            return ok ?? false;
+          }}
+        />
+      ) : null}
       {members.length === 0 ? (
         <p className={classNames.hint}>{labels.noTeamMembersYet}</p>
       ) : (

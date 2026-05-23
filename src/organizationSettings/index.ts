@@ -40,6 +40,8 @@ export type {
 } from './organizationWorkspaceTypes';
 export { OrganizationTeamMembersGroup } from './components/OrganizationTeamMembersGroup';
 export { OrganizationPendingInvitesGroup } from './components/OrganizationPendingInvitesGroup';
+export { OrganizationInlineInviteRow } from './components/OrganizationInlineInviteRow';
+export type { OrganizationInviteCreatePayload } from './organizationWorkspaceTypes';
 export type {
   UseZenformedOrganizationBrandingOptions,
   UseZenformedOrganizationBrandingResult,

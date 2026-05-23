@@ -12,12 +12,22 @@ export type OrganizationWorkspaceMemberDto = {
 export type OrganizationWorkspaceInviteDto = {
   readonly id: string;
   readonly email: string;
-  readonly status: 'pending' | 'accepted' | 'revoked' | 'expired';
+  readonly firstName: string | null;
+  readonly lastName: string | null;
+  readonly displayName: string;
+  readonly status: 'pending' | 'accepted' | 'revoked' | 'expired' | 'canceled';
   readonly role: 'owner' | 'admin' | 'member';
   readonly invitedBy: string | null;
   readonly expiresAt: string | null;
   readonly createdAt: string;
   readonly sentLabel: string;
+};
+
+export type OrganizationInviteCreatePayload = {
+  readonly email: string;
+  readonly firstName?: string | null;
+  readonly lastName?: string | null;
+  readonly role?: 'admin' | 'member';
 };
 
 export type OrganizationWorkspaceSeatsDto = {
@@ -72,4 +82,9 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly hasLiveData?: boolean;
   readonly snapshot?: OrganizationWorkspaceSnapshot | null;
   readonly inviteActionsDisabled?: boolean;
+  readonly isCreatingInvite?: boolean;
+  readonly cancelingInviteId?: string | null;
+  readonly inviteMutationError?: string | null;
+  readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
+  readonly onCancelInvite?: (inviteId: string) => Promise<boolean>;
 };

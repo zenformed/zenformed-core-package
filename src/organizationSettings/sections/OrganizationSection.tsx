@@ -180,6 +180,9 @@ export function OrganizationSection({
         isLoading={workspaceLoading}
         seatsConnected={seatsConnected}
         inviteDisabled={workspace?.inviteActionsDisabled ?? true}
+        isCreatingInvite={workspace?.isCreatingInvite}
+        inviteMutationError={workspace?.inviteMutationError}
+        onCreateInvite={workspace?.onCreateInvite}
       />
 
       <OrganizationPendingInvitesGroup
@@ -187,6 +190,8 @@ export function OrganizationSection({
         labels={labels}
         classNames={classNames}
         actionsDisabled={workspace?.inviteActionsDisabled ?? true}
+        cancelingInviteId={workspace?.cancelingInviteId}
+        onCancelInvite={workspace?.onCancelInvite}
       />
     </>
   );

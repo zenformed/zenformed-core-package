@@ -43,12 +43,16 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   buy: 'Buy',
   upgrade: 'Upgrade',
   mockDataNote:
-    'Account, notification preferences, and organization profile are saved to your organization. Team, seats, and app access load from your workspace when connected. Invite email and billing actions are not available yet.',
+    'Account, notification preferences, and organization profile are saved to your organization. Team, seats, and app access load from your workspace when connected. Invites can be created and canceled here; invite email delivery is not available yet.',
   organizationPlaceholderNote:
     'Team and invite data will appear when your organization workspace is connected.',
   billingPlaceholderNote:
     'Billing actions are not connected yet. App access and plan details reflect organization entitlements when available.',
   inviteComingSoon: 'Invite email is not available yet',
+  sendInvite: 'Send Invite',
+  cancelInvite: 'Cancel Invite',
+  resendComingSoon: 'Resend is not available yet',
+  role: 'Role',
   passwordChangeComingSoon:
     'Password changes are not available here yet. Use your sign-in flow when password reset is enabled.',
   noTeamMembersYet: 'No team members to show. Member list will appear when organization membership is connected.',

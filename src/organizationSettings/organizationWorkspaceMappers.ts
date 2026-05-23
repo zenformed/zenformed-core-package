@@ -5,8 +5,22 @@ import type {
   OrganizationSettingsPlan,
   OrganizationSettingsViewModel,
 } from './types';
-import type { OrganizationWorkspaceSnapshot } from './organizationWorkspaceTypes';
+import type { OrganizationWorkspaceInviteDto, OrganizationWorkspaceSnapshot } from './organizationWorkspaceTypes';
 
+function inviteStatusLabel(status: OrganizationWorkspaceInviteDto['status']): string {
+  if (status === 'pending') return 'Pending';
+  if (status === 'expired') return 'Expired';
+  if (status === 'canceled') return 'Canceled';
+  if (status === 'revoked') return 'Revoked';
+  return status;
+}
+
+function formatExpiresLabel(expiresAt: string | null): string | null {
+  if (expiresAt == null) return null;
+  const exp = new Date(expiresAt);
+  if (Number.isNaN(exp.getTime())) return null;
+  return `Expires ${exp.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+}
 function mapMemberRole(
   role: 'owner' | 'admin' | 'member'
 ): OrganizationSettingsMember['role'] {
@@ -63,7 +77,10 @@ export function workspaceSnapshotToViewModelOverrides(
       ? snapshot.invites.map((inv) => ({
           id: inv.id,
           email: inv.email,
+          name: inv.displayName,
+          statusLabel: inviteStatusLabel(inv.status),
           sentLabel: inv.sentLabel,
+          expiresLabel: formatExpiresLabel(inv.expiresAt),
         }))
       : undefined;
 

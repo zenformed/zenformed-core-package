@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type {
+  OrganizationInviteCreatePayload,
   OrganizationWorkspaceAppAccessDto,
   OrganizationWorkspaceAppAccessEntryDto,
   OrganizationWorkspaceInviteDto,
@@ -116,15 +117,20 @@ function parseInvitesJson(json: unknown): OrganizationWorkspaceInviteDto[] | nul
       row.status !== 'pending' &&
       row.status !== 'accepted' &&
       row.status !== 'revoked' &&
-      row.status !== 'expired'
+      row.status !== 'expired' &&
+      row.status !== 'canceled'
     ) {
       return null;
     }
     if (typeof row.sentLabel !== 'string' || typeof row.createdAt !== 'string') return null;
+    if (typeof row.displayName !== 'string') return null;
     if (row.role !== 'owner' && row.role !== 'admin' && row.role !== 'member') return null;
     invites.push({
       id: row.id,
       email: row.email,
+      firstName: typeof row.firstName === 'string' ? row.firstName : null,
+      lastName: typeof row.lastName === 'string' ? row.lastName : null,
+      displayName: row.displayName,
       status: row.status,
       role: row.role,
       invitedBy: typeof row.invitedBy === 'string' ? row.invitedBy : null,
@@ -241,7 +247,21 @@ export type UseZenformedOrganizationWorkspaceResult = {
   readonly loadError: string | null;
   readonly hasLiveData: boolean;
   readonly refetch: () => Promise<void>;
+  readonly createInvite: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
+  readonly cancelInvite: (inviteId: string) => Promise<boolean>;
+  readonly isCreatingInvite: boolean;
+  readonly cancelingInviteId: string | null;
+  readonly inviteMutationError: string | null;
 };
+
+function readMutationError(json: unknown, fallback: string): string {
+  if (json != null && typeof json === 'object') {
+    const o = json as Record<string, unknown>;
+    if (typeof o.message === 'string' && o.message.trim()) return o.message;
+    if (typeof o.error === 'string' && o.error.trim()) return o.error;
+  }
+  return fallback;
+}
 
 export function useZenformedOrganizationWorkspace({
   apiUrls,
@@ -252,6 +272,9 @@ export function useZenformedOrganizationWorkspace({
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [hasLiveData, setHasLiveData] = useState(false);
+  const [isCreatingInvite, setIsCreatingInvite] = useState(false);
+  const [cancelingInviteId, setCancelingInviteId] = useState<string | null>(null);
+  const [inviteMutationError, setInviteMutationError] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     const token = getAccessToken()?.trim();
@@ -315,11 +338,95 @@ export function useZenformedOrganizationWorkspace({
     void fetchAll();
   }, [enabled, fetchAll]);
 
+  const createInvite = useCallback(
+    async (payload: OrganizationInviteCreatePayload): Promise<boolean> => {
+      const token = getAccessToken()?.trim();
+      if (!token) {
+        setInviteMutationError('Not signed in');
+        return false;
+      }
+      setIsCreatingInvite(true);
+      setInviteMutationError(null);
+      try {
+        const res = await fetch(apiUrls.invites, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch {
+          setInviteMutationError('Invalid response from server');
+          return false;
+        }
+        if (!res.ok) {
+          setInviteMutationError(readMutationError(json, 'Failed to create invite'));
+          return false;
+        }
+        await fetchAll();
+        return true;
+      } catch (e) {
+        setInviteMutationError(e instanceof Error ? e.message : 'Failed to create invite');
+        return false;
+      } finally {
+        setIsCreatingInvite(false);
+      }
+    },
+    [apiUrls.invites, fetchAll, getAccessToken]
+  );
+
+  const cancelInvite = useCallback(
+    async (inviteId: string): Promise<boolean> => {
+      const token = getAccessToken()?.trim();
+      if (!token) {
+        setInviteMutationError('Not signed in');
+        return false;
+      }
+      setCancelingInviteId(inviteId);
+      setInviteMutationError(null);
+      try {
+        const res = await fetch(`${apiUrls.invites}/${encodeURIComponent(inviteId)}/cancel`, {
+          method: 'PATCH',
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        });
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch {
+          setInviteMutationError('Invalid response from server');
+          return false;
+        }
+        if (!res.ok) {
+          setInviteMutationError(readMutationError(json, 'Failed to cancel invite'));
+          return false;
+        }
+        await fetchAll();
+        return true;
+      } catch (e) {
+        setInviteMutationError(e instanceof Error ? e.message : 'Failed to cancel invite');
+        return false;
+      } finally {
+        setCancelingInviteId(null);
+      }
+    },
+    [apiUrls.invites, fetchAll, getAccessToken]
+  );
+
   return {
     snapshot,
     isLoading,
     loadError,
     hasLiveData,
     refetch: fetchAll,
+    createInvite,
+    cancelInvite,
+    isCreatingInvite,
+    cancelingInviteId,
+    inviteMutationError,
   };
 }

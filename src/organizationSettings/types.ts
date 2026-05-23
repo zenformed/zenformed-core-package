@@ -12,7 +12,10 @@ export type OrganizationSettingsMember = {
 export type OrganizationSettingsPendingInvite = {
   readonly id: string;
   readonly email: string;
+  readonly name: string;
+  readonly statusLabel: string;
   readonly sentLabel: string;
+  readonly expiresLabel: string | null;
 };
 
 export type OrganizationSettingsAppAccess = {
@@ -198,6 +201,10 @@ export type OrganizationSettingsLabels = {
   readonly industryNone: string;
   readonly timezoneSearchPlaceholder: string;
   readonly inviteComingSoon: string;
+  readonly sendInvite: string;
+  readonly cancelInvite: string;
+  readonly resendComingSoon: string;
+  readonly role: string;
 };
 
 export type OrganizationBrandingProfileDto = {

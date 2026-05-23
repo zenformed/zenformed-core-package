@@ -182,6 +182,8 @@ export function OrganizationSection({
         inviteDisabled={workspace?.inviteActionsDisabled ?? true}
         isCreatingInvite={workspace?.isCreatingInvite}
         inviteMutationError={workspace?.inviteMutationError}
+        createdInviteAcceptUrl={workspace?.createdInviteAcceptUrl}
+        onDismissCreatedInviteLink={workspace?.onDismissCreatedInviteLink}
         onCreateInvite={workspace?.onCreateInvite}
       />
 

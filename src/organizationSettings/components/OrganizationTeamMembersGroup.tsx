@@ -27,6 +27,8 @@ type Props = {
   readonly inviteDisabled?: boolean;
   readonly isCreatingInvite?: boolean;
   readonly inviteMutationError?: string | null;
+  readonly createdInviteAcceptUrl?: string | null;
+  readonly onDismissCreatedInviteLink?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
 };
 
@@ -40,10 +42,23 @@ export function OrganizationTeamMembersGroup({
   inviteDisabled = true,
   isCreatingInvite = false,
   inviteMutationError,
+  createdInviteAcceptUrl,
+  onDismissCreatedInviteLink,
   onCreateInvite,
 }: Props) {
   const [showInviteForm, setShowInviteForm] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
   const canInvite = Boolean(onCreateInvite) && !inviteDisabled;
+
+  async function handleCopyInviteLink(): Promise<void> {
+    if (createdInviteAcceptUrl == null) return;
+    try {
+      await navigator.clipboard.writeText(createdInviteAcceptUrl);
+      setCopyStatus('copied');
+    } catch {
+      setCopyStatus('failed');
+    }
+  }
 
   return (
     <ZenformedSettingsGroup title={labels.teamMembers} classNames={classNames}>
@@ -64,6 +79,33 @@ export function OrganizationTeamMembersGroup({
           {labels.inviteMember}
         </button>
       </div>
+      {createdInviteAcceptUrl ? (
+        <div className={classNames.row}>
+          <p className={classNames.hint}>{labels.inviteLinkCopyHint}</p>
+          <div className={classNames.actions}>
+            <button
+              type="button"
+              className={`${classNames.btn} ${classNames.btnPrimary}`}
+              onClick={() => void handleCopyInviteLink()}
+            >
+              {copyStatus === 'copied' ? labels.inviteLinkCopied : labels.copyInviteLink}
+            </button>
+            <button
+              type="button"
+              className={classNames.btn}
+              onClick={() => {
+                setCopyStatus('idle');
+                onDismissCreatedInviteLink?.();
+              }}
+            >
+              {labels.dismissInviteLink}
+            </button>
+          </div>
+          {copyStatus === 'failed' ? (
+            <p className={classNames.saveStatus}>{labels.saveFailed}</p>
+          ) : null}
+        </div>
+      ) : null}
       {showInviteForm && canInvite ? (
         <OrganizationInlineInviteRow
           labels={labels}

@@ -252,6 +252,8 @@ export type UseZenformedOrganizationWorkspaceResult = {
   readonly isCreatingInvite: boolean;
   readonly cancelingInviteId: string | null;
   readonly inviteMutationError: string | null;
+  readonly createdInviteAcceptUrl: string | null;
+  readonly clearCreatedInviteAcceptUrl: () => void;
 };
 
 function readMutationError(json: unknown, fallback: string): string {
@@ -275,6 +277,11 @@ export function useZenformedOrganizationWorkspace({
   const [isCreatingInvite, setIsCreatingInvite] = useState(false);
   const [cancelingInviteId, setCancelingInviteId] = useState<string | null>(null);
   const [inviteMutationError, setInviteMutationError] = useState<string | null>(null);
+  const [createdInviteAcceptUrl, setCreatedInviteAcceptUrl] = useState<string | null>(null);
+
+  const clearCreatedInviteAcceptUrl = useCallback(() => {
+    setCreatedInviteAcceptUrl(null);
+  }, []);
 
   const fetchAll = useCallback(async () => {
     const token = getAccessToken()?.trim();
@@ -347,6 +354,7 @@ export function useZenformedOrganizationWorkspace({
       }
       setIsCreatingInvite(true);
       setInviteMutationError(null);
+      setCreatedInviteAcceptUrl(null);
       try {
         const res = await fetch(apiUrls.invites, {
           method: 'POST',
@@ -367,6 +375,10 @@ export function useZenformedOrganizationWorkspace({
         if (!res.ok) {
           setInviteMutationError(readMutationError(json, 'Failed to create invite'));
           return false;
+        }
+        const body = json as Record<string, unknown>;
+        if (typeof body.acceptUrl === 'string' && body.acceptUrl.trim()) {
+          setCreatedInviteAcceptUrl(body.acceptUrl.trim());
         }
         await fetchAll();
         return true;
@@ -428,5 +440,7 @@ export function useZenformedOrganizationWorkspace({
     isCreatingInvite,
     cancelingInviteId,
     inviteMutationError,
+    createdInviteAcceptUrl,
+    clearCreatedInviteAcceptUrl,
   };
 }

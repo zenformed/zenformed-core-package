@@ -85,6 +85,8 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly isCreatingInvite?: boolean;
   readonly cancelingInviteId?: string | null;
   readonly inviteMutationError?: string | null;
+  readonly createdInviteAcceptUrl?: string | null;
+  readonly onDismissCreatedInviteLink?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
   readonly onCancelInvite?: (inviteId: string) => Promise<boolean>;
 };

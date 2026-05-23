@@ -51,6 +51,10 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   inviteComingSoon: 'Invite email is not available yet',
   sendInvite: 'Send Invite',
   cancelInvite: 'Cancel Invite',
+  copyInviteLink: 'Copy Invite Link',
+  inviteLinkCopied: 'Invite link copied',
+  inviteLinkCopyHint: 'Share this link manually. It is only shown once after creating the invite.',
+  dismissInviteLink: 'Dismiss',
   resendComingSoon: 'Resend is not available yet',
   role: 'Role',
   passwordChangeComingSoon:

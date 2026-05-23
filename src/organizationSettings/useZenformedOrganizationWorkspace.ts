@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type {
   OrganizationWorkspaceAppAccessDto,
+  OrganizationWorkspaceAppAccessEntryDto,
   OrganizationWorkspaceInviteDto,
   OrganizationWorkspaceMemberDto,
   OrganizationWorkspaceSeatsDto,
@@ -15,25 +16,67 @@ type RelayResponse = {
   message?: string;
 };
 
+type SliceResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; reason: string };
+
+function sliceLabel(url: string): string {
+  const parts = url.split('/').filter(Boolean);
+  return parts[parts.length - 1] ?? url;
+}
+
 async function fetchWorkspaceSlice<T>(
   url: string,
   token: string,
   parse: (json: unknown) => T | null
-): Promise<T | null> {
-  const res = await fetch(url, {
-    cache: 'no-store',
-    headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
-  });
+): Promise<SliceResult<T>> {
+  const label = sliceLabel(url);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      cache: 'no-store',
+      headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+    });
+  } catch (e) {
+    return {
+      ok: false,
+      reason: `${label}: network error (${e instanceof Error ? e.message : 'fetch failed'})`,
+    };
+  }
+
   let json: unknown;
   try {
     json = await res.json();
   } catch {
-    return null;
+    return { ok: false, reason: `${label}: invalid JSON (HTTP ${res.status})` };
   }
-  if (!res.ok) return null;
+
+  if (!res.ok) {
+    const body = json as RelayResponse;
+    const detail =
+      typeof body.message === 'string'
+        ? body.message
+        : typeof body.error === 'string'
+          ? body.error
+          : `HTTP ${res.status}`;
+    return { ok: false, reason: `${label}: ${detail}` };
+  }
+
   const body = json as RelayResponse;
-  if (body.relay === 'client_supabase_deprecated') return null;
-  return parse(json);
+  if (body.relay === 'client_supabase_deprecated') {
+    return { ok: false, reason: `${label}: Core API not configured` };
+  }
+
+  const parsed = parse(json);
+  if (parsed == null) {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.debug('[useZenformedOrganizationWorkspace] parse rejected payload', label, json);
+    }
+    return { ok: false, reason: `${label}: response shape mismatch` };
+  }
+
+  return { ok: true, data: parsed };
 }
 
 function parseMembersJson(json: unknown): OrganizationWorkspaceMemberDto[] | null {
@@ -99,6 +142,26 @@ function parseSeatsJson(json: unknown): OrganizationWorkspaceSeatsDto | null {
   if (typeof o.organizationId !== 'string') return null;
   if (typeof o.seatsUsed !== 'number' || typeof o.seatLimit !== 'number') return null;
   if (typeof o.seatsAvailable !== 'number' || typeof o.source !== 'string') return null;
+  const appBreakdown: Array<{
+    appSlug: string;
+    appName: string;
+    planCode: string | null;
+    entitlementStatus: string;
+  }> = [];
+  if (Array.isArray(o.appBreakdown)) {
+    for (const item of o.appBreakdown) {
+      if (item == null || typeof item !== 'object') continue;
+      const row = item as Record<string, unknown>;
+      if (typeof row.appSlug !== 'string' || typeof row.appName !== 'string') continue;
+      appBreakdown.push({
+        appSlug: row.appSlug,
+        appName: row.appName,
+        planCode: typeof row.planCode === 'string' ? row.planCode : null,
+        entitlementStatus:
+          typeof row.entitlementStatus === 'string' ? row.entitlementStatus : 'unknown',
+      });
+    }
+  }
   return {
     organizationId: o.organizationId,
     seatsUsed: o.seatsUsed,
@@ -107,9 +170,7 @@ function parseSeatsJson(json: unknown): OrganizationWorkspaceSeatsDto | null {
     source: o.source,
     notes: typeof o.notes === 'string' ? o.notes : null,
     planName: typeof o.planName === 'string' ? o.planName : null,
-    appBreakdown: Array.isArray(o.appBreakdown)
-      ? (o.appBreakdown as OrganizationWorkspaceSeatsDto['appBreakdown'])
-      : [],
+    appBreakdown,
   };
 }
 
@@ -118,11 +179,47 @@ function parseAppAccessJson(json: unknown): OrganizationWorkspaceAppAccessDto | 
   const o = json as Record<string, unknown>;
   if (typeof o.organizationId !== 'string') return null;
   if (!Array.isArray(o.entries) || !Array.isArray(o.orgApps)) return null;
-  return {
-    organizationId: o.organizationId,
-    entries: o.entries as OrganizationWorkspaceAppAccessDto['entries'],
-    orgApps: o.orgApps as OrganizationWorkspaceAppAccessDto['orgApps'],
-  };
+
+  const entries: OrganizationWorkspaceAppAccessEntryDto[] = [];
+  for (const e of o.entries) {
+    if (e == null || typeof e !== 'object') return null;
+    const row = e as Record<string, unknown>;
+    if (typeof row.userId !== 'string' || typeof row.displayName !== 'string') return null;
+    if (typeof row.appSlug !== 'string' || typeof row.appName !== 'string') return null;
+    entries.push({
+      userId: row.userId,
+      displayName: row.displayName,
+      email: typeof row.email === 'string' ? row.email : null,
+      appSlug: row.appSlug,
+      appName: row.appName,
+      accessStatus: typeof row.accessStatus === 'string' ? row.accessStatus : 'unknown',
+      role: typeof row.role === 'string' ? row.role : 'member',
+      planLabel: typeof row.planLabel === 'string' ? row.planLabel : null,
+    });
+  }
+
+  const orgApps: Array<{
+    appSlug: string;
+    appName: string;
+    planLabel: string | null;
+    statusLabel: string;
+    isActive: boolean;
+  }> = [];
+  for (const a of o.orgApps) {
+    if (a == null || typeof a !== 'object') return null;
+    const row = a as Record<string, unknown>;
+    if (typeof row.appSlug !== 'string' || typeof row.appName !== 'string') return null;
+    if (typeof row.statusLabel !== 'string' || typeof row.isActive !== 'boolean') return null;
+    orgApps.push({
+      appSlug: row.appSlug,
+      appName: row.appName,
+      planLabel: typeof row.planLabel === 'string' ? row.planLabel : null,
+      statusLabel: row.statusLabel,
+      isActive: row.isActive,
+    });
+  }
+
+  return { organizationId: o.organizationId, entries, orgApps };
 }
 
 export type OrganizationWorkspaceApiUrls = {
@@ -166,26 +263,43 @@ export function useZenformedOrganizationWorkspace({
     setIsLoading(true);
     setLoadError(null);
     try {
-      const [members, invites, seats, appAccess] = await Promise.all([
+      const [membersRes, invitesRes, seatsRes, appAccessRes] = await Promise.all([
         fetchWorkspaceSlice(apiUrls.members, token, parseMembersJson),
         fetchWorkspaceSlice(apiUrls.invites, token, parseInvitesJson),
         fetchWorkspaceSlice(apiUrls.seats, token, parseSeatsJson),
         fetchWorkspaceSlice(apiUrls.appAccess, token, parseAppAccessJson),
       ]);
 
-      const anyOk = members != null || invites != null || seats != null || appAccess != null;
+      const failures: string[] = [];
+      if (!membersRes.ok) failures.push(membersRes.reason);
+      if (!invitesRes.ok) failures.push(invitesRes.reason);
+      if (!seatsRes.ok) failures.push(seatsRes.reason);
+      if (!appAccessRes.ok) failures.push(appAccessRes.reason);
+
+      const anyOk =
+        membersRes.ok || invitesRes.ok || seatsRes.ok || appAccessRes.ok;
+
       if (!anyOk) {
-        setLoadError('Organization workspace data is not available');
+        setLoadError(
+          failures.length > 0
+            ? failures.join('; ')
+            : 'Organization workspace data is not available'
+        );
         setHasLiveData(false);
         setSnapshot(null);
         return;
       }
 
+      if (failures.length > 0 && process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.debug('[useZenformedOrganizationWorkspace] partial load failures', failures);
+      }
+
       setSnapshot({
-        members: members ?? [],
-        invites: invites ?? [],
-        seats,
-        appAccess,
+        members: membersRes.ok ? membersRes.data : [],
+        invites: invitesRes.ok ? invitesRes.data : [],
+        seats: seatsRes.ok ? seatsRes.data : null,
+        appAccess: appAccessRes.ok ? appAccessRes.data : null,
       });
       setHasLiveData(true);
     } catch (e) {

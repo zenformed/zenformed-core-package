@@ -139,6 +139,8 @@ export type OrganizationSettingsDrawerClassNames = {
 export type OrganizationSettingsLabels = {
   readonly drawerTitle: string;
   readonly closeAriaLabel: string;
+  readonly settingsSearchPlaceholder: string;
+  readonly settingsSearchNoResults: string;
   readonly sectionOrganization: string;
   readonly sectionAccount: string;
   readonly sectionNotifications: string;

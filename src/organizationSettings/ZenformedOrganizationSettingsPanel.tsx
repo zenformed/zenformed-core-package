@@ -1,6 +1,5 @@
 'use client';
 
-import { ZenformedSettingsAccordionSection } from './components/ZenformedSettingsAccordionSection';
 import { DEFAULT_ORGANIZATION_SETTINGS_LABELS } from './defaultLabels';
 import { mergeOrganizationSettingsViewModel } from './mergeViewModel';
 import orgStyles from './organizationSettings.module.css';
@@ -9,6 +8,7 @@ import { AccountSection } from './sections/AccountSection';
 import { AppsBillingSection } from './sections/AppsBillingSection';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { OrganizationSection } from './sections/OrganizationSection';
+import type { SettingsCategoryId } from './settingsCategories';
 import type {
   OrganizationSettingsLabels,
   OrganizationSettingsPersistence,
@@ -24,7 +24,8 @@ export type ZenformedOrganizationSettingsPanelProps = {
   readonly persistence?: OrganizationSettingsPersistence | null;
   readonly labels?: Partial<OrganizationSettingsLabels>;
   readonly showMockNote?: boolean;
-  /** Remount password fields when the drawer opens (pass `open` from drawer). */
+  readonly activeCategory: SettingsCategoryId;
+  /** Remount password fields when settings opens (pass `open` from overlay). */
   readonly passwordFormKey?: string;
 };
 
@@ -34,11 +35,12 @@ export function ZenformedOrganizationSettingsPanel({
   persistence,
   labels: labelOverrides,
   showMockNote = true,
+  activeCategory,
   passwordFormKey,
 }: ZenformedOrganizationSettingsPanelProps) {
   const labels = { ...DEFAULT_ORGANIZATION_SETTINGS_LABELS, ...labelOverrides };
   const viewModel = mergeOrganizationSettingsViewModel(shellContext, viewModelOverrides);
-  const showTopNote = showMockNote;
+  const showTopNote = showMockNote && activeCategory === 'organization';
 
   return (
     <div className={panelClassNames.panel}>
@@ -53,61 +55,44 @@ export function ZenformedOrganizationSettingsPanel({
       {showTopNote ? (
         <p className={panelClassNames.placeholderNote}>{labels.mockDataNote}</p>
       ) : null}
-      <div className={panelClassNames.accordion}>
-        <ZenformedSettingsAccordionSection
-          title={labels.sectionOrganization}
-          defaultOpen
-          classNames={panelClassNames}
-        >
-          <OrganizationSection
-            viewModel={viewModel}
-            labels={labels}
-            classNames={panelClassNames}
-            branding={persistence?.branding}
-            workspace={persistence?.workspace}
-          />
-        </ZenformedSettingsAccordionSection>
 
-        <ZenformedSettingsAccordionSection
-          title={labels.sectionAccount}
-          defaultOpen
+      {activeCategory === 'organization' ? (
+        <OrganizationSection
+          viewModel={viewModel}
+          labels={labels}
           classNames={panelClassNames}
-        >
-          <AccountSection
-            viewModel={viewModel}
-            labels={labels}
-            classNames={panelClassNames}
-            persistence={persistence}
-            passwordFormKey={passwordFormKey}
-          />
-        </ZenformedSettingsAccordionSection>
+          branding={persistence?.branding}
+          workspace={persistence?.workspace}
+        />
+      ) : null}
 
-        <ZenformedSettingsAccordionSection
-          title={labels.sectionNotifications}
-          defaultOpen
+      {activeCategory === 'account' ? (
+        <AccountSection
+          viewModel={viewModel}
+          labels={labels}
           classNames={panelClassNames}
-        >
-          <NotificationsSection
-            viewModel={viewModel}
-            labels={labels}
-            classNames={panelClassNames}
-            persistence={persistence}
-          />
-        </ZenformedSettingsAccordionSection>
+          persistence={persistence}
+          passwordFormKey={passwordFormKey}
+        />
+      ) : null}
 
-        <ZenformedSettingsAccordionSection
-          title={labels.sectionAppsBilling}
-          defaultOpen
+      {activeCategory === 'notifications' ? (
+        <NotificationsSection
+          viewModel={viewModel}
+          labels={labels}
           classNames={panelClassNames}
-        >
-          <AppsBillingSection
-            viewModel={viewModel}
-            labels={labels}
-            classNames={panelClassNames}
-            workspace={persistence?.workspace}
-          />
-        </ZenformedSettingsAccordionSection>
-      </div>
+          persistence={persistence}
+        />
+      ) : null}
+
+      {activeCategory === 'appsBilling' ? (
+        <AppsBillingSection
+          viewModel={viewModel}
+          labels={labels}
+          classNames={panelClassNames}
+          workspace={persistence?.workspace}
+        />
+      ) : null}
     </div>
   );
 }

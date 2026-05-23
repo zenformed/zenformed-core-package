@@ -1,5 +1,7 @@
 'use client';
 
+export { ZenformedOrganizationSettingsOverlay } from './ZenformedOrganizationSettingsOverlay';
+export type { ZenformedOrganizationSettingsOverlayProps } from './ZenformedOrganizationSettingsOverlay';
 export { ZenformedOrganizationSettingsDrawer } from './ZenformedOrganizationSettingsDrawer';
 export type { ZenformedOrganizationSettingsDrawerProps } from './ZenformedOrganizationSettingsDrawer';
 export { ZenformedOrganizationSettingsPanel } from './ZenformedOrganizationSettingsPanel';
@@ -70,6 +72,8 @@ export type {
 } from './userSettingsTypes';
 export { pickOrganizationSettingsClassNames } from './pickOrganizationSettingsClassNames';
 export { pickOrganizationSettingsDrawerClassNames } from './pickOrganizationSettingsDrawerClassNames';
+export type { SettingsCategoryId } from './settingsCategories';
+export { SETTINGS_CATEGORY_ORDER } from './settingsCategories';
 export type {
   OrganizationSettingsAppAccess,
   OrganizationSettingsClassNames,

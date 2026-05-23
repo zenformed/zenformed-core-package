@@ -3,6 +3,8 @@ import type { OrganizationSettingsLabels } from './types';
 export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = {
   drawerTitle: 'Settings',
   closeAriaLabel: 'Close settings',
+  settingsSearchPlaceholder: 'Search settings',
+  settingsSearchNoResults: 'No matching settings',
   sectionOrganization: 'Organization',
   sectionAccount: 'Account',
   sectionNotifications: 'Notifications',

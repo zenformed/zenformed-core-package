@@ -124,6 +124,10 @@ export type OrganizationSettingsClassNames = {
   readonly timezoneList: string;
   readonly timezoneOption: string;
   readonly industrySelect: string;
+  readonly appBillingRow: string;
+  readonly appBillingName: string;
+  readonly appBillingPlan: string;
+  readonly appBillingActiveCheck: string;
 };
 
 export type OrganizationSettingsDrawerClassNames = {
@@ -142,6 +146,7 @@ export type OrganizationSettingsLabels = {
   readonly settingsSearchPlaceholder: string;
   readonly settingsSearchNoResults: string;
   readonly sectionOrganization: string;
+  readonly sectionTeamMembers: string;
   readonly sectionAccount: string;
   readonly sectionNotifications: string;
   readonly sectionAppsBilling: string;
@@ -181,6 +186,7 @@ export type OrganizationSettingsLabels = {
   readonly manageBilling: string;
   readonly viewInvoices: string;
   readonly manage: string;
+  readonly appActiveAriaLabel: string;
   readonly buy: string;
   readonly upgrade: string;
   readonly mockDataNote: string;

@@ -44,19 +44,19 @@ export function buildSettingsSearchIndex(
     },
     {
       id: 'team-members',
-      category: 'organization',
+      category: 'teamMembers',
       label: labels.teamMembers,
       keywords: ['team', 'team members', 'members', 'users', 'staff', 'seats'],
     },
     {
       id: 'invites',
-      category: 'organization',
+      category: 'teamMembers',
       label: labels.pendingInvites,
       keywords: ['invite', 'invites', 'pending', 'invitation', 'email invite'],
     },
     {
       id: 'seats',
-      category: 'organization',
+      category: 'teamMembers',
       label: labels.seatsUsed,
       keywords: ['seats', 'seat', 'license seats', 'capacity'],
     },

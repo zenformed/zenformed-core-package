@@ -8,6 +8,7 @@ import { AccountSection } from './sections/AccountSection';
 import { AppsBillingSection } from './sections/AppsBillingSection';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { OrganizationSection } from './sections/OrganizationSection';
+import { TeamMembersSection } from './sections/TeamMembersSection';
 import type { SettingsCategoryId } from './settingsCategories';
 import type {
   OrganizationSettingsLabels,
@@ -56,16 +57,6 @@ export function ZenformedOrganizationSettingsPanel({
         <p className={panelClassNames.placeholderNote}>{labels.mockDataNote}</p>
       ) : null}
 
-      {activeCategory === 'organization' ? (
-        <OrganizationSection
-          viewModel={viewModel}
-          labels={labels}
-          classNames={panelClassNames}
-          branding={persistence?.branding}
-          workspace={persistence?.workspace}
-        />
-      ) : null}
-
       {activeCategory === 'account' ? (
         <AccountSection
           viewModel={viewModel}
@@ -73,6 +64,24 @@ export function ZenformedOrganizationSettingsPanel({
           classNames={panelClassNames}
           persistence={persistence}
           passwordFormKey={passwordFormKey}
+        />
+      ) : null}
+
+      {activeCategory === 'organization' ? (
+        <OrganizationSection
+          viewModel={viewModel}
+          labels={labels}
+          classNames={panelClassNames}
+          branding={persistence?.branding}
+        />
+      ) : null}
+
+      {activeCategory === 'teamMembers' ? (
+        <TeamMembersSection
+          viewModel={viewModel}
+          labels={labels}
+          classNames={panelClassNames}
+          workspace={persistence?.workspace}
         />
       ) : null}
 

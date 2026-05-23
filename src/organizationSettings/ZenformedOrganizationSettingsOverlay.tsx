@@ -27,13 +27,15 @@ function categoryLabel(
   labels: typeof DEFAULT_ORGANIZATION_SETTINGS_LABELS
 ): string {
   switch (category) {
-    case 'organization':
-      return labels.sectionOrganization;
     case 'account':
       return labels.sectionAccount;
+    case 'organization':
+      return labels.sectionOrganization;
+    case 'teamMembers':
+      return labels.sectionTeamMembers;
     case 'notifications':
       return labels.sectionNotifications;
-  case 'appsBilling':
+    case 'appsBilling':
       return labels.sectionAppsBilling;
     default:
       return category;
@@ -45,7 +47,7 @@ export function ZenformedOrganizationSettingsOverlay({
   onClose,
   title = DEFAULT_ORGANIZATION_SETTINGS_LABELS.drawerTitle,
   closeAriaLabel = DEFAULT_ORGANIZATION_SETTINGS_LABELS.closeAriaLabel,
-  initialCategory = 'organization',
+  initialCategory = 'account',
   shellContext,
   viewModelOverrides,
   persistence,

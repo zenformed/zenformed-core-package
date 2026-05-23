@@ -54,6 +54,10 @@ export function pickOrganizationSettingsClassNames(
     'timezoneList',
     'timezoneOption',
     'industrySelect',
+    'appBillingRow',
+    'appBillingName',
+    'appBillingPlan',
+    'appBillingActiveCheck',
   ];
 
   const out: Record<string, string> = {};

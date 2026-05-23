@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { OrganizationPendingInvitesGroup } from '../components/OrganizationPendingInvitesGroup';
-import { OrganizationTeamMembersGroup } from '../components/OrganizationTeamMembersGroup';
 import { SettingsSaveStatusLine } from '../components/SettingsSaveStatusLine';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
@@ -14,14 +12,11 @@ import type {
   OrganizationSettingsLabels,
   OrganizationSettingsViewModel,
 } from '../types';
-import type { OrganizationSettingsWorkspacePersistence } from '../organizationWorkspaceTypes';
-
 type Props = {
   readonly viewModel: OrganizationSettingsViewModel;
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
   readonly branding?: OrganizationSettingsBrandingPersistence | null;
-  readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
 
 const INDUSTRY_OPTIONS = [
@@ -36,9 +31,8 @@ export function OrganizationSection({
   labels,
   classNames,
   branding,
-  workspace,
 }: Props) {
-  const { organization, plan, members, pendingInvites } = viewModel;
+  const { organization } = viewModel;
   const [legalName, setLegalName] = useState(organization.legalName);
   const [displayName, setDisplayName] = useState(organization.displayName);
   const [industry, setIndustry] = useState(organization.industry);
@@ -57,9 +51,6 @@ export function OrganizationSection({
   const publicLabel =
     displayName.trim() || legalName.trim() || 'O';
   const initial = publicLabel.trim().charAt(0).toUpperCase() || 'O';
-  const seatsConnected = plan.seatsTotal > 0;
-  const workspaceLoading = workspace?.isLoading ?? false;
-  const workspaceLive = workspace?.hasLiveData ?? false;
   const profileSaveStatus = branding?.profileSaveStatus ?? 'idle';
   const savingProfile = profileSaveStatus === 'saving';
 
@@ -179,39 +170,6 @@ export function OrganizationSection({
           </button>
         </div>
       </ZenformedSettingsGroup>
-
-      {workspaceLoading && !workspaceLive ? (
-        <p className={classNames.saveStatus}>{labels.loadingSettings}</p>
-      ) : null}
-      {workspace?.loadError && !workspaceLive ? (
-        <p className={`${classNames.saveStatus} ${classNames.saveStatusMuted}`}>
-          {workspace.loadError}
-        </p>
-      ) : null}
-
-      <OrganizationTeamMembersGroup
-        members={members}
-        plan={plan}
-        labels={labels}
-        classNames={classNames}
-        isLoading={workspaceLoading}
-        seatsConnected={seatsConnected}
-        inviteDisabled={workspace?.inviteActionsDisabled ?? true}
-        isCreatingInvite={workspace?.isCreatingInvite}
-        inviteMutationError={workspace?.inviteMutationError}
-        createdInviteAcceptUrl={workspace?.createdInviteAcceptUrl}
-        onDismissCreatedInviteLink={workspace?.onDismissCreatedInviteLink}
-        onCreateInvite={workspace?.onCreateInvite}
-      />
-
-      <OrganizationPendingInvitesGroup
-        invites={pendingInvites}
-        labels={labels}
-        classNames={classNames}
-        actionsDisabled={workspace?.inviteActionsDisabled ?? true}
-        cancelingInviteId={workspace?.cancelingInviteId}
-        onCancelInvite={workspace?.onCancelInvite}
-      />
     </>
   );
 }

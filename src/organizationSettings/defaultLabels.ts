@@ -6,6 +6,7 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   settingsSearchPlaceholder: 'Search settings',
   settingsSearchNoResults: 'No matching settings',
   sectionOrganization: 'Organization',
+  sectionTeamMembers: 'Team Members',
   sectionAccount: 'Account',
   sectionNotifications: 'Notifications',
   sectionAppsBilling: 'Apps & Billing',
@@ -45,6 +46,7 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   manageBilling: 'Manage Billing',
   viewInvoices: 'View Invoices',
   manage: 'Manage',
+  appActiveAriaLabel: 'Active',
   buy: 'Buy',
   upgrade: 'Upgrade',
   mockDataNote:

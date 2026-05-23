@@ -16,6 +16,25 @@ type Props = {
   readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
 
+function AppActiveCheck({
+  className,
+  ariaLabel,
+}: {
+  readonly className: string;
+  readonly ariaLabel: string;
+}) {
+  return (
+    <span className={className} role="img" aria-label={ariaLabel}>
+      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L5.69 10.19l6.72-6.72a.75.75 0 0 1 1.06 0Z"
+          fill="currentColor"
+        />
+      </svg>
+    </span>
+  );
+}
+
 export function AppsBillingSection({ viewModel, labels, classNames, workspace }: Props) {
   const { plan, billingApps } = viewModel;
   const planConnected = plan.seatsTotal > 0 && plan.planName !== '—';
@@ -61,18 +80,17 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
           <p className={classNames.hint}>{labels.noAppAccessYet}</p>
         ) : (
           billingApps.map((app) => (
-            <div key={app.id} className={classNames.row}>
-              <span className={classNames.rowLabel}>{app.name}</span>
-              <span className={classNames.rowValue}>
-                {app.planLabel}{' '}
-                <span
-                  className={
-                    app.isActive ? classNames.badgeSuccess : classNames.badgeMuted
-                  }
-                >
-                  {app.statusLabel}
-                </span>
-              </span>
+            <div key={app.id} className={classNames.appBillingRow}>
+              <span className={classNames.appBillingName}>{app.name}</span>
+              <span className={classNames.appBillingPlan}>{app.planLabel}</span>
+              {app.isActive ? (
+                <AppActiveCheck
+                  className={classNames.appBillingActiveCheck}
+                  ariaLabel={labels.appActiveAriaLabel}
+                />
+              ) : (
+                <span className={classNames.appBillingActiveCheck} aria-hidden="true" />
+              )}
               <button
                 type="button"
                 className={`${classNames.btn} ${classNames.btnSmall}`}

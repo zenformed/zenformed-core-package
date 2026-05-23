@@ -3,13 +3,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import type {
   OrganizationInviteCreatePayload,
+  OrganizationMemberRoleUpdatePayload,
   OrganizationWorkspaceAppAccessDto,
   OrganizationWorkspaceAppAccessEntryDto,
   OrganizationWorkspaceInviteDto,
   OrganizationWorkspaceMemberDto,
+  OrganizationWorkspaceMembershipContextDto,
   OrganizationWorkspaceSeatsDto,
   OrganizationWorkspaceSnapshot,
 } from './organizationWorkspaceTypes';
+import {
+  EMPTY_ORGANIZATION_PERMISSIONS,
+  parseOrganizationPermissions,
+} from './organizationPermissions';
 
 type RelayResponse = {
   relay?: string;
@@ -90,7 +96,13 @@ function parseMembersJson(json: unknown): OrganizationWorkspaceMemberDto[] | nul
     const row = m as Record<string, unknown>;
     if (typeof row.id !== 'string' || typeof row.userId !== 'string') return null;
     if (typeof row.displayName !== 'string') return null;
-    if (row.role !== 'owner' && row.role !== 'admin' && row.role !== 'member') return null;
+    if (
+      row.role !== 'owner' &&
+      row.role !== 'admin' &&
+      row.role !== 'coordinator' &&
+      row.role !== 'member'
+    )
+      return null;
     if (row.status !== 'active' && row.status !== 'invited' && row.status !== 'removed') return null;
     members.push({
       id: row.id,
@@ -124,7 +136,13 @@ function parseInvitesJson(json: unknown): OrganizationWorkspaceInviteDto[] | nul
     }
     if (typeof row.sentLabel !== 'string' || typeof row.createdAt !== 'string') return null;
     if (typeof row.displayName !== 'string') return null;
-    if (row.role !== 'owner' && row.role !== 'admin' && row.role !== 'member') return null;
+    if (
+      row.role !== 'owner' &&
+      row.role !== 'admin' &&
+      row.role !== 'coordinator' &&
+      row.role !== 'member'
+    )
+      return null;
     invites.push({
       id: row.id,
       email: row.email,
@@ -228,11 +246,46 @@ function parseAppAccessJson(json: unknown): OrganizationWorkspaceAppAccessDto | 
   return { organizationId: o.organizationId, entries, orgApps };
 }
 
+function parseMembershipContextJson(json: unknown): OrganizationWorkspaceMembershipContextDto | null {
+  if (json == null || typeof json !== 'object') return null;
+  const o = json as Record<string, unknown>;
+  if (typeof o.hasActiveMembership !== 'boolean') return null;
+  if (typeof o.hasNonPersonalOrganizationMembership !== 'boolean') return null;
+  if (
+    o.membershipKind !== 'none' &&
+    o.membershipKind !== 'organization_bootstrap_owner' &&
+    o.membershipKind !== 'invited_member'
+  ) {
+    return null;
+  }
+  if (typeof o.currentUserId !== 'string') return null;
+  const permissions = parseOrganizationPermissions(o.permissions);
+  if (permissions == null) return null;
+  const role =
+    o.role === 'owner' ||
+    o.role === 'admin' ||
+    o.role === 'coordinator' ||
+    o.role === 'member'
+      ? o.role
+      : null;
+  return {
+    hasActiveMembership: o.hasActiveMembership,
+    hasNonPersonalOrganizationMembership: o.hasNonPersonalOrganizationMembership,
+    membershipKind: o.membershipKind,
+    organizationId: typeof o.organizationId === 'string' ? o.organizationId : null,
+    currentUserId: o.currentUserId,
+    role,
+    permissions,
+  };
+}
+
 export type OrganizationWorkspaceApiUrls = {
+  readonly membershipContext: string;
   readonly members: string;
   readonly invites: string;
   readonly seats: string;
   readonly appAccess: string;
+  readonly memberRole?: string;
 };
 
 export type UseZenformedOrganizationWorkspaceOptions = {
@@ -249,9 +302,15 @@ export type UseZenformedOrganizationWorkspaceResult = {
   readonly refetch: () => Promise<void>;
   readonly createInvite: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
   readonly cancelInvite: (inviteId: string) => Promise<boolean>;
+  readonly updateMemberRole: (
+    memberId: string,
+    payload: OrganizationMemberRoleUpdatePayload
+  ) => Promise<boolean>;
   readonly isCreatingInvite: boolean;
   readonly cancelingInviteId: string | null;
+  readonly updatingMemberRoleId: string | null;
   readonly inviteMutationError: string | null;
+  readonly roleMutationError: string | null;
   readonly createdInviteAcceptUrl: string | null;
   readonly clearCreatedInviteAcceptUrl: () => void;
 };
@@ -276,7 +335,9 @@ export function useZenformedOrganizationWorkspace({
   const [hasLiveData, setHasLiveData] = useState(false);
   const [isCreatingInvite, setIsCreatingInvite] = useState(false);
   const [cancelingInviteId, setCancelingInviteId] = useState<string | null>(null);
+  const [updatingMemberRoleId, setUpdatingMemberRoleId] = useState<string | null>(null);
   const [inviteMutationError, setInviteMutationError] = useState<string | null>(null);
+  const [roleMutationError, setRoleMutationError] = useState<string | null>(null);
   const [createdInviteAcceptUrl, setCreatedInviteAcceptUrl] = useState<string | null>(null);
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
@@ -293,32 +354,57 @@ export function useZenformedOrganizationWorkspace({
     setIsLoading(true);
     setLoadError(null);
     try {
-      const [membersRes, invitesRes, seatsRes, appAccessRes] = await Promise.all([
-        fetchWorkspaceSlice(apiUrls.members, token, parseMembersJson),
-        fetchWorkspaceSlice(apiUrls.invites, token, parseInvitesJson),
-        fetchWorkspaceSlice(apiUrls.seats, token, parseSeatsJson),
-        fetchWorkspaceSlice(apiUrls.appAccess, token, parseAppAccessJson),
-      ]);
-
-      const failures: string[] = [];
-      if (!membersRes.ok) failures.push(membersRes.reason);
-      if (!invitesRes.ok) failures.push(invitesRes.reason);
-      if (!seatsRes.ok) failures.push(seatsRes.reason);
-      if (!appAccessRes.ok) failures.push(appAccessRes.reason);
-
-      const anyOk =
-        membersRes.ok || invitesRes.ok || seatsRes.ok || appAccessRes.ok;
-
-      if (!anyOk) {
-        setLoadError(
-          failures.length > 0
-            ? failures.join('; ')
-            : 'Organization workspace data is not available'
-        );
+      const contextRes = await fetchWorkspaceSlice(
+        apiUrls.membershipContext,
+        token,
+        parseMembershipContextJson
+      );
+      if (!contextRes.ok) {
+        setLoadError(contextRes.reason);
         setHasLiveData(false);
         setSnapshot(null);
         return;
       }
+
+      const permissions = contextRes.data.permissions;
+      const fetches: Promise<SliceResult<unknown>>[] = [];
+      const fetchMembers = permissions.canViewTeamMembers;
+      const fetchInvites = permissions.canViewTeamMembers;
+      const fetchSeats =
+        permissions.canViewTeamMembers || permissions.canViewAppsBilling;
+      const fetchAppAccess = permissions.canViewAppsBilling;
+
+      if (fetchMembers) {
+        fetches.push(fetchWorkspaceSlice(apiUrls.members, token, parseMembersJson));
+      }
+      if (fetchInvites) {
+        fetches.push(fetchWorkspaceSlice(apiUrls.invites, token, parseInvitesJson));
+      }
+      if (fetchSeats) {
+        fetches.push(fetchWorkspaceSlice(apiUrls.seats, token, parseSeatsJson));
+      }
+      if (fetchAppAccess) {
+        fetches.push(fetchWorkspaceSlice(apiUrls.appAccess, token, parseAppAccessJson));
+      }
+
+      const results = await Promise.all(fetches);
+      let membersRes: SliceResult<OrganizationWorkspaceMemberDto[]> | null = null;
+      let invitesRes: SliceResult<OrganizationWorkspaceInviteDto[]> | null = null;
+      let seatsRes: SliceResult<OrganizationWorkspaceSeatsDto> | null = null;
+      let appAccessRes: SliceResult<OrganizationWorkspaceAppAccessDto> | null = null;
+      let idx = 0;
+      if (fetchMembers) membersRes = results[idx++] as SliceResult<OrganizationWorkspaceMemberDto[]>;
+      if (fetchInvites) invitesRes = results[idx++] as SliceResult<OrganizationWorkspaceInviteDto[]>;
+      if (fetchSeats) seatsRes = results[idx++] as SliceResult<OrganizationWorkspaceSeatsDto>;
+      if (fetchAppAccess) {
+        appAccessRes = results[idx++] as SliceResult<OrganizationWorkspaceAppAccessDto>;
+      }
+
+      const failures: string[] = [];
+      if (membersRes != null && !membersRes.ok) failures.push(membersRes.reason);
+      if (invitesRes != null && !invitesRes.ok) failures.push(invitesRes.reason);
+      if (seatsRes != null && !seatsRes.ok) failures.push(seatsRes.reason);
+      if (appAccessRes != null && !appAccessRes.ok) failures.push(appAccessRes.reason);
 
       if (failures.length > 0 && process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
@@ -326,10 +412,11 @@ export function useZenformedOrganizationWorkspace({
       }
 
       setSnapshot({
-        members: membersRes.ok ? membersRes.data : [],
-        invites: invitesRes.ok ? invitesRes.data : [],
-        seats: seatsRes.ok ? seatsRes.data : null,
-        appAccess: appAccessRes.ok ? appAccessRes.data : null,
+        membershipContext: contextRes.data,
+        members: membersRes?.ok ? membersRes.data : fetchMembers ? [] : null,
+        invites: invitesRes?.ok ? invitesRes.data : fetchInvites ? [] : null,
+        seats: seatsRes?.ok ? seatsRes.data : null,
+        appAccess: appAccessRes?.ok ? appAccessRes.data : null,
       });
       setHasLiveData(true);
     } catch (e) {
@@ -338,7 +425,7 @@ export function useZenformedOrganizationWorkspace({
     } finally {
       setIsLoading(false);
     }
-  }, [apiUrls.appAccess, apiUrls.invites, apiUrls.members, apiUrls.seats, getAccessToken]);
+  }, [apiUrls.appAccess, apiUrls.invites, apiUrls.members, apiUrls.membershipContext, apiUrls.seats, getAccessToken]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -429,6 +516,52 @@ export function useZenformedOrganizationWorkspace({
     [apiUrls.invites, fetchAll, getAccessToken]
   );
 
+  const updateMemberRole = useCallback(
+    async (
+      memberId: string,
+      payload: OrganizationMemberRoleUpdatePayload
+    ): Promise<boolean> => {
+      const token = getAccessToken()?.trim();
+      const roleUrl = apiUrls.memberRole;
+      if (!token || roleUrl == null) {
+        setRoleMutationError('Not signed in');
+        return false;
+      }
+      setUpdatingMemberRoleId(memberId);
+      setRoleMutationError(null);
+      try {
+        const res = await fetch(`${roleUrl}/${encodeURIComponent(memberId)}/role`, {
+          method: 'PATCH',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch {
+          setRoleMutationError('Invalid response from server');
+          return false;
+        }
+        if (!res.ok) {
+          setRoleMutationError(readMutationError(json, 'Failed to update member role'));
+          return false;
+        }
+        await fetchAll();
+        return true;
+      } catch (e) {
+        setRoleMutationError(e instanceof Error ? e.message : 'Failed to update member role');
+        return false;
+      } finally {
+        setUpdatingMemberRoleId(null);
+      }
+    },
+    [apiUrls.memberRole, fetchAll, getAccessToken]
+  );
+
   return {
     snapshot,
     isLoading,
@@ -437,9 +570,12 @@ export function useZenformedOrganizationWorkspace({
     refetch: fetchAll,
     createInvite,
     cancelInvite,
+    updateMemberRole,
     isCreatingInvite,
     cancelingInviteId,
+    updatingMemberRoleId,
     inviteMutationError,
+    roleMutationError,
     createdInviteAcceptUrl,
     clearCreatedInviteAcceptUrl,
   };

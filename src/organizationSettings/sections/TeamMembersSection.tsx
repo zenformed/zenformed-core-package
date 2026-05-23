@@ -40,12 +40,18 @@ export function TeamMembersSection({ viewModel, labels, classNames, workspace }:
         classNames={classNames}
         isLoading={workspaceLoading}
         seatsConnected={seatsConnected}
+        permissions={workspace?.permissions}
+        currentUserId={workspace?.currentUserId}
         inviteDisabled={workspace?.inviteActionsDisabled ?? true}
+        roleManagementDisabled={workspace?.roleManagementDisabled ?? true}
         isCreatingInvite={workspace?.isCreatingInvite}
+        updatingMemberRoleId={workspace?.updatingMemberRoleId}
         inviteMutationError={workspace?.inviteMutationError}
+        roleMutationError={workspace?.roleMutationError}
         createdInviteAcceptUrl={workspace?.createdInviteAcceptUrl}
         onDismissCreatedInviteLink={workspace?.onDismissCreatedInviteLink}
         onCreateInvite={workspace?.onCreateInvite}
+        onUpdateMemberRole={workspace?.onUpdateMemberRole}
       />
 
       <OrganizationPendingInvitesGroup

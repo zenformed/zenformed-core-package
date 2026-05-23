@@ -1,4 +1,5 @@
 import type { OrganizationSettingsBrandingPersistence } from './types';
+import type { OrganizationPermissions } from './organizationPermissions';
 import type { OrganizationSettingsWorkspacePersistence } from './organizationWorkspaceTypes';
 
 /** Wire shape for ZenformedCore `GET|PATCH /users/me/settings`. */
@@ -20,6 +21,7 @@ export type ZenformedUserSettingsPatch = {
 export type SettingsSaveStatus = 'idle' | 'loading' | 'saving' | 'saved' | 'error';
 
 export type OrganizationSettingsPersistence = {
+  readonly permissions?: OrganizationPermissions | null;
   readonly isLoading?: boolean;
   readonly loadError?: string | null;
   readonly hasLiveData?: boolean;

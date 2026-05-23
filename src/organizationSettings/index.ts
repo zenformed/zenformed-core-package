@@ -43,7 +43,20 @@ export type {
 export { OrganizationTeamMembersGroup } from './components/OrganizationTeamMembersGroup';
 export { OrganizationPendingInvitesGroup } from './components/OrganizationPendingInvitesGroup';
 export { OrganizationInlineInviteRow } from './components/OrganizationInlineInviteRow';
-export type { OrganizationInviteCreatePayload } from './organizationWorkspaceTypes';
+export type { OrganizationInviteCreatePayload, OrganizationMemberRoleUpdatePayload } from './organizationWorkspaceTypes';
+export type {
+  OrganizationMemberRole,
+  OrganizationPermissions,
+  AssignableOrganizationMemberRole,
+  AssignableOrganizationInviteRole,
+} from './organizationPermissions';
+export {
+  EMPTY_ORGANIZATION_PERMISSIONS,
+  filterSettingsCategoriesByPermissions,
+  inviteRoleOptionsForPermissions,
+  memberRoleOptionsForPermissions,
+  parseOrganizationPermissions,
+} from './organizationPermissions';
 export type {
   UseZenformedOrganizationBrandingOptions,
   UseZenformedOrganizationBrandingResult,

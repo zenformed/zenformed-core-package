@@ -6,6 +6,7 @@ import { mergeOrganizationSettingsViewModel } from './mergeViewModel';
 import orgStyles from './organizationSettings.module.css';
 import { SETTINGS_CATEGORY_ORDER, type SettingsCategoryId } from './settingsCategories';
 import { buildSettingsSearchIndex, filterSettingsSearch } from './settingsSearch';
+import { filterSettingsCategoriesByPermissions } from './organizationPermissions';
 import {
   ZenformedOrganizationSettingsPanel,
   type ZenformedOrganizationSettingsPanelProps,
@@ -55,7 +56,18 @@ export function ZenformedOrganizationSettingsOverlay({
   showMockNote,
 }: ZenformedOrganizationSettingsOverlayProps) {
   const labels = { ...DEFAULT_ORGANIZATION_SETTINGS_LABELS, ...labelOverrides };
-  const [activeCategory, setActiveCategory] = useState<SettingsCategoryId>(initialCategory);
+  const allowedCategories = useMemo(
+    () =>
+      filterSettingsCategoriesByPermissions(
+        SETTINGS_CATEGORY_ORDER,
+        persistence?.permissions ?? persistence?.workspace?.permissions
+      ),
+    [persistence?.permissions, persistence?.workspace?.permissions]
+  );
+  const defaultCategory = allowedCategories.includes(initialCategory)
+    ? initialCategory
+    : allowedCategories[0] ?? 'account';
+  const [activeCategory, setActiveCategory] = useState<SettingsCategoryId>(defaultCategory);
   const [searchQuery, setSearchQuery] = useState('');
 
   const viewModel = useMemo(
@@ -77,16 +89,25 @@ export function ZenformedOrganizationSettingsOverlay({
 
   const searchIndex = useMemo(() => buildSettingsSearchIndex(labels), [labels]);
   const searchResults = useMemo(
-    () => filterSettingsSearch(searchIndex, searchQuery),
-    [searchIndex, searchQuery]
+    () =>
+      filterSettingsSearch(searchIndex, searchQuery).filter((entry) =>
+        allowedCategories.includes(entry.category)
+      ),
+    [searchIndex, searchQuery, allowedCategories]
   );
   const searching = searchQuery.trim().length > 0;
 
   useEffect(() => {
     if (!open) return;
-    setActiveCategory(initialCategory);
+    setActiveCategory(defaultCategory);
     setSearchQuery('');
-  }, [open, initialCategory]);
+  }, [open, defaultCategory]);
+
+  useEffect(() => {
+    if (!allowedCategories.includes(activeCategory)) {
+      setActiveCategory(defaultCategory);
+    }
+  }, [activeCategory, allowedCategories, defaultCategory]);
 
   useEffect(() => {
     if (!open) return;
@@ -188,7 +209,7 @@ export function ZenformedOrganizationSettingsOverlay({
             ) : (
               <nav className={orgStyles.sidebarNav} aria-label="Settings categories">
                 <ul className={orgStyles.categoryList}>
-                  {SETTINGS_CATEGORY_ORDER.map((category) => {
+                  {allowedCategories.map((category) => {
                     const active = category === activeCategory;
                     return (
                       <li key={category}>

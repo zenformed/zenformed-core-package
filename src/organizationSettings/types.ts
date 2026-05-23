@@ -1,11 +1,12 @@
 import type { ChangeEvent, RefObject } from 'react';
 import type { SettingsSaveStatus } from './userSettingsTypes';
 
-export type OrganizationSettingsMemberRole = 'admin' | 'member' | 'lead';
+export type OrganizationSettingsMemberRole = 'owner' | 'admin' | 'coordinator' | 'member';
 
 export type OrganizationSettingsMember = {
   readonly id: string;
   readonly name: string;
+  readonly userId?: string;
   readonly role: OrganizationSettingsMemberRole;
 };
 

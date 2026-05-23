@@ -1,6 +1,7 @@
 import type {
   OrganizationSettingsAppAccess,
   OrganizationSettingsMember,
+  OrganizationSettingsMemberRole,
   OrganizationSettingsPendingInvite,
   OrganizationSettingsPlan,
   OrganizationSettingsViewModel,
@@ -21,11 +22,8 @@ function formatExpiresLabel(expiresAt: string | null): string | null {
   if (Number.isNaN(exp.getTime())) return null;
   return `Expires ${exp.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
 }
-function mapMemberRole(
-  role: 'owner' | 'admin' | 'member'
-): OrganizationSettingsMember['role'] {
-  if (role === 'owner' || role === 'admin') return 'admin';
-  return 'member';
+function mapMemberRole(role: OrganizationSettingsMemberRole): OrganizationSettingsMemberRole {
+  return role;
 }
 
 function mapBillingApps(
@@ -67,6 +65,7 @@ export function workspaceSnapshotToViewModelOverrides(
     snapshot.members != null
       ? snapshot.members.map((m) => ({
           id: m.id,
+          userId: m.userId,
           name: m.email ? `${m.displayName} (${m.email})` : m.displayName,
           role: mapMemberRole(m.role),
         }))

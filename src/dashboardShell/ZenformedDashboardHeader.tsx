@@ -13,6 +13,7 @@ export function ZenformedDashboardHeader({
   shopName,
   defaultShopNameFallback,
   effectiveLicenseTier,
+  organizationRoleLabel,
   isAdmin,
   labels,
   themeToggle,
@@ -48,7 +49,14 @@ export function ZenformedDashboardHeader({
                   {effectiveLicenseTier}
                 </span>
               )}
-              {isAdmin && <span className={classNames.adminBadge}>{labels.adminBadgeLabel}</span>}
+              {organizationRoleLabel ? (
+                <span
+                  className={classNames.adminBadge}
+                  aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
+                >
+                  {organizationRoleLabel}
+                </span>
+              ) : null}
             </div>
           </div>
           {themeToggle}

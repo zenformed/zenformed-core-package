@@ -96,6 +96,7 @@ export type OrganizationSettingsClassNames = {
   readonly field: string;
   readonly fieldLabel: string;
   readonly input: string;
+  readonly inputNonEditable?: string;
   readonly select: string;
   readonly textarea: string;
   readonly hint: string;

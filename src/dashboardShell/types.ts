@@ -71,7 +71,9 @@ export type ZenformedDashboardHeaderClassNames = {
 export type ZenformedAccountMenuLabels = {
   menuTriggerAriaLabel: string;
   planAriaLabelPrefix: string;
+  /** @deprecated Use `organizationRoleLabel` on header props; kept for account menu compat. */
   adminBadgeLabel: string;
+  roleAriaLabelPrefix?: string;
   profilePhotoChangeTitle: string;
   profilePhotoChangeAriaLabel: string;
   settingsButtonLabel: string;
@@ -107,6 +109,8 @@ export type ZenformedDashboardHeaderProps = {
   shopName: string | null | undefined;
   defaultShopNameFallback: string;
   effectiveLicenseTier: string | null | undefined;
+  /** Organization role badge (Owner, Admin, Coordinator, Member). */
+  organizationRoleLabel?: string | null;
   isAdmin: boolean;
   labels: ZenformedAccountMenuLabels;
   themeToggle: ReactNode;

@@ -237,11 +237,29 @@
   line-height: 1.4;
 }
 
-.input:focus,
+.input:focus:not(.inputNonEditable),
 .select:focus,
 .textarea:focus {
   outline: 2px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
   outline-offset: 1px;
+}
+
+.inputNonEditable,
+.input:read-only.inputNonEditable {
+  color: var(--color-text-muted) !important;
+  cursor: default;
+  opacity: 0.72;
+  background: color-mix(
+    in srgb,
+    var(--theme-form-input-bg, var(--theme-surface-inset, var(--color-muted))) 88%,
+    var(--color-text-muted) 12%
+  ) !important;
+}
+
+.inputNonEditable:focus,
+.inputNonEditable:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .textarea {

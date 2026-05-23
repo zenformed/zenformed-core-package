@@ -5,6 +5,7 @@
  * shared **default avatar catalog** (`ZENFORMED_DEFAULT_AVATAR_SEEDS`, `zenformedDefaultAvatarSrc`) lives here; SVG bytes stay under each app `public/avatars/` (see `assets/default-avatars/README.md`).
  */
 
+export { formatOrganizationRoleLabel } from './formatOrganizationRoleLabel';
 export { getCompanyInitial, companyCircleColor } from './brandingUtils';
 export { getUserInitials, userCircleColor } from './accountMenuUtils';
 export { pickSidebarBrandingClassNames } from './pickSidebarBrandingClassNames';

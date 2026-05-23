@@ -70,5 +70,6 @@ export function pickOrganizationSettingsClassNames(
     }
     out[key] = value;
   }
+  out.inputNonEditable = styles.inputNonEditable ?? styles.input;
   return out as OrganizationSettingsClassNames;
 }

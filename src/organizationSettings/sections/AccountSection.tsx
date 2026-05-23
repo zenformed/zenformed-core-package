@@ -46,6 +46,7 @@ export function AccountSection({
   const accountSaveStatus = persistence?.accountSaveStatus ?? 'idle';
   const canSaveAccount = Boolean(persistence?.onSaveAccount) && profileDirty;
   const savingAccount = accountSaveStatus === 'saving';
+  const canEditEmail = persistence?.permissions?.canEditAccountEmail ?? false;
 
   return (
     <>
@@ -75,6 +76,7 @@ export function AccountSection({
           placeholder="—"
           autoComplete="email"
           readOnly
+          nonEditable={!canEditEmail}
         />
         <SettingsSaveStatusLine
           status={accountSaveStatus}

@@ -35,7 +35,8 @@ export type OrganizationSettingsPlan = {
 };
 
 export type OrganizationSettingsProfile = {
-  readonly companyName: string;
+  readonly legalName: string;
+  readonly displayName: string;
   readonly industry: string;
   readonly timezone: string;
   readonly logoUrl: string | null;
@@ -143,7 +144,10 @@ export type OrganizationSettingsLabels = {
   readonly sectionNotifications: string;
   readonly sectionAppsBilling: string;
   readonly orgProfile: string;
-  readonly companyName: string;
+  readonly legalName: string;
+  readonly legalNameHint: string;
+  readonly displayName: string;
+  readonly displayNameHint: string;
   readonly logo: string;
   readonly industry: string;
   readonly timezone: string;
@@ -212,7 +216,10 @@ export type OrganizationSettingsLabels = {
 };
 
 export type OrganizationBrandingProfileDto = {
-  readonly shopName: string;
+  readonly legalName: string;
+  readonly displayName: string;
+  readonly publicDisplayName: string;
+  readonly canEditOrganizationProfile: boolean;
   readonly hasLogo: boolean;
   readonly industry: string | null;
   readonly timezone: string | null;
@@ -223,11 +230,13 @@ export type OrganizationSettingsBrandingPersistence = {
   readonly isLoading?: boolean;
   readonly loadError?: string | null;
   readonly hasLiveData?: boolean;
+  readonly canEditOrganizationProfile?: boolean;
   readonly profileSaveStatus?: SettingsSaveStatus;
   readonly saveErrorMessage?: string | null;
   readonly logoUploading?: boolean;
   readonly onSaveOrganizationProfile?: (payload: {
-    companyName: string;
+    legalName: string;
+    displayName: string;
     industry: string | null;
     timezone: string | null;
   }) => Promise<boolean>;

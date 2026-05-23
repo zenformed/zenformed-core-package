@@ -6,7 +6,11 @@ import type { OrganizationBrandingProfileDto } from './types';
 import type { SettingsSaveStatus } from './userSettingsTypes';
 
 type BrandingApiResponse = {
+  legalName?: string;
+  displayName?: string | null;
+  publicDisplayName?: string;
   shopName?: string;
+  canEditOrganizationProfile?: boolean;
   hasLogo?: boolean;
   industry?: string | null;
   timezone?: string | null;
@@ -18,14 +22,31 @@ type BrandingApiResponse = {
 function parseBrandingProfile(json: unknown, logoUrl: string | null): OrganizationBrandingProfileDto | null {
   if (json == null || typeof json !== 'object') return null;
   const o = json as BrandingApiResponse;
-  if (typeof o.shopName !== 'string') return null;
+  if (typeof o.legalName !== 'string') return null;
   if (typeof o.hasLogo !== 'boolean') return null;
   const industry = o.industry;
   const timezone = o.timezone;
   if (industry != null && typeof industry !== 'string') return null;
   if (timezone != null && typeof timezone !== 'string') return null;
+  const storedDisplayName =
+    o.displayName === null
+      ? ''
+      : typeof o.displayName === 'string'
+        ? o.displayName
+        : typeof o.shopName === 'string' && o.legalName !== o.shopName
+          ? o.shopName
+          : '';
+  const publicDisplayName =
+    typeof o.publicDisplayName === 'string'
+      ? o.publicDisplayName
+      : typeof o.shopName === 'string'
+        ? o.shopName
+        : storedDisplayName.trim() || o.legalName;
   return {
-    shopName: o.shopName,
+    legalName: o.legalName,
+    displayName: storedDisplayName,
+    publicDisplayName,
+    canEditOrganizationProfile: o.canEditOrganizationProfile !== false,
     hasLogo: o.hasLogo,
     industry: industry ?? null,
     timezone: timezone ?? null,
@@ -49,7 +70,8 @@ export type UseZenformedOrganizationBrandingResult = {
   readonly saveErrorMessage: string | null;
   readonly refetch: () => Promise<void>;
   readonly saveOrganizationProfile: (payload: {
-    companyName: string;
+    legalName: string;
+    displayName: string;
     industry: string | null;
     timezone: string | null;
   }) => Promise<boolean>;
@@ -149,7 +171,8 @@ export function useZenformedOrganizationBranding({
 
   const saveOrganizationProfile = useCallback(
     async (payload: {
-      companyName: string;
+      legalName: string;
+      displayName: string;
       industry: string | null;
       timezone: string | null;
     }) => {
@@ -161,6 +184,8 @@ export function useZenformedOrganizationBranding({
       setProfileSaveStatus('saving');
       setSaveErrorMessage(null);
       try {
+        const trimmedLegal = payload.legalName.trim();
+        const trimmedDisplay = payload.displayName.trim();
         const res = await fetch(brandingApiUrl, {
           method: 'PATCH',
           headers: {
@@ -169,7 +194,8 @@ export function useZenformedOrganizationBranding({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            displayName: payload.companyName.trim(),
+            legalName: trimmedLegal,
+            displayName: trimmedDisplay.length > 0 ? trimmedDisplay : '',
             industry: payload.industry,
             timezone: payload.timezone,
           }),

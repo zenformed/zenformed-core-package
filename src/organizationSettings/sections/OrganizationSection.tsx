@@ -39,37 +39,44 @@ export function OrganizationSection({
   workspace,
 }: Props) {
   const { organization, plan, members, pendingInvites } = viewModel;
-  const [companyName, setCompanyName] = useState(organization.companyName);
+  const [legalName, setLegalName] = useState(organization.legalName);
+  const [displayName, setDisplayName] = useState(organization.displayName);
   const [industry, setIndustry] = useState(organization.industry);
   const [timezone, setTimezone] = useState(
     resolveDefaultTimezone(organization.timezone || null)
   );
 
   useEffect(() => {
-    setCompanyName(organization.companyName);
+    setLegalName(organization.legalName);
+    setDisplayName(organization.displayName);
     setIndustry(organization.industry);
     setTimezone(resolveDefaultTimezone(organization.timezone || null));
-  }, [organization.companyName, organization.industry, organization.timezone]);
+  }, [organization.legalName, organization.displayName, organization.industry, organization.timezone]);
 
   const logoUrl = organization.logoUrl;
-  const initial = companyName.trim().charAt(0).toUpperCase() || 'O';
+  const publicLabel =
+    displayName.trim() || legalName.trim() || 'O';
+  const initial = publicLabel.trim().charAt(0).toUpperCase() || 'O';
   const seatsConnected = plan.seatsTotal > 0;
   const workspaceLoading = workspace?.isLoading ?? false;
   const workspaceLive = workspace?.hasLiveData ?? false;
+  const profileSaveStatus = branding?.profileSaveStatus ?? 'idle';
+  const savingProfile = profileSaveStatus === 'saving';
 
   const profileDirty = useMemo(() => {
     const savedIndustry = (organization.industry ?? '').trim();
     const savedTimezone = resolveDefaultTimezone(organization.timezone || null);
     return (
-      companyName.trim() !== (organization.companyName ?? '').trim() ||
+      legalName.trim() !== (organization.legalName ?? '').trim() ||
+      displayName.trim() !== (organization.displayName ?? '').trim() ||
       industry.trim() !== savedIndustry ||
       timezone !== savedTimezone
     );
-  }, [companyName, industry, timezone, organization]);
+  }, [legalName, displayName, industry, timezone, organization]);
 
-  const profileSaveStatus = branding?.profileSaveStatus ?? 'idle';
+  const namesReadOnly =
+    !(branding?.canEditOrganizationProfile ?? true) || savingProfile || Boolean(branding?.isLoading);
   const canSaveProfile = Boolean(branding?.onSaveOrganizationProfile) && profileDirty;
-  const savingProfile = profileSaveStatus === 'saving';
   const logoUploading = branding?.logoUploading ?? false;
   const canUploadLogo = Boolean(branding?.onUploadLogoClick && branding?.onLogoFileChange);
 
@@ -77,12 +84,21 @@ export function OrganizationSection({
     <>
       <ZenformedSettingsGroup title={labels.orgProfile} classNames={classNames}>
         <ZenformedSettingsField
-          label={labels.companyName}
+          label={labels.legalName}
           classNames={classNames}
-          value={companyName}
-          onChange={setCompanyName}
-          readOnly={savingProfile || branding?.isLoading}
+          value={legalName}
+          onChange={setLegalName}
+          readOnly={namesReadOnly}
         />
+        <p className={classNames.hint}>{labels.legalNameHint}</p>
+        <ZenformedSettingsField
+          label={labels.displayName}
+          classNames={classNames}
+          value={displayName}
+          onChange={setDisplayName}
+          readOnly={namesReadOnly}
+        />
+        <p className={classNames.hint}>{labels.displayNameHint}</p>
         <div className={classNames.field}>
           <span className={classNames.fieldLabel}>{labels.logo}</span>
           <div className={classNames.logoPreview}>
@@ -97,7 +113,7 @@ export function OrganizationSection({
             <button
               type="button"
               className={classNames.btn}
-              disabled={!canUploadLogo || logoUploading || branding?.isLoading}
+              disabled={!canUploadLogo || logoUploading || branding?.isLoading || namesReadOnly}
               onClick={branding?.onUploadLogoClick}
             >
               {logoUploading ? labels.uploadingLogo : labels.uploadLogo}
@@ -121,7 +137,7 @@ export function OrganizationSection({
             id="org-industry"
             className={`${classNames.select} ${classNames.industrySelect}`}
             value={industry}
-            disabled={savingProfile || branding?.isLoading}
+            disabled={savingProfile || branding?.isLoading || namesReadOnly}
             onChange={(e) => setIndustry(e.target.value)}
           >
             {INDUSTRY_OPTIONS.map((opt) => (
@@ -135,7 +151,7 @@ export function OrganizationSection({
           label={labels.timezone}
           classNames={classNames}
           value={timezone}
-          disabled={savingProfile || branding?.isLoading}
+          disabled={savingProfile || branding?.isLoading || namesReadOnly}
           onChange={setTimezone}
         />
         <SettingsSaveStatusLine
@@ -149,10 +165,11 @@ export function OrganizationSection({
           <button
             type="button"
             className={`${classNames.btn} ${classNames.btnPrimary}`}
-            disabled={!canSaveProfile || savingProfile}
+            disabled={!canSaveProfile || savingProfile || namesReadOnly}
             onClick={() => {
               void branding?.onSaveOrganizationProfile?.({
-                companyName: companyName.trim(),
+                legalName: legalName.trim(),
+                displayName: displayName.trim(),
                 industry: industry.trim() || null,
                 timezone,
               });

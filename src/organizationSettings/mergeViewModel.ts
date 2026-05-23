@@ -13,7 +13,8 @@ export function brandingProfileToViewModelOverrides(
 ): Partial<OrganizationSettingsViewModel> {
   return {
     organization: {
-      companyName: profile.shopName,
+      legalName: profile.legalName,
+      displayName: profile.displayName,
       industry: profile.industry ?? '',
       timezone: resolveDefaultTimezone(profile.timezone),
       logoUrl: profile.logoUrl ?? null,
@@ -81,16 +82,12 @@ export function mergeOrganizationSettingsViewModel(
 ): OrganizationSettingsViewModel {
   const base = DEFAULT_ORGANIZATION_SETTINGS_VIEW_MODEL;
 
-  const companyName =
-    shell?.organizationName?.trim() ||
-    overrides?.organization?.companyName ||
-    base.organization.companyName;
-
   return {
     organization: {
       ...base.organization,
       ...overrides?.organization,
-      companyName,
+      legalName: overrides?.organization?.legalName ?? base.organization.legalName,
+      displayName: overrides?.organization?.displayName ?? base.organization.displayName,
       logoUrl: shell?.logoUrl ?? overrides?.organization?.logoUrl ?? base.organization.logoUrl,
       industry: shell?.industry?.trim() || overrides?.organization?.industry || base.organization.industry,
       timezone: shell?.timezone?.trim() || overrides?.organization?.timezone || base.organization.timezone,

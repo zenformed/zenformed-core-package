@@ -224,6 +224,9 @@ export type OrganizationSettingsLabels = {
   readonly billingPlaceholderNote: string;
   readonly passwordChangeComingSoon: string;
   readonly noTeamMembersYet: string;
+  readonly teamMembersSearchPlaceholder: string;
+  readonly teamMembersFilterAll: string;
+  readonly teamMembersNoSearchResults: string;
   readonly noPendingInvitesYet: string;
   readonly noAppAccessYet: string;
   readonly seatsNotConnected: string;

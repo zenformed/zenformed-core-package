@@ -75,6 +75,9 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   passwordChangeComingSoon:
     'Password changes are not available here yet. Use your sign-in flow when password reset is enabled.',
   noTeamMembersYet: 'No team members to show. Member list will appear when organization membership is connected.',
+  teamMembersSearchPlaceholder: 'Search by name, email, or role',
+  teamMembersFilterAll: 'All',
+  teamMembersNoSearchResults: 'No team members match your search.',
   noPendingInvitesYet: 'No pending invites.',
   noAppAccessYet: 'No app entitlements to show yet.',
   seatsNotConnected: 'Seat usage will appear when team and subscription management are connected.',

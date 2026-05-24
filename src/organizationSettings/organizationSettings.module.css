@@ -349,6 +349,60 @@
   color: var(--color-success);
 }
 
+.memberToolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.memberSearchField {
+  display: block;
+}
+
+.memberSearchInput {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--theme-form-input-border, var(--color-border));
+  border-radius: 8px;
+  background: var(--theme-form-input-bg, var(--color-surface)) !important;
+  color: var(--theme-form-input-text, var(--color-text)) !important;
+  font-size: 0.875rem;
+}
+
+.memberSearchInput:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-primary, #2563eb) 45%, transparent);
+  outline-offset: 1px;
+}
+
+.memberRoleFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.memberRoleFilterBtn {
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--theme-border-main, var(--color-border));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.memberRoleFilterBtn:hover:not(:disabled) {
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-primary, #2563eb) 35%, var(--color-border));
+}
+
+.memberRoleFilterBtnActive {
+  border-color: color-mix(in srgb, var(--color-primary, #2563eb) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary, #2563eb) 12%, transparent);
+  color: var(--color-text);
+}
+
 .memberList {
   display: flex;
   flex-direction: column;

@@ -43,6 +43,15 @@ const ROLE_LABELS: Record<OrganizationSettingsMemberRole, string> = {
   member: 'Member',
 };
 
+const ROLE_FILTER_OPTIONS: readonly OrganizationSettingsMemberRole[] = [
+  'owner',
+  'admin',
+  'coordinator',
+  'member',
+];
+
+type TeamMemberRoleFilter = 'all' | OrganizationSettingsMemberRole;
+
 type Props = {
   readonly members: readonly OrganizationSettingsMember[];
   readonly plan: OrganizationSettingsPlan;
@@ -92,6 +101,30 @@ function resolveEmail(member: OrganizationSettingsMember): string | null {
   if (member.email != null && member.email.trim() !== '') return member.email.trim();
   const match = /\(([^)]+@[^)]+)\)/.exec(member.name);
   return match?.[1]?.trim() ?? null;
+}
+
+function memberMatchesSearch(
+  member: OrganizationSettingsMember,
+  role: OrganizationSettingsMemberRole,
+  query: string
+): boolean {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) return true;
+
+  const displayName = resolveDisplayName(member).toLowerCase();
+  const email = (resolveEmail(member) ?? '').toLowerCase();
+  const firstName = (member.firstName ?? '').trim().toLowerCase();
+  const lastName = (member.lastName ?? '').trim().toLowerCase();
+  const roleLabel = ROLE_LABELS[role].toLowerCase();
+
+  return (
+    displayName.includes(normalizedQuery) ||
+    email.includes(normalizedQuery) ||
+    firstName.includes(normalizedQuery) ||
+    lastName.includes(normalizedQuery) ||
+    roleLabel.includes(normalizedQuery) ||
+    role.includes(normalizedQuery)
+  );
 }
 
 function TrashIcon({ className }: { className?: string }): ReactElement {
@@ -172,6 +205,8 @@ export function OrganizationTeamMembersGroup({
     null
   );
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<TeamMemberRoleFilter>('all');
 
   const canInvite = Boolean(onCreateInvite) && !inviteDisabled && (permissions?.canInviteMembers ?? false);
   const canManageRoles = Boolean(onUpdateMemberRole) && !roleManagementDisabled;
@@ -190,6 +225,16 @@ export function OrganizationTeamMembersGroup({
     setPendingRoles({});
     setEditingMemberId(null);
   }, [members]);
+
+  const filteredMembers = useMemo(() => {
+    return members.filter((member) => {
+      const role = pendingRoles[member.id] ?? member.role;
+      if (roleFilter !== 'all' && role !== roleFilter) return false;
+      return memberMatchesSearch(member, role, memberSearchQuery);
+    });
+  }, [members, memberSearchQuery, pendingRoles, roleFilter]);
+
+  const showMemberToolbar = members.length > 0;
 
   function effectiveRole(member: OrganizationSettingsMember): OrganizationSettingsMemberRole {
     return pendingRoles[member.id] ?? member.role;
@@ -245,6 +290,46 @@ export function OrganizationTeamMembersGroup({
       ) : (
         <p className={classNames.hint}>{labels.seatsNotConnected}</p>
       )}
+      {showMemberToolbar ? (
+        <div className={orgStyles.memberToolbar}>
+          <label className={orgStyles.memberSearchField}>
+            <span className={orgStyles.visuallyHidden}>{labels.teamMembersSearchPlaceholder}</span>
+            <input
+              type="search"
+              className={orgStyles.memberSearchInput}
+              placeholder={labels.teamMembersSearchPlaceholder}
+              value={memberSearchQuery}
+              onChange={(e) => setMemberSearchQuery(e.target.value)}
+              autoComplete="off"
+            />
+          </label>
+          <div className={orgStyles.memberRoleFilters} role="group" aria-label={labels.role}>
+            <button
+              type="button"
+              className={`${orgStyles.memberRoleFilterBtn} ${
+                roleFilter === 'all' ? orgStyles.memberRoleFilterBtnActive : ''
+              }`}
+              aria-pressed={roleFilter === 'all'}
+              onClick={() => setRoleFilter('all')}
+            >
+              {labels.teamMembersFilterAll}
+            </button>
+            {ROLE_FILTER_OPTIONS.map((role) => (
+              <button
+                key={role}
+                type="button"
+                className={`${orgStyles.memberRoleFilterBtn} ${
+                  roleFilter === role ? orgStyles.memberRoleFilterBtnActive : ''
+                }`}
+                aria-pressed={roleFilter === role}
+                onClick={() => setRoleFilter(role)}
+              >
+                {ROLE_LABELS[role]}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
       {canInvite ? (
         <div className={classNames.actions}>
           <button
@@ -323,9 +408,11 @@ export function OrganizationTeamMembersGroup({
       ) : null}
       {members.length === 0 ? (
         <p className={classNames.hint}>{labels.noTeamMembersYet}</p>
+      ) : filteredMembers.length === 0 ? (
+        <p className={classNames.hint}>{labels.teamMembersNoSearchResults}</p>
       ) : (
         <ul className={classNames.memberList}>
-          {members.map((member) => {
+          {filteredMembers.map((member) => {
             const isOwner = member.role === 'owner';
             const isSelf = currentUserId != null && member.userId === currentUserId;
             const role = effectiveRole(member);

@@ -46,16 +46,20 @@ export function TeamMembersSection({ viewModel, labels, classNames, workspace }:
         inviteDisabled={workspace?.inviteActionsDisabled ?? true}
         roleManagementDisabled={workspace?.roleManagementDisabled ?? true}
         removeMemberDisabled={workspace?.removeMemberDisabled ?? true}
+        memberProfileEditDisabled={workspace?.memberProfileEditDisabled ?? true}
         isCreatingInvite={workspace?.isCreatingInvite}
         updatingMemberRoleId={workspace?.updatingMemberRoleId}
+        updatingMemberProfileId={workspace?.updatingMemberProfileId}
         removingMemberId={workspace?.removingMemberId}
         inviteMutationError={workspace?.inviteMutationError}
         roleMutationError={workspace?.roleMutationError}
         removeMemberMutationError={workspace?.removeMemberMutationError}
+        memberProfileMutationError={workspace?.memberProfileMutationError}
         createdInviteAcceptUrl={workspace?.createdInviteAcceptUrl}
         onDismissCreatedInviteLink={workspace?.onDismissCreatedInviteLink}
         onCreateInvite={workspace?.onCreateInvite}
         onUpdateMemberRole={workspace?.onUpdateMemberRole}
+        onUpdateMemberProfile={workspace?.onUpdateMemberProfile}
         onRemoveMember={workspace?.onRemoveMember}
       />
 

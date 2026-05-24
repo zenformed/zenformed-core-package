@@ -26,6 +26,8 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   cancel: 'Cancel',
   removeMember: 'Remove',
   removeMemberAriaLabel: 'Remove member from organization',
+  editMember: 'Edit member',
+  editMemberAriaLabel: 'Edit member name and email',
   appAccess: 'App Access',
   profile: 'Profile',
   firstName: 'First name',

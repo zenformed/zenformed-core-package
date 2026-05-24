@@ -30,23 +30,27 @@ export function AccountSection({
   const { account } = viewModel;
   const [firstName, setFirstName] = useState(account.firstName);
   const [lastName, setLastName] = useState(account.lastName);
+  const [email, setEmail] = useState(account.email);
 
   useEffect(() => {
     setFirstName(account.firstName);
     setLastName(account.lastName);
-  }, [account.firstName, account.lastName]);
+    setEmail(account.email);
+  }, [account.firstName, account.lastName, account.email]);
+
+  const canEditEmail = persistence?.permissions?.canEditAccountEmail ?? false;
 
   const profileDirty = useMemo(
     () =>
       firstName.trim() !== (account.firstName ?? '').trim() ||
-      lastName.trim() !== (account.lastName ?? '').trim(),
-    [account.firstName, account.lastName, firstName, lastName]
+      lastName.trim() !== (account.lastName ?? '').trim() ||
+      (canEditEmail && email.trim() !== (account.email ?? '').trim()),
+    [account.email, account.firstName, account.lastName, canEditEmail, email, firstName, lastName]
   );
 
   const accountSaveStatus = persistence?.accountSaveStatus ?? 'idle';
   const canSaveAccount = Boolean(persistence?.onSaveAccount) && profileDirty;
   const savingAccount = accountSaveStatus === 'saving';
-  const canEditEmail = persistence?.permissions?.canEditAccountEmail ?? false;
 
   return (
     <>
@@ -72,11 +76,12 @@ export function AccountSection({
         <ZenformedSettingsField
           label={labels.email}
           classNames={classNames}
-          value={account.email}
+          value={email}
           placeholder="—"
           autoComplete="email"
-          readOnly
+          readOnly={!canEditEmail || savingAccount || persistence?.isLoading}
           nonEditable={!canEditEmail}
+          onChange={canEditEmail ? setEmail : undefined}
         />
         <SettingsSaveStatusLine
           status={accountSaveStatus}
@@ -91,7 +96,11 @@ export function AccountSection({
             className={`${classNames.btn} ${classNames.btnPrimary}`}
             disabled={!canSaveAccount || savingAccount || persistence?.isLoading}
             onClick={() => {
-              void persistence?.onSaveAccount?.({ firstName, lastName });
+              void persistence?.onSaveAccount?.({
+                firstName,
+                lastName,
+                ...(canEditEmail ? { email } : {}),
+              });
             }}
           >
             {savingAccount ? labels.saving : labels.save}

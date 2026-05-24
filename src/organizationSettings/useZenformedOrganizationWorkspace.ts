@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type {
   OrganizationInviteCreatePayload,
   OrganizationMemberRoleUpdatePayload,
+  OrganizationMemberProfileUpdatePayload,
   OrganizationWorkspaceAppAccessDto,
   OrganizationWorkspaceAppAccessEntryDto,
   OrganizationWorkspaceInviteDto,
@@ -96,6 +97,9 @@ function parseMembersJson(json: unknown): OrganizationWorkspaceMemberDto[] | nul
     const row = m as Record<string, unknown>;
     if (typeof row.id !== 'string' || typeof row.userId !== 'string') return null;
     if (typeof row.displayName !== 'string') return null;
+    if (row.firstName != null && typeof row.firstName !== 'string') return null;
+    if (row.lastName != null && typeof row.lastName !== 'string') return null;
+    if (row.email != null && typeof row.email !== 'string') return null;
     if (
       row.role !== 'owner' &&
       row.role !== 'admin' &&
@@ -108,6 +112,8 @@ function parseMembersJson(json: unknown): OrganizationWorkspaceMemberDto[] | nul
       id: row.id,
       userId: row.userId,
       displayName: row.displayName,
+      firstName: typeof row.firstName === 'string' ? row.firstName : null,
+      lastName: typeof row.lastName === 'string' ? row.lastName : null,
       email: typeof row.email === 'string' ? row.email : null,
       role: row.role,
       status: row.status,
@@ -307,13 +313,19 @@ export type UseZenformedOrganizationWorkspaceResult = {
     payload: OrganizationMemberRoleUpdatePayload
   ) => Promise<boolean>;
   readonly removeMember: (memberId: string) => Promise<boolean>;
+  readonly updateMemberProfile: (
+    memberId: string,
+    payload: OrganizationMemberProfileUpdatePayload
+  ) => Promise<boolean>;
   readonly isCreatingInvite: boolean;
   readonly cancelingInviteId: string | null;
   readonly updatingMemberRoleId: string | null;
+  readonly updatingMemberProfileId: string | null;
   readonly removingMemberId: string | null;
   readonly inviteMutationError: string | null;
   readonly roleMutationError: string | null;
   readonly removeMemberMutationError: string | null;
+  readonly memberProfileMutationError: string | null;
   readonly createdInviteAcceptUrl: string | null;
   readonly clearCreatedInviteAcceptUrl: () => void;
 };
@@ -340,9 +352,11 @@ export function useZenformedOrganizationWorkspace({
   const [cancelingInviteId, setCancelingInviteId] = useState<string | null>(null);
   const [updatingMemberRoleId, setUpdatingMemberRoleId] = useState<string | null>(null);
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [updatingMemberProfileId, setUpdatingMemberProfileId] = useState<string | null>(null);
   const [inviteMutationError, setInviteMutationError] = useState<string | null>(null);
   const [roleMutationError, setRoleMutationError] = useState<string | null>(null);
   const [removeMemberMutationError, setRemoveMemberMutationError] = useState<string | null>(null);
+  const [memberProfileMutationError, setMemberProfileMutationError] = useState<string | null>(null);
   const [createdInviteAcceptUrl, setCreatedInviteAcceptUrl] = useState<string | null>(null);
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
@@ -604,6 +618,53 @@ export function useZenformedOrganizationWorkspace({
     [apiUrls.members, fetchAll, getAccessToken]
   );
 
+  const updateMemberProfile = useCallback(
+    async (
+      memberId: string,
+      payload: OrganizationMemberProfileUpdatePayload
+    ): Promise<boolean> => {
+      const token = getAccessToken()?.trim();
+      if (!token) {
+        setMemberProfileMutationError('Not signed in');
+        return false;
+      }
+      setUpdatingMemberProfileId(memberId);
+      setMemberProfileMutationError(null);
+      try {
+        const res = await fetch(`${apiUrls.members}/${encodeURIComponent(memberId)}`, {
+          method: 'PATCH',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch {
+          setMemberProfileMutationError('Invalid response from server');
+          return false;
+        }
+        if (!res.ok) {
+          setMemberProfileMutationError(readMutationError(json, 'Failed to update member profile'));
+          return false;
+        }
+        await fetchAll();
+        return true;
+      } catch (e) {
+        setMemberProfileMutationError(
+          e instanceof Error ? e.message : 'Failed to update member profile'
+        );
+        return false;
+      } finally {
+        setUpdatingMemberProfileId(null);
+      }
+    },
+    [apiUrls.members, fetchAll, getAccessToken]
+  );
+
   return {
     snapshot,
     isLoading,
@@ -614,13 +675,16 @@ export function useZenformedOrganizationWorkspace({
     cancelInvite,
     updateMemberRole,
     removeMember,
+    updateMemberProfile,
     isCreatingInvite,
     cancelingInviteId,
     updatingMemberRoleId,
+    updatingMemberProfileId,
     removingMemberId,
     inviteMutationError,
     roleMutationError,
     removeMemberMutationError,
+    memberProfileMutationError,
     createdInviteAcceptUrl,
     clearCreatedInviteAcceptUrl,
   };

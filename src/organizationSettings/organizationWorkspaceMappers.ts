@@ -68,6 +68,8 @@ export function workspaceSnapshotToViewModelOverrides(
           userId: m.userId,
           name: m.displayName,
           displayName: m.displayName,
+          firstName: m.firstName,
+          lastName: m.lastName,
           email: m.email,
           role: mapMemberRole(m.role),
         }))

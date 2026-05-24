@@ -56,7 +56,11 @@ export type UseZenformedUserSettingsResult = {
   readonly notificationsSaveStatus: SettingsSaveStatus;
   readonly saveErrorMessage: string | null;
   readonly refetch: () => Promise<void>;
-  readonly saveAccount: (payload: { firstName: string; lastName: string }) => Promise<boolean>;
+  readonly saveAccount: (payload: {
+    firstName: string;
+    lastName: string;
+    email?: string;
+  }) => Promise<boolean>;
   readonly saveNotifications: (payload: {
     marketingEmailOptIn: boolean;
     smsOptIn: boolean;
@@ -215,11 +219,12 @@ export function useZenformedUserSettings({
   );
 
   const saveAccount = useCallback(
-    async (payload: { firstName: string; lastName: string }) =>
+    async (payload: { firstName: string; lastName: string; email?: string }) =>
       patchSettings(
         {
           firstName: payload.firstName.trim() || null,
           lastName: payload.lastName.trim() || null,
+          ...(payload.email !== undefined ? { email: payload.email.trim() || null } : {}),
         },
         'account'
       ),

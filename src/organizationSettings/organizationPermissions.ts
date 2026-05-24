@@ -14,6 +14,7 @@ export type OrganizationPermissions = {
   readonly canCancelInvites: boolean;
   readonly canManageMemberRoles: boolean;
   readonly canRemoveMembers: boolean;
+  readonly canManageMemberProfiles: boolean;
   readonly canViewAppsBilling: boolean;
   readonly canEditAccountEmail: boolean;
 };
@@ -26,6 +27,7 @@ export const EMPTY_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
   canCancelInvites: false,
   canManageMemberRoles: false,
   canRemoveMembers: false,
+  canManageMemberProfiles: false,
   canViewAppsBilling: false,
   canEditAccountEmail: false,
 };
@@ -41,6 +43,7 @@ export function parseOrganizationPermissions(json: unknown): OrganizationPermiss
     'canCancelInvites',
     'canManageMemberRoles',
     'canRemoveMembers',
+    'canManageMemberProfiles',
     'canViewAppsBilling',
     'canEditAccountEmail',
   ] as const;
@@ -110,6 +113,12 @@ export function roleCanRemoveMember(
   }
 
   return false;
+}
+
+export function memberCanBeEdited(
+  permissions: OrganizationPermissions | null | undefined
+): boolean {
+  return permissions?.canManageMemberProfiles ?? false;
 }
 
 export function memberCanBeRemoved(

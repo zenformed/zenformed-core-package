@@ -6,6 +6,7 @@ import {
   ZenformedConfirmSnackbar,
 } from '../../dashboardShell';
 import { OrganizationInlineInviteRow } from './OrganizationInlineInviteRow';
+import { OrganizationInlineMemberEditRow } from './OrganizationInlineMemberEditRow';
 import { ZenformedSettingsGroup } from './ZenformedSettingsGroup';
 import { organizationRoleDescription } from '../organizationRoleDescriptions';
 import orgStyles from '../organizationSettings.module.css';
@@ -19,6 +20,7 @@ import type {
 import type {
   OrganizationInviteCreatePayload,
   OrganizationMemberRoleUpdatePayload,
+  OrganizationMemberProfileUpdatePayload,
 } from '../organizationWorkspaceTypes';
 import type {
   AssignableOrganizationMemberRole,
@@ -27,6 +29,7 @@ import type {
 } from '../organizationPermissions';
 import {
   inviteRoleOptionsForPermissions,
+  memberCanBeEdited,
   memberCanBeRemoved,
   memberRoleOptionsForPermissions,
 } from '../organizationPermissions';
@@ -53,18 +56,25 @@ type Props = {
   readonly inviteDisabled?: boolean;
   readonly roleManagementDisabled?: boolean;
   readonly removeMemberDisabled?: boolean;
+  readonly memberProfileEditDisabled?: boolean;
   readonly isCreatingInvite?: boolean;
   readonly updatingMemberRoleId?: string | null;
+  readonly updatingMemberProfileId?: string | null;
   readonly removingMemberId?: string | null;
   readonly inviteMutationError?: string | null;
   readonly roleMutationError?: string | null;
   readonly removeMemberMutationError?: string | null;
+  readonly memberProfileMutationError?: string | null;
   readonly createdInviteAcceptUrl?: string | null;
   readonly onDismissCreatedInviteLink?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
   readonly onUpdateMemberRole?: (
     memberId: string,
     payload: OrganizationMemberRoleUpdatePayload
+  ) => Promise<boolean>;
+  readonly onUpdateMemberProfile?: (
+    memberId: string,
+    payload: OrganizationMemberProfileUpdatePayload
   ) => Promise<boolean>;
   readonly onRemoveMember?: (memberId: string) => Promise<boolean>;
 };
@@ -104,6 +114,26 @@ function TrashIcon({ className }: { className?: string }): ReactElement {
   );
 }
 
+function EditIcon({ className }: { className?: string }): ReactElement {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
 export function OrganizationTeamMembersGroup({
   members,
   plan,
@@ -117,16 +147,20 @@ export function OrganizationTeamMembersGroup({
   inviteDisabled = true,
   roleManagementDisabled = true,
   removeMemberDisabled = true,
+  memberProfileEditDisabled = true,
   isCreatingInvite = false,
   updatingMemberRoleId = null,
+  updatingMemberProfileId = null,
   removingMemberId = null,
   inviteMutationError,
   roleMutationError,
   removeMemberMutationError,
+  memberProfileMutationError,
   createdInviteAcceptUrl,
   onDismissCreatedInviteLink,
   onCreateInvite,
   onUpdateMemberRole,
+  onUpdateMemberProfile,
   onRemoveMember,
 }: Props) {
   const [showInviteForm, setShowInviteForm] = useState(false);
@@ -135,10 +169,13 @@ export function OrganizationTeamMembersGroup({
   const [pendingRemoveMember, setPendingRemoveMember] = useState<OrganizationSettingsMember | null>(
     null
   );
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
 
   const canInvite = Boolean(onCreateInvite) && !inviteDisabled && (permissions?.canInviteMembers ?? false);
   const canManageRoles = Boolean(onUpdateMemberRole) && !roleManagementDisabled;
   const canRemoveMembers = Boolean(onRemoveMember) && !removeMemberDisabled;
+  const canEditMemberProfiles =
+    Boolean(onUpdateMemberProfile) && !memberProfileEditDisabled && memberCanBeEdited(permissions);
   const inviteRoleOptions = inviteRoleOptionsForPermissions(permissions);
   const memberRoleOptions = memberRoleOptionsForPermissions();
 
@@ -149,6 +186,7 @@ export function OrganizationTeamMembersGroup({
 
   useEffect(() => {
     setPendingRoles({});
+    setEditingMemberId(null);
   }, [members]);
 
   function effectiveRole(member: OrganizationSettingsMember): OrganizationSettingsMemberRole {
@@ -267,6 +305,11 @@ export function OrganizationTeamMembersGroup({
           {removeMemberMutationError}
         </p>
       ) : null}
+      {memberProfileMutationError ? (
+        <p className={`${classNames.saveStatus} ${classNames.saveStatusError}`}>
+          {memberProfileMutationError}
+        </p>
+      ) : null}
       {members.length === 0 ? (
         <p className={classNames.hint}>{labels.noTeamMembersYet}</p>
       ) : (
@@ -277,14 +320,17 @@ export function OrganizationTeamMembersGroup({
             const role = effectiveRole(member);
             const dirty = isRoleDirty(member);
             const saving = updatingMemberRoleId === member.id;
+            const savingProfile = updatingMemberProfileId === member.id;
             const removing = removingMemberId === member.id;
+            const isEditing = editingMemberId === member.id;
             const roleSelectDisabled =
-              !canManageRoles || isOwner || isSelf || saving || removing;
+              !canManageRoles || isOwner || isSelf || saving || removing || savingProfile || isEditing;
             const displayName = resolveDisplayName(member);
             const email = resolveEmail(member);
             const showRemove =
               canRemoveMembers &&
               memberCanBeRemoved(permissions, currentUserRole, currentUserId, member);
+            const showEdit = canEditMemberProfiles;
 
             return (
               <li key={member.id} className={classNames.memberRow}>
@@ -320,13 +366,30 @@ export function OrganizationTeamMembersGroup({
                         ))}
                       </select>
                     )}
+                    {showEdit ? (
+                      <button
+                        type="button"
+                        className={classNames.memberEditBtn}
+                        disabled={removing || saving || savingProfile || isEditing}
+                        aria-label={`${labels.editMemberAriaLabel}: ${displayName}`}
+                        onClick={() => {
+                          setEditingMemberId(member.id);
+                          setPendingRemoveMember(null);
+                        }}
+                      >
+                        <EditIcon className={classNames.memberEditBtnIcon} />
+                      </button>
+                    ) : null}
                     {showRemove ? (
                       <button
                         type="button"
                         className={classNames.memberRemoveBtn}
-                        disabled={removing || saving}
+                        disabled={removing || saving || savingProfile || isEditing}
                         aria-label={`${labels.removeMemberAriaLabel}: ${displayName}`}
-                        onClick={() => setPendingRemoveMember(member)}
+                        onClick={() => {
+                          setPendingRemoveMember(member);
+                          setEditingMemberId(null);
+                        }}
                       >
                         <TrashIcon className={classNames.memberRemoveBtnIcon} />
                       </button>
@@ -337,7 +400,7 @@ export function OrganizationTeamMembersGroup({
                       <button
                         type="button"
                         className={`${classNames.btn} ${classNames.btnPrimary} ${classNames.btnSmall}`}
-                        disabled={saving || removing}
+                        disabled={saving || removing || savingProfile || isEditing}
                         onClick={() => void handleSaveRole(member)}
                       >
                         {saving ? labels.saving : labels.save}
@@ -345,7 +408,7 @@ export function OrganizationTeamMembersGroup({
                       <button
                         type="button"
                         className={`${classNames.btn} ${classNames.btnGhost} ${classNames.btnSmall}`}
-                        disabled={saving || removing}
+                        disabled={saving || removing || savingProfile || isEditing}
                         onClick={() => clearPendingRole(member.id)}
                       >
                         {labels.cancel}
@@ -353,6 +416,21 @@ export function OrganizationTeamMembersGroup({
                     </div>
                   ) : null}
                 </div>
+                {isEditing ? (
+                  <OrganizationInlineMemberEditRow
+                    member={member}
+                    labels={labels}
+                    classNames={classNames}
+                    isSubmitting={savingProfile}
+                    errorMessage={memberProfileMutationError}
+                    onCancel={() => setEditingMemberId(null)}
+                    onSubmit={async (payload) => {
+                      const ok = (await onUpdateMemberProfile?.(member.id, payload)) ?? false;
+                      if (ok) setEditingMemberId(null);
+                      return ok;
+                    }}
+                  />
+                ) : null}
               </li>
             );
           })}

@@ -44,7 +44,8 @@ export { OrganizationTeamMembersGroup } from './components/OrganizationTeamMembe
 export { organizationRoleDescription, ORGANIZATION_ROLE_DESCRIPTIONS } from './organizationRoleDescriptions';
 export { OrganizationPendingInvitesGroup } from './components/OrganizationPendingInvitesGroup';
 export { OrganizationInlineInviteRow } from './components/OrganizationInlineInviteRow';
-export type { OrganizationInviteCreatePayload, OrganizationMemberRoleUpdatePayload } from './organizationWorkspaceTypes';
+export { OrganizationInlineMemberEditRow } from './components/OrganizationInlineMemberEditRow';
+export type { OrganizationInviteCreatePayload, OrganizationMemberRoleUpdatePayload, OrganizationMemberProfileUpdatePayload } from './organizationWorkspaceTypes';
 export type {
   OrganizationMemberRole,
   OrganizationPermissions,
@@ -57,6 +58,7 @@ export {
   inviteRoleOptionsForPermissions,
   memberRoleOptionsForPermissions,
   memberCanBeRemoved,
+  memberCanBeEdited,
   roleCanRemoveMember,
   parseOrganizationPermissions,
 } from './organizationPermissions';

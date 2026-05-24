@@ -14,6 +14,7 @@ export type ZenformedUserSettingsDto = {
 export type ZenformedUserSettingsPatch = {
   readonly firstName?: string | null;
   readonly lastName?: string | null;
+  readonly email?: string | null;
   readonly marketingEmailOptIn?: boolean;
   readonly smsOptIn?: boolean;
 };
@@ -31,6 +32,7 @@ export type OrganizationSettingsPersistence = {
   readonly onSaveAccount?: (payload: {
     firstName: string;
     lastName: string;
+    email?: string;
   }) => Promise<boolean>;
   readonly onSaveNotifications?: (payload: {
     marketingEmailOptIn: boolean;

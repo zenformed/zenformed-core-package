@@ -9,6 +9,8 @@ export type OrganizationSettingsMember = {
   readonly name: string;
   readonly displayName?: string;
   readonly email?: string | null;
+  readonly firstName?: string | null;
+  readonly lastName?: string | null;
   readonly userId?: string;
   readonly role: OrganizationSettingsMemberRole;
 };
@@ -122,6 +124,9 @@ export type OrganizationSettingsClassNames = {
   readonly memberRowControlPrimary: string;
   readonly memberRemoveBtn: string;
   readonly memberRemoveBtnIcon: string;
+  readonly memberEditBtn: string;
+  readonly memberEditBtnIcon: string;
+  readonly memberEditPanel: string;
   readonly memberName: string;
   readonly memberRoleSelect: string;
   readonly seatsSummary: string;
@@ -180,6 +185,8 @@ export type OrganizationSettingsLabels = {
   readonly cancel: string;
   readonly removeMember: string;
   readonly removeMemberAriaLabel: string;
+  readonly editMember: string;
+  readonly editMemberAriaLabel: string;
   readonly appAccess: string;
   readonly profile: string;
   readonly firstName: string;

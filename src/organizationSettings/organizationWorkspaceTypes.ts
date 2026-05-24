@@ -21,6 +21,8 @@ export type OrganizationWorkspaceMemberDto = {
   readonly id: string;
   readonly userId: string;
   readonly displayName: string;
+  readonly firstName: string | null;
+  readonly lastName: string | null;
   readonly email: string | null;
   readonly role: OrganizationMemberRole;
   readonly status: 'active' | 'invited' | 'removed';
@@ -49,6 +51,12 @@ export type OrganizationInviteCreatePayload = {
 
 export type OrganizationMemberRoleUpdatePayload = {
   readonly role: AssignableOrganizationMemberRole;
+};
+
+export type OrganizationMemberProfileUpdatePayload = {
+  readonly firstName?: string | null;
+  readonly lastName?: string | null;
+  readonly email?: string | null;
 };
 
 export type OrganizationWorkspaceSeatsDto = {
@@ -109,13 +117,16 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly inviteActionsDisabled?: boolean;
   readonly roleManagementDisabled?: boolean;
   readonly removeMemberDisabled?: boolean;
+  readonly memberProfileEditDisabled?: boolean;
   readonly isCreatingInvite?: boolean;
   readonly cancelingInviteId?: string | null;
   readonly updatingMemberRoleId?: string | null;
+  readonly updatingMemberProfileId?: string | null;
   readonly removingMemberId?: string | null;
   readonly inviteMutationError?: string | null;
   readonly roleMutationError?: string | null;
   readonly removeMemberMutationError?: string | null;
+  readonly memberProfileMutationError?: string | null;
   readonly createdInviteAcceptUrl?: string | null;
   readonly onDismissCreatedInviteLink?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
@@ -123,6 +134,10 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly onUpdateMemberRole?: (
     memberId: string,
     payload: OrganizationMemberRoleUpdatePayload
+  ) => Promise<boolean>;
+  readonly onUpdateMemberProfile?: (
+    memberId: string,
+    payload: OrganizationMemberProfileUpdatePayload
   ) => Promise<boolean>;
   readonly onRemoveMember?: (memberId: string) => Promise<boolean>;
 };

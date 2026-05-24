@@ -1,14 +1,17 @@
 import type { SaaSEntitlementSnapshot } from './entitlementSnapshot';
 import { resolvePlatformOrganizationPreferenceOrder } from './platformOrganizationPreference';
 
+/** True when mirrored entitlement_status grants app access (matches legacy subscription active). */
+export function isPlatformEntitlementStatusActive(entitlementStatus: string): boolean {
+  return typeof entitlementStatus === 'string' && entitlementStatus.trim().toLowerCase() === 'active';
+}
+
 /** Mirrors legacy semantics for mirrored rows: active ↔ subscriptionActive; PRO tier strict match. */
 export function mapPlatformEntitlementRowToSnapshot(row: {
   entitlement_status: string;
   plan_code: string | null;
 }): SaaSEntitlementSnapshot {
-  const subscriptionActive =
-    typeof row.entitlement_status === 'string' &&
-    row.entitlement_status.trim().toLowerCase() === 'active';
+  const subscriptionActive = isPlatformEntitlementStatusActive(row.entitlement_status);
 
   const licenseTier = row.plan_code === 'PRO' ? 'PRO' : 'STANDARD';
 
@@ -41,7 +44,9 @@ export interface PlatformAppMirrorResolutionDetail {
 }
 
 /**
- * Pure resolution: personal-default org first, then UUID sort, first matching entitlement row wins.
+ * Pure resolution: walk org preference order; prefer the first **active** entitlement so invited
+ * members inherit org subscription instead of a personal-default org mirror with inactive profile.
+ * Falls back to the first entitlement row (inactive/expired/trial) when none are active.
  */
 export function resolvePlatformAppEntitlementFromPrefetched(params: {
   userId: string;
@@ -102,15 +107,28 @@ export function resolvePlatformAppEntitlementFromPrefetched(params: {
 
   const byOrgId = new Map(entitlementRows.map((r) => [r.organization_id, r]));
 
+  function snapshotFromRow(
+    row: { id?: string; organization_id: string; entitlement_status: string; plan_code: string | null },
+    organizationId: string
+  ): PlatformAppMirrorResolutionDetail {
+    const sid = row.id != null && String(row.id).trim() !== '' ? String(row.id) : null;
+    return {
+      snapshot: mapPlatformEntitlementRowToSnapshot(row),
+      resolvedSpine: sid != null ? { id: sid, organization_id: organizationId } : null,
+    };
+  }
+
+  for (const organizationId of sortedOrgIds) {
+    const row = byOrgId.get(organizationId);
+    if (row != null && isPlatformEntitlementStatusActive(row.entitlement_status)) {
+      return snapshotFromRow(row, organizationId);
+    }
+  }
+
   for (const organizationId of sortedOrgIds) {
     const row = byOrgId.get(organizationId);
     if (row != null) {
-      const sid = row.id != null && String(row.id).trim() !== '' ? String(row.id) : null;
-      return {
-        snapshot: mapPlatformEntitlementRowToSnapshot(row),
-        resolvedSpine:
-          sid != null ? { id: sid, organization_id: organizationId } : null,
-      };
+      return snapshotFromRow(row, organizationId);
     }
   }
 

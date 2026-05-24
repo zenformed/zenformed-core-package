@@ -849,7 +849,6 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--theme-settings-nav-active) 28%, var(--theme-settings-sidebar-bg));
   color: var(--theme-settings-sidebar-text);
   font-size: 0.9375rem;
   font-weight: 600;

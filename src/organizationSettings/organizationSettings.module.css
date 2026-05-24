@@ -663,7 +663,6 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 8px;
-  background: color-mix(in srgb, var(--color-primary) 25%, var(--theme-surface-muted, var(--color-muted)));
   color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 600;

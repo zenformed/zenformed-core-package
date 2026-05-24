@@ -56,6 +56,8 @@ export {
   filterSettingsCategoriesByPermissions,
   inviteRoleOptionsForPermissions,
   memberRoleOptionsForPermissions,
+  memberCanBeRemoved,
+  roleCanRemoveMember,
   parseOrganizationPermissions,
 } from './organizationPermissions';
 export type {

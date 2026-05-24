@@ -13,6 +13,7 @@ export type OrganizationPermissions = {
   readonly canInviteMembers: boolean;
   readonly canCancelInvites: boolean;
   readonly canManageMemberRoles: boolean;
+  readonly canRemoveMembers: boolean;
   readonly canViewAppsBilling: boolean;
   readonly canEditAccountEmail: boolean;
 };
@@ -24,6 +25,7 @@ export const EMPTY_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
   canInviteMembers: false,
   canCancelInvites: false,
   canManageMemberRoles: false,
+  canRemoveMembers: false,
   canViewAppsBilling: false,
   canEditAccountEmail: false,
 };
@@ -38,6 +40,7 @@ export function parseOrganizationPermissions(json: unknown): OrganizationPermiss
     'canInviteMembers',
     'canCancelInvites',
     'canManageMemberRoles',
+    'canRemoveMembers',
     'canViewAppsBilling',
     'canEditAccountEmail',
   ] as const;
@@ -82,4 +85,41 @@ export function inviteRoleOptionsForPermissions(
 
 export function memberRoleOptionsForPermissions(): readonly AssignableOrganizationMemberRole[] {
   return ['admin', 'coordinator', 'member'];
+}
+
+export function roleCanRemoveMember(
+  actorRole: OrganizationMemberRole,
+  actorUserId: string,
+  targetUserId: string,
+  targetCurrentRole: OrganizationMemberRole
+): boolean {
+  if (targetCurrentRole === 'owner') return false;
+  if (actorUserId === targetUserId) return false;
+
+  if (actorRole === 'owner') {
+    return (
+      targetCurrentRole === 'admin' ||
+      targetCurrentRole === 'coordinator' ||
+      targetCurrentRole === 'member'
+    );
+  }
+
+  if (actorRole === 'admin') {
+    if (targetCurrentRole === 'admin') return false;
+    return targetCurrentRole === 'coordinator' || targetCurrentRole === 'member';
+  }
+
+  return false;
+}
+
+export function memberCanBeRemoved(
+  permissions: OrganizationPermissions | null | undefined,
+  actorRole: OrganizationMemberRole | null | undefined,
+  actorUserId: string | null | undefined,
+  member: { readonly userId?: string; readonly role: OrganizationMemberRole }
+): boolean {
+  if (!(permissions?.canRemoveMembers ?? false)) return false;
+  if (actorRole == null || actorUserId == null) return false;
+  if (member.userId == null) return false;
+  return roleCanRemoveMember(actorRole, actorUserId, member.userId, member.role);
 }

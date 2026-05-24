@@ -119,6 +119,9 @@ export type OrganizationSettingsClassNames = {
   readonly memberEmail: string;
   readonly memberRoleDescription: string;
   readonly memberRowActions: string;
+  readonly memberRowControlPrimary: string;
+  readonly memberRemoveBtn: string;
+  readonly memberRemoveBtnIcon: string;
   readonly memberName: string;
   readonly memberRoleSelect: string;
   readonly seatsSummary: string;
@@ -175,6 +178,8 @@ export type OrganizationSettingsLabels = {
   readonly pendingInvites: string;
   readonly resend: string;
   readonly cancel: string;
+  readonly removeMember: string;
+  readonly removeMemberAriaLabel: string;
   readonly appAccess: string;
   readonly profile: string;
   readonly firstName: string;

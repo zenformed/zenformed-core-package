@@ -306,11 +306,14 @@ export type UseZenformedOrganizationWorkspaceResult = {
     memberId: string,
     payload: OrganizationMemberRoleUpdatePayload
   ) => Promise<boolean>;
+  readonly removeMember: (memberId: string) => Promise<boolean>;
   readonly isCreatingInvite: boolean;
   readonly cancelingInviteId: string | null;
   readonly updatingMemberRoleId: string | null;
+  readonly removingMemberId: string | null;
   readonly inviteMutationError: string | null;
   readonly roleMutationError: string | null;
+  readonly removeMemberMutationError: string | null;
   readonly createdInviteAcceptUrl: string | null;
   readonly clearCreatedInviteAcceptUrl: () => void;
 };
@@ -336,8 +339,10 @@ export function useZenformedOrganizationWorkspace({
   const [isCreatingInvite, setIsCreatingInvite] = useState(false);
   const [cancelingInviteId, setCancelingInviteId] = useState<string | null>(null);
   const [updatingMemberRoleId, setUpdatingMemberRoleId] = useState<string | null>(null);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [inviteMutationError, setInviteMutationError] = useState<string | null>(null);
   const [roleMutationError, setRoleMutationError] = useState<string | null>(null);
+  const [removeMemberMutationError, setRemoveMemberMutationError] = useState<string | null>(null);
   const [createdInviteAcceptUrl, setCreatedInviteAcceptUrl] = useState<string | null>(null);
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
@@ -562,6 +567,43 @@ export function useZenformedOrganizationWorkspace({
     [apiUrls.memberRole, fetchAll, getAccessToken]
   );
 
+  const removeMember = useCallback(
+    async (memberId: string): Promise<boolean> => {
+      const token = getAccessToken()?.trim();
+      if (!token) {
+        setRemoveMemberMutationError('Not signed in');
+        return false;
+      }
+      setRemovingMemberId(memberId);
+      setRemoveMemberMutationError(null);
+      try {
+        const res = await fetch(`${apiUrls.members}/${encodeURIComponent(memberId)}`, {
+          method: 'DELETE',
+          headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+        });
+        let json: unknown;
+        try {
+          json = await res.json();
+        } catch {
+          setRemoveMemberMutationError('Invalid response from server');
+          return false;
+        }
+        if (!res.ok) {
+          setRemoveMemberMutationError(readMutationError(json, 'Failed to remove member'));
+          return false;
+        }
+        await fetchAll();
+        return true;
+      } catch (e) {
+        setRemoveMemberMutationError(e instanceof Error ? e.message : 'Failed to remove member');
+        return false;
+      } finally {
+        setRemovingMemberId(null);
+      }
+    },
+    [apiUrls.members, fetchAll, getAccessToken]
+  );
+
   return {
     snapshot,
     isLoading,
@@ -571,11 +613,14 @@ export function useZenformedOrganizationWorkspace({
     createInvite,
     cancelInvite,
     updateMemberRole,
+    removeMember,
     isCreatingInvite,
     cancelingInviteId,
     updatingMemberRoleId,
+    removingMemberId,
     inviteMutationError,
     roleMutationError,
+    removeMemberMutationError,
     createdInviteAcceptUrl,
     clearCreatedInviteAcceptUrl,
   };

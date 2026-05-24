@@ -105,13 +105,17 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly snapshot?: OrganizationWorkspaceSnapshot | null;
   readonly permissions?: OrganizationPermissions | null;
   readonly currentUserId?: string | null;
+  readonly currentUserRole?: OrganizationMemberRole | null;
   readonly inviteActionsDisabled?: boolean;
   readonly roleManagementDisabled?: boolean;
+  readonly removeMemberDisabled?: boolean;
   readonly isCreatingInvite?: boolean;
   readonly cancelingInviteId?: string | null;
   readonly updatingMemberRoleId?: string | null;
+  readonly removingMemberId?: string | null;
   readonly inviteMutationError?: string | null;
   readonly roleMutationError?: string | null;
+  readonly removeMemberMutationError?: string | null;
   readonly createdInviteAcceptUrl?: string | null;
   readonly onDismissCreatedInviteLink?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
@@ -120,4 +124,5 @@ export type OrganizationSettingsWorkspacePersistence = {
     memberId: string,
     payload: OrganizationMemberRoleUpdatePayload
   ) => Promise<boolean>;
+  readonly onRemoveMember?: (memberId: string) => Promise<boolean>;
 };

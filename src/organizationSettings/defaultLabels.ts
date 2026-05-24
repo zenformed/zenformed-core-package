@@ -24,6 +24,8 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   pendingInvites: 'Pending Invites',
   resend: 'Resend',
   cancel: 'Cancel',
+  removeMember: 'Remove',
+  removeMemberAriaLabel: 'Remove member from organization',
   appAccess: 'App Access',
   profile: 'Profile',
   firstName: 'First name',

@@ -143,6 +143,13 @@ function parseInvitesJson(json: unknown): OrganizationWorkspaceInviteDto[] | nul
     if (typeof row.sentLabel !== 'string' || typeof row.createdAt !== 'string') return null;
     if (typeof row.displayName !== 'string') return null;
     if (
+      row.emailDeliveryStatus != null &&
+      row.emailDeliveryStatus !== 'sent' &&
+      row.emailDeliveryStatus !== 'failed'
+    ) {
+      return null;
+    }
+    if (
       row.role !== 'owner' &&
       row.role !== 'admin' &&
       row.role !== 'coordinator' &&
@@ -161,6 +168,10 @@ function parseInvitesJson(json: unknown): OrganizationWorkspaceInviteDto[] | nul
       expiresAt: typeof row.expiresAt === 'string' ? row.expiresAt : null,
       createdAt: row.createdAt,
       sentLabel: row.sentLabel,
+      emailDeliveryStatus:
+        row.emailDeliveryStatus === 'sent' || row.emailDeliveryStatus === 'failed'
+          ? row.emailDeliveryStatus
+          : null,
     });
   }
   return invites;
@@ -327,6 +338,7 @@ export type UseZenformedOrganizationWorkspaceResult = {
   readonly removeMemberMutationError: string | null;
   readonly memberProfileMutationError: string | null;
   readonly createdInviteAcceptUrl: string | null;
+  readonly createdInviteEmailDeliveryStatus: 'sent' | 'failed' | null;
   readonly clearCreatedInviteAcceptUrl: () => void;
 };
 
@@ -358,9 +370,13 @@ export function useZenformedOrganizationWorkspace({
   const [removeMemberMutationError, setRemoveMemberMutationError] = useState<string | null>(null);
   const [memberProfileMutationError, setMemberProfileMutationError] = useState<string | null>(null);
   const [createdInviteAcceptUrl, setCreatedInviteAcceptUrl] = useState<string | null>(null);
+  const [createdInviteEmailDeliveryStatus, setCreatedInviteEmailDeliveryStatus] = useState<
+    'sent' | 'failed' | null
+  >(null);
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
     setCreatedInviteAcceptUrl(null);
+    setCreatedInviteEmailDeliveryStatus(null);
   }, []);
 
   const fetchAll = useCallback(async () => {
@@ -461,6 +477,7 @@ export function useZenformedOrganizationWorkspace({
       setIsCreatingInvite(true);
       setInviteMutationError(null);
       setCreatedInviteAcceptUrl(null);
+      setCreatedInviteEmailDeliveryStatus(null);
       try {
         const res = await fetch(apiUrls.invites, {
           method: 'POST',
@@ -485,6 +502,11 @@ export function useZenformedOrganizationWorkspace({
         const body = json as Record<string, unknown>;
         if (typeof body.acceptUrl === 'string' && body.acceptUrl.trim()) {
           setCreatedInviteAcceptUrl(body.acceptUrl.trim());
+        }
+        if (body.emailDeliveryStatus === 'sent' || body.emailDeliveryStatus === 'failed') {
+          setCreatedInviteEmailDeliveryStatus(body.emailDeliveryStatus);
+        } else {
+          setCreatedInviteEmailDeliveryStatus(null);
         }
         await fetchAll();
         return true;
@@ -686,6 +708,7 @@ export function useZenformedOrganizationWorkspace({
     removeMemberMutationError,
     memberProfileMutationError,
     createdInviteAcceptUrl,
+    createdInviteEmailDeliveryStatus,
     clearCreatedInviteAcceptUrl,
   };
 }

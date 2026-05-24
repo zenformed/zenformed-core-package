@@ -40,6 +40,7 @@ export type OrganizationWorkspaceInviteDto = {
   readonly expiresAt: string | null;
   readonly createdAt: string;
   readonly sentLabel: string;
+  readonly emailDeliveryStatus?: 'sent' | 'failed' | null;
 };
 
 export type OrganizationInviteCreatePayload = {
@@ -128,6 +129,7 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly removeMemberMutationError?: string | null;
   readonly memberProfileMutationError?: string | null;
   readonly createdInviteAcceptUrl?: string | null;
+  readonly createdInviteEmailDeliveryStatus?: 'sent' | 'failed' | null;
   readonly onDismissCreatedInviteLink?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
   readonly onCancelInvite?: (inviteId: string) => Promise<boolean>;

@@ -84,6 +84,7 @@ export function workspaceSnapshotToViewModelOverrides(
           statusLabel: inviteStatusLabel(inv.status),
           sentLabel: inv.sentLabel,
           expiresLabel: formatExpiresLabel(inv.expiresAt),
+          emailDeliveryStatus: inv.emailDeliveryStatus ?? null,
         }))
       : undefined;
 

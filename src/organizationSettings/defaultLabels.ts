@@ -54,17 +54,21 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   buy: 'Buy',
   upgrade: 'Upgrade',
   mockDataNote:
-    'Account, notification preferences, and organization profile are saved to your organization. Team, seats, and app access load from your workspace when connected. Invites can be created and canceled here; invite email delivery is not available yet.',
+    'Account, notification preferences, and organization profile are saved to your organization. Team, seats, and app access load from your workspace when connected. Invites can be created and canceled here; invite emails are sent automatically when configured.',
   organizationPlaceholderNote:
     'Team and invite data will appear when your organization workspace is connected.',
   billingPlaceholderNote:
     'Billing actions are not connected yet. App access and plan details reflect organization entitlements when available.',
   inviteComingSoon: 'Invite email is not available yet',
+  inviteEmailSent: 'Invite email sent.',
+  inviteEmailFailed:
+    'Invite created, but the email could not be sent. Copy the link below to share manually.',
   sendInvite: 'Send Invite',
   cancelInvite: 'Cancel Invite',
   copyInviteLink: 'Copy Invite Link',
   inviteLinkCopied: 'Invite link copied',
-  inviteLinkCopyHint: 'Share this link manually. It is only shown once after creating the invite.',
+  inviteLinkCopyHint:
+    'An invite email was sent when possible. You can also copy this link to share manually.',
   dismissInviteLink: 'Dismiss',
   resendComingSoon: 'Resend is not available yet',
   role: 'Role',

@@ -22,6 +22,7 @@ export type OrganizationSettingsPendingInvite = {
   readonly statusLabel: string;
   readonly sentLabel: string;
   readonly expiresLabel: string | null;
+  readonly emailDeliveryStatus?: 'sent' | 'failed' | null;
 };
 
 export type OrganizationSettingsAppAccess = {
@@ -236,6 +237,8 @@ export type OrganizationSettingsLabels = {
   readonly industryNone: string;
   readonly timezoneSearchPlaceholder: string;
   readonly inviteComingSoon: string;
+  readonly inviteEmailSent: string;
+  readonly inviteEmailFailed: string;
   readonly sendInvite: string;
   readonly cancelInvite: string;
   readonly copyInviteLink: string;

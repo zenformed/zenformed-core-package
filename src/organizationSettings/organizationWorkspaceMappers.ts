@@ -66,7 +66,9 @@ export function workspaceSnapshotToViewModelOverrides(
       ? snapshot.members.map((m) => ({
           id: m.id,
           userId: m.userId,
-          name: m.email ? `${m.displayName} (${m.email})` : m.displayName,
+          name: m.displayName,
+          displayName: m.displayName,
+          email: m.email,
           role: mapMemberRole(m.role),
         }))
       : undefined;

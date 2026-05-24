@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { OrganizationInlineInviteRow } from './OrganizationInlineInviteRow';
 import { ZenformedSettingsGroup } from './ZenformedSettingsGroup';
+import { organizationRoleDescription } from '../organizationRoleDescriptions';
 import type {
   OrganizationSettingsClassNames,
   OrganizationSettingsLabels,
@@ -15,6 +16,7 @@ import type {
   OrganizationMemberRoleUpdatePayload,
 } from '../organizationWorkspaceTypes';
 import type { OrganizationPermissions } from '../organizationPermissions';
+import type { AssignableOrganizationMemberRole } from '../organizationPermissions';
 import {
   inviteRoleOptionsForPermissions,
   memberRoleOptionsForPermissions,
@@ -51,6 +53,20 @@ type Props = {
   ) => Promise<boolean>;
 };
 
+function resolveDisplayName(member: OrganizationSettingsMember): string {
+  const fromField = member.displayName?.trim();
+  if (fromField) return fromField;
+  const legacy = member.name.trim();
+  const paren = /^(.+?)\s+\([^)]+\)$/.exec(legacy);
+  return paren?.[1]?.trim() || legacy || 'Member';
+}
+
+function resolveEmail(member: OrganizationSettingsMember): string | null {
+  if (member.email != null && member.email.trim() !== '') return member.email.trim();
+  const match = /\(([^)]+@[^)]+)\)/.exec(member.name);
+  return match?.[1]?.trim() ?? null;
+}
+
 export function OrganizationTeamMembersGroup({
   members,
   plan,
@@ -73,10 +89,46 @@ export function OrganizationTeamMembersGroup({
 }: Props) {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle');
+  const [pendingRoles, setPendingRoles] = useState<Record<string, OrganizationSettingsMemberRole>>({});
+
   const canInvite = Boolean(onCreateInvite) && !inviteDisabled && (permissions?.canInviteMembers ?? false);
   const canManageRoles = Boolean(onUpdateMemberRole) && !roleManagementDisabled;
   const inviteRoleOptions = inviteRoleOptionsForPermissions(permissions);
   const memberRoleOptions = memberRoleOptionsForPermissions();
+
+  useEffect(() => {
+    setPendingRoles({});
+  }, [members]);
+
+  function effectiveRole(member: OrganizationSettingsMember): OrganizationSettingsMemberRole {
+    return pendingRoles[member.id] ?? member.role;
+  }
+
+  function isRoleDirty(member: OrganizationSettingsMember): boolean {
+    return effectiveRole(member) !== member.role;
+  }
+
+  function setPendingRole(memberId: string, role: OrganizationSettingsMemberRole): void {
+    setPendingRoles((prev) => ({ ...prev, [memberId]: role }));
+  }
+
+  function clearPendingRole(memberId: string): void {
+    setPendingRoles((prev) => {
+      if (!(memberId in prev)) return prev;
+      const next = { ...prev };
+      delete next[memberId];
+      return next;
+    });
+  }
+
+  async function handleSaveRole(member: OrganizationSettingsMember): Promise<void> {
+    const nextRole = effectiveRole(member);
+    if (nextRole === member.role || nextRole === 'owner') return;
+    const ok = await onUpdateMemberRole?.(member.id, {
+      role: nextRole as AssignableOrganizationMemberRole,
+    });
+    if (ok) clearPendingRole(member.id);
+  }
 
   async function handleCopyInviteLink(): Promise<void> {
     if (createdInviteAcceptUrl == null) return;
@@ -161,33 +213,68 @@ export function OrganizationTeamMembersGroup({
           {members.map((member) => {
             const isOwner = member.role === 'owner';
             const isSelf = currentUserId != null && member.userId === currentUserId;
+            const role = effectiveRole(member);
+            const dirty = isRoleDirty(member);
+            const saving = updatingMemberRoleId === member.id;
             const roleSelectDisabled =
-              !canManageRoles || isOwner || isSelf || updatingMemberRoleId === member.id;
+              !canManageRoles || isOwner || isSelf || saving;
+            const displayName = resolveDisplayName(member);
+            const email = resolveEmail(member);
+
             return (
               <li key={member.id} className={classNames.memberRow}>
-                <span className={classNames.memberName}>{member.name}</span>
-                <select
-                  className={`${classNames.select} ${classNames.memberRoleSelect}`}
-                  value={member.role}
-                  disabled={roleSelectDisabled}
-                  aria-label={`Role for ${member.name}`}
-                  onChange={(e) => {
-                    const nextRole = e.target.value as OrganizationSettingsMemberRole;
-                    if (nextRole === member.role) return;
-                    if (nextRole === 'owner') return;
-                    void onUpdateMemberRole?.(member.id, { role: nextRole });
-                  }}
-                >
+                <div className={classNames.memberRowMain}>
+                  <span className={classNames.memberDisplayName}>{displayName}</span>
+                  {email ? <span className={classNames.memberEmail}>{email}</span> : null}
+                  <p className={classNames.memberRoleDescription}>
+                    {organizationRoleDescription(role)}
+                  </p>
+                </div>
+                <div className={classNames.memberRowControls}>
                   {isOwner ? (
-                    <option value="owner">{ROLE_LABELS.owner}</option>
+                    <span className={`${classNames.badge} ${classNames.badgeMuted}`}>
+                      {ROLE_LABELS.owner}
+                    </span>
                   ) : (
-                    memberRoleOptions.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {ROLE_LABELS[opt]}
-                      </option>
-                    ))
+                    <select
+                      className={`${classNames.select} ${classNames.memberRoleSelect}`}
+                      value={role}
+                      disabled={roleSelectDisabled}
+                      aria-label={`Role for ${displayName}`}
+                      onChange={(e) => {
+                        const nextRole = e.target.value as OrganizationSettingsMemberRole;
+                        if (nextRole === 'owner') return;
+                        setPendingRole(member.id, nextRole);
+                      }}
+                    >
+                      {memberRoleOptions.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {ROLE_LABELS[opt]}
+                        </option>
+                      ))}
+                    </select>
                   )}
-                </select>
+                  {dirty && canManageRoles && !isOwner && !isSelf ? (
+                    <div className={classNames.memberRowActions}>
+                      <button
+                        type="button"
+                        className={`${classNames.btn} ${classNames.btnPrimary} ${classNames.btnSmall}`}
+                        disabled={saving}
+                        onClick={() => void handleSaveRole(member)}
+                      >
+                        {saving ? labels.saving : labels.save}
+                      </button>
+                      <button
+                        type="button"
+                        className={`${classNames.btn} ${classNames.btnGhost} ${classNames.btnSmall}`}
+                        disabled={saving}
+                        onClick={() => clearPendingRole(member.id)}
+                      >
+                        {labels.cancel}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               </li>
             );
           })}

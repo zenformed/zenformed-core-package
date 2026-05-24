@@ -41,6 +41,7 @@ export type {
   OrganizationWorkspaceSnapshot,
 } from './organizationWorkspaceTypes';
 export { OrganizationTeamMembersGroup } from './components/OrganizationTeamMembersGroup';
+export { organizationRoleDescription, ORGANIZATION_ROLE_DESCRIPTIONS } from './organizationRoleDescriptions';
 export { OrganizationPendingInvitesGroup } from './components/OrganizationPendingInvitesGroup';
 export { OrganizationInlineInviteRow } from './components/OrganizationInlineInviteRow';
 export type { OrganizationInviteCreatePayload, OrganizationMemberRoleUpdatePayload } from './organizationWorkspaceTypes';

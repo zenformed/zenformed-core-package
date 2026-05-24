@@ -5,7 +5,10 @@ export type OrganizationSettingsMemberRole = 'owner' | 'admin' | 'coordinator' |
 
 export type OrganizationSettingsMember = {
   readonly id: string;
+  /** Display name (legacy `name` kept for compatibility). */
   readonly name: string;
+  readonly displayName?: string;
+  readonly email?: string | null;
   readonly userId?: string;
   readonly role: OrganizationSettingsMemberRole;
 };
@@ -110,6 +113,12 @@ export type OrganizationSettingsClassNames = {
   readonly badgeSuccess: string;
   readonly memberList: string;
   readonly memberRow: string;
+  readonly memberRowMain: string;
+  readonly memberRowControls: string;
+  readonly memberDisplayName: string;
+  readonly memberEmail: string;
+  readonly memberRoleDescription: string;
+  readonly memberRowActions: string;
   readonly memberName: string;
   readonly memberRoleSelect: string;
   readonly seatsSummary: string;

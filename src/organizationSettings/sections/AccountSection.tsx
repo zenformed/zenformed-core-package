@@ -112,6 +112,7 @@ export function AccountSection({
         labels={labels}
         classNames={classNames}
         formKey={passwordFormKey}
+        forgotPasswordHref={persistence?.forgotPasswordHref}
       />
     </>
   );

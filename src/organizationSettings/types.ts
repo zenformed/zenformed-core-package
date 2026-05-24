@@ -223,6 +223,7 @@ export type OrganizationSettingsLabels = {
   readonly organizationPlaceholderNote: string;
   readonly billingPlaceholderNote: string;
   readonly passwordChangeComingSoon: string;
+  readonly resetPassword: string;
   readonly noTeamMembersYet: string;
   readonly teamMembersSearchPlaceholder: string;
   readonly teamMembersFilterAll: string;

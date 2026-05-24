@@ -26,6 +26,11 @@
       "types": "./src/organizationSettings/index.ts",
       "import": "./src/organizationSettings/index.ts",
       "default": "./src/organizationSettings/index.ts"
+    },
+    "./auth": {
+      "types": "./src/auth/index.ts",
+      "import": "./src/auth/index.ts",
+      "default": "./src/auth/index.ts"
     }
   },
   "files": [

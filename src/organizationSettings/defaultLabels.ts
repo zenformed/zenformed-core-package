@@ -73,7 +73,8 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   resendComingSoon: 'Resend is not available yet',
   role: 'Role',
   passwordChangeComingSoon:
-    'Password changes are not available here yet. Use your sign-in flow when password reset is enabled.',
+    'In-app password change is not available yet. Use Reset password to open the reset flow when it is enabled.',
+  resetPassword: 'Reset password',
   noTeamMembersYet: 'No team members to show. Member list will appear when organization membership is connected.',
   teamMembersSearchPlaceholder: 'Search by name, email, or role',
   teamMembersFilterAll: 'All',

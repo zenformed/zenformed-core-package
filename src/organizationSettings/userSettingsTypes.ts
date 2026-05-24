@@ -40,4 +40,6 @@ export type OrganizationSettingsPersistence = {
   }) => Promise<boolean>;
   readonly branding?: OrganizationSettingsBrandingPersistence;
   readonly workspace?: OrganizationSettingsWorkspacePersistence;
+  /** App-hosted route for password reset (e.g. `/forgot-password`). */
+  readonly forgotPasswordHref?: string | null;
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ZenformedAuthNavLink } from '../../auth/ZenformedAuthNavLink';
 import { ZenformedSettingsGroup } from './ZenformedSettingsGroup';
 import type { OrganizationSettingsClassNames, OrganizationSettingsLabels } from '../types';
 
@@ -9,13 +10,19 @@ type Props = {
   readonly classNames: OrganizationSettingsClassNames;
   /** Remount / clear fields when the settings drawer opens (pass from parent when `open` is true). */
   readonly formKey?: string;
+  readonly forgotPasswordHref?: string | null;
 };
 
 /**
  * Password fields are never loaded from profile/settings APIs.
  * Controlled state stays empty until the user types; remount clears browser autofill residue.
  */
-export function AccountPasswordGroup({ labels, classNames, formKey = 'default' }: Props) {
+export function AccountPasswordGroup({
+  labels,
+  classNames,
+  formKey = 'default',
+  forgotPasswordHref,
+}: Props) {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -77,6 +84,15 @@ export function AccountPasswordGroup({ labels, classNames, formKey = 'default' }
         </div>
       </form>
       <div className={classNames.actions}>
+        {forgotPasswordHref ? (
+          <ZenformedAuthNavLink
+            href={forgotPasswordHref}
+            appearance="button"
+            className={`${classNames.btn} ${classNames.btnGhost}`}
+          >
+            {labels.resetPassword}
+          </ZenformedAuthNavLink>
+        ) : null}
         <button type="button" className={`${classNames.btn} ${classNames.btnPrimary}`} disabled>
           {labels.savePassword}
         </button>

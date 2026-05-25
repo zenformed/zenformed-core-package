@@ -62,10 +62,6 @@
   transition: background-color 0.2s ease;
 }
 
-:global([data-theme='dark']) .switch {
-  background: #64748b;
-}
-
 .switchOn {
   background: var(--color-primary, #0ea5e9);
 }
@@ -94,7 +90,7 @@
 
 :global([data-theme='dark']) .switch:disabled,
 :global([data-theme='dark']) .switch:disabled.switchOn {
-  background: #3d4a5c;
+  background: #cbd5e1;
 }
 
 .switch:focus-visible {

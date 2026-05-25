@@ -57,6 +57,22 @@ export type {
   AssignableOrganizationInviteRole,
 } from './organizationPermissions';
 export {
+  BUILDCORE_PERMISSION_ROLE_KEYS,
+  BUILDCORE_WORKFLOW_TASK_PERMISSION_COLUMNS,
+  ZenformedPermissionMatrix,
+  canEditBuildCorePermissionRoleRow,
+  roleLabelForBuildCorePermissionKey,
+  type BuildCorePermissionColumnId,
+  type BuildCorePermissionDomain,
+  type BuildCorePermissionRoleKey,
+  type BuildCoreRolePermissionFlags,
+  type BuildCoreRolePermissionRow,
+  type BuildCoreRolePermissionsResponse,
+  type ZenformedPermissionMatrixColumn,
+  type ZenformedPermissionMatrixProps,
+} from '../buildcorePermissions';
+
+export {
   EMPTY_ORGANIZATION_PERMISSIONS,
   filterSettingsCategoriesByPermissions,
   inviteRoleOptionsForPermissions,

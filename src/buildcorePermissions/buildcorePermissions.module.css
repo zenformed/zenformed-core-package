@@ -1,0 +1,98 @@
+.matrixWrap {
+  overflow-x: auto;
+}
+
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.matrix thead th {
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #64748b);
+  border-bottom: 1px solid var(--theme-border-main, var(--color-border));
+}
+
+.matrix thead th.roleCol {
+  text-align: left;
+}
+
+.matrix tbody td {
+  padding: 0.5rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--theme-border-main, var(--color-border));
+}
+
+.matrix tbody td.roleCell {
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-text, #0f172a);
+}
+
+:global([data-theme='dark']) .matrix tbody td.roleCell {
+  color: #f1f5f9;
+}
+
+.matrix tbody tr.rowLocked td.roleCell {
+  color: var(--color-text-muted, #64748b);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--theme-border-main, var(--color-border));
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s,
+    opacity 0.15s;
+}
+
+.toggleOn {
+  background: color-mix(in srgb, var(--color-primary, #2563eb) 18%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary, #2563eb) 45%, var(--color-border));
+  color: var(--color-primary, #2563eb);
+}
+
+.toggleOff {
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  color: var(--color-text-muted, #64748b);
+}
+
+.toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+.statusLine {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+}
+
+.statusError {
+  color: var(--color-error, #dc2626);
+}
+
+.statusSuccess {
+  color: var(--color-success, #16a34a);
+}

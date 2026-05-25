@@ -27,6 +27,11 @@
       "import": "./src/organizationSettings/index.ts",
       "default": "./src/organizationSettings/index.ts"
     },
+    "./buildcore-permissions": {
+      "types": "./src/buildcorePermissions/index.ts",
+      "import": "./src/buildcorePermissions/index.ts",
+      "default": "./src/buildcorePermissions/index.ts"
+    },
     "./auth": {
       "types": "./src/auth/index.ts",
       "import": "./src/auth/index.ts",

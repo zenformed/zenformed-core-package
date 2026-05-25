@@ -76,6 +76,25 @@ export type OrganizationWorkspaceSeatsDto = {
   }[];
 };
 
+/** `GET /organizations/me/assignment-identities` — safe display fields for assignee pickers. */
+export type OrganizationAssignmentIdentityDto = {
+  readonly userId: string;
+  readonly email: string | null;
+  readonly firstName: string | null;
+  readonly lastName: string | null;
+  readonly displayName: string;
+  readonly organizationRole: OrganizationMemberRole;
+  readonly appAccessStatus: string | null;
+  readonly appRole: string | null;
+  readonly avatarRevision: string | null;
+};
+
+export type OrganizationAssignmentIdentitiesResponse = {
+  readonly organizationId: string;
+  readonly appSlug: string;
+  readonly identities: readonly OrganizationAssignmentIdentityDto[];
+};
+
 export type OrganizationWorkspaceAppAccessEntryDto = {
   readonly userId: string;
   readonly displayName: string;

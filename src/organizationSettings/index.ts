@@ -32,6 +32,10 @@ export {
 } from './hooks';
 export { workspaceSnapshotToViewModelOverrides } from './organizationWorkspaceMappers';
 export type {
+  OrganizationAssignmentIdentityDto,
+  OrganizationAssignmentIdentitiesResponse,
+} from './organizationWorkspaceTypes';
+export type {
   OrganizationWorkspaceApiUrls,
   UseZenformedOrganizationWorkspaceOptions,
   UseZenformedOrganizationWorkspaceResult,

@@ -70,20 +70,21 @@ export function ZenformedPermissionMatrix({
                   const value = row[col.id];
                   const isBusy =
                     busyCell?.roleKey === row.roleKey && busyCell.columnId === col.id;
-                  const label = value ? 'On' : 'Off';
+                  const stateLabel = value ? 'on' : 'off';
                   return (
-                    <td key={col.id}>
+                    <td key={col.id} className={s.switchCell ?? styles.switchCell}>
                       <button
                         type="button"
-                        className={`${s.toggle ?? styles.toggle} ${
-                          value ? (s.toggleOn ?? styles.toggleOn) : (s.toggleOff ?? styles.toggleOff)
+                        role="switch"
+                        className={`${s.switch ?? styles.switch} ${
+                          value ? (s.switchOn ?? styles.switchOn) : ''
                         }`}
                         disabled={!rowEditable || isBusy}
-                        aria-pressed={value}
-                        aria-label={`${roleLabelForBuildCorePermissionKey(row.roleKey)} ${col.label}: ${label}`}
+                        aria-checked={value}
+                        aria-label={`${roleLabelForBuildCorePermissionKey(row.roleKey)} ${col.label}: ${stateLabel}`}
                         onClick={() => onToggle(row.roleKey, col.id, !value)}
                       >
-                        {label}
+                        <span className={s.switchThumb ?? styles.switchThumb} aria-hidden />
                       </button>
                     </td>
                   );

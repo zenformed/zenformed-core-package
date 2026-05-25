@@ -12,6 +12,22 @@ export {
 } from './buildCoreRolePermissionModel';
 
 export {
+  assertWorkflowTaskCreateAllowed,
+  assertWorkflowTaskUpdateAllowed,
+  BUILDCORE_WORKFLOW_TASK_PERMISSION_ROLE_KEYS,
+  classifyWorkflowTaskUpdatePatch,
+  defaultBuildCoreRolePermissionFlags,
+  DENIED_BUILDCORE_WORKFLOW_TASK_PERMISSIONS,
+  fullAdminBuildCoreWorkflowTaskAccess,
+  organizationRoleToBuildCorePermissionRoleKey,
+  pickBuildCoreRolePermissionRow,
+  resolveBuildCoreWorkflowTaskPermissions,
+  type BuildCoreWorkflowTaskAccess,
+  type WorkflowTaskUpdatePatchLike,
+  type WorkflowTaskUpdatePermissionRequirements,
+} from './buildCoreWorkflowTaskPermissionModel';
+
+export {
   ZenformedPermissionMatrix,
   type ZenformedPermissionMatrixColumn,
   type ZenformedPermissionMatrixProps,

@@ -1,0 +1,180 @@
+/**
+ * Effective BuildCore workflow task permission resolution (runtime enforcement).
+ */
+
+import type { OrganizationMemberRole } from '../organizationSettings/organizationPermissions';
+import type {
+  BuildCorePermissionRoleKey,
+  BuildCoreRolePermissionFlags,
+  BuildCoreRolePermissionRow,
+} from './buildCoreRolePermissionModel';
+import { BUILDCORE_PERMISSION_ROLE_KEYS } from './buildCoreRolePermissionModel';
+
+export type BuildCoreWorkflowTaskAccess = BuildCoreRolePermissionFlags & {
+  readonly roleKey: BuildCorePermissionRoleKey | null;
+  readonly actorRole: OrganizationMemberRole | null;
+};
+
+export const DENIED_BUILDCORE_WORKFLOW_TASK_PERMISSIONS: BuildCoreRolePermissionFlags = {
+  canView: false,
+  canCreate: false,
+  canEdit: false,
+  canDelete: false,
+  canApprove: false,
+  canUpload: false,
+};
+
+export function defaultBuildCoreRolePermissionFlags(
+  roleKey: BuildCorePermissionRoleKey
+): BuildCoreRolePermissionFlags {
+  switch (roleKey) {
+    case 'admin':
+      return {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: true,
+        canApprove: true,
+        canUpload: true,
+      };
+    case 'coordinator':
+      return {
+        canView: true,
+        canCreate: true,
+        canEdit: true,
+        canDelete: false,
+        canApprove: true,
+        canUpload: true,
+      };
+    case 'member':
+      return {
+        canView: true,
+        canCreate: false,
+        canEdit: false,
+        canDelete: false,
+        canApprove: false,
+        canUpload: true,
+      };
+    default: {
+      const _exhaustive: never = roleKey;
+      return _exhaustive;
+    }
+  }
+}
+
+/** Organization membership role → persisted permission matrix row key. */
+export function organizationRoleToBuildCorePermissionRoleKey(
+  actorRole: OrganizationMemberRole | null | undefined
+): BuildCorePermissionRoleKey | null {
+  if (actorRole == null) return null;
+  if (actorRole === 'owner' || actorRole === 'admin') return 'admin';
+  if (actorRole === 'coordinator') return 'coordinator';
+  if (actorRole === 'member') return 'member';
+  return null;
+}
+
+export function pickBuildCoreRolePermissionRow(
+  rows: readonly BuildCoreRolePermissionRow[],
+  roleKey: BuildCorePermissionRoleKey
+): BuildCoreRolePermissionRow {
+  const match = rows.find((row) => row.roleKey === roleKey);
+  if (match != null) return match;
+  return { roleKey, ...defaultBuildCoreRolePermissionFlags(roleKey) };
+}
+
+export function resolveBuildCoreWorkflowTaskPermissions(
+  actorRole: OrganizationMemberRole | null | undefined,
+  rows: readonly BuildCoreRolePermissionRow[]
+): BuildCoreWorkflowTaskAccess {
+  const roleKey = organizationRoleToBuildCorePermissionRoleKey(actorRole);
+  if (roleKey == null) {
+    return {
+      actorRole: actorRole ?? null,
+      roleKey: null,
+      ...DENIED_BUILDCORE_WORKFLOW_TASK_PERMISSIONS,
+    };
+  }
+  const flags = pickBuildCoreRolePermissionRow(rows, roleKey);
+  return {
+    actorRole: actorRole ?? null,
+    roleKey,
+    canView: flags.canView,
+    canCreate: flags.canCreate,
+    canEdit: flags.canEdit,
+    canDelete: flags.canDelete,
+    canApprove: flags.canApprove,
+    canUpload: flags.canUpload,
+  };
+}
+
+export function fullAdminBuildCoreWorkflowTaskAccess(
+  actorRole: OrganizationMemberRole | null = 'owner'
+): BuildCoreWorkflowTaskAccess {
+  return {
+    actorRole,
+    roleKey: 'admin',
+    ...defaultBuildCoreRolePermissionFlags('admin'),
+  };
+}
+
+export type WorkflowTaskUpdatePermissionRequirements = {
+  readonly requiresCanEdit: boolean;
+  readonly requiresCanApprove: boolean;
+};
+
+export type WorkflowTaskUpdatePatchLike = {
+  readonly status?: string;
+  readonly title?: string;
+  readonly stageSlug?: string;
+  readonly documentsRequired?: boolean;
+  readonly dueAt?: string | null;
+  readonly notes?: string | null;
+  readonly assignedMemberId?: string | null;
+  readonly amountCents?: number | null;
+  readonly invoicedAt?: string | null;
+  readonly paidAt?: string | null;
+};
+
+/** Classify which workflow-task flags a PATCH body requires. */
+export function classifyWorkflowTaskUpdatePatch(
+  patch: WorkflowTaskUpdatePatchLike
+): WorkflowTaskUpdatePermissionRequirements {
+  const keys = Object.keys(patch) as (keyof WorkflowTaskUpdatePatchLike)[];
+  const hasStatus = keys.includes('status');
+  const statusIsDone = patch.status === 'done';
+  const hasNonStatusFields = keys.some((key) => key !== 'status');
+
+  return {
+    requiresCanApprove: hasStatus && statusIsDone,
+    requiresCanEdit: hasNonStatusFields || (hasStatus && !statusIsDone),
+  };
+}
+
+export function assertWorkflowTaskUpdateAllowed(
+  permissions: BuildCoreRolePermissionFlags,
+  patch: WorkflowTaskUpdatePatchLike
+): { ok: true } | { ok: false; message: string } {
+  const requirements = classifyWorkflowTaskUpdatePatch(patch);
+  if (requirements.requiresCanEdit && !permissions.canEdit) {
+    return { ok: false, message: 'You do not have permission to edit workflow tasks.' };
+  }
+  if (requirements.requiresCanApprove && !permissions.canApprove) {
+    return { ok: false, message: 'You do not have permission to mark workflow tasks as done.' };
+  }
+  return { ok: true };
+}
+
+export function assertWorkflowTaskCreateAllowed(
+  permissions: BuildCoreRolePermissionFlags,
+  status: string | undefined
+): { ok: true } | { ok: false; message: string } {
+  if (!permissions.canCreate) {
+    return { ok: false, message: 'You do not have permission to create workflow tasks.' };
+  }
+  if (status === 'done' && !permissions.canApprove) {
+    return { ok: false, message: 'You do not have permission to mark workflow tasks as done.' };
+  }
+  return { ok: true };
+}
+
+export const BUILDCORE_WORKFLOW_TASK_PERMISSION_ROLE_KEYS = BUILDCORE_PERMISSION_ROLE_KEYS;

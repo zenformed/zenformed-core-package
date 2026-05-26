@@ -1,6 +1,9 @@
 export {
+  BUILDCORE_PERMISSION_COLUMNS,
+  BUILDCORE_PERMISSION_DOMAINS,
   BUILDCORE_PERMISSION_ROLE_KEYS,
   BUILDCORE_WORKFLOW_TASK_PERMISSION_COLUMNS,
+  parseBuildCorePermissionDomain,
   canEditBuildCorePermissionRoleRow,
   roleLabelForBuildCorePermissionKey,
   type BuildCorePermissionColumnId,

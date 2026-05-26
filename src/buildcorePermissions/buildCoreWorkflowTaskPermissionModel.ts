@@ -24,6 +24,21 @@ export const DENIED_BUILDCORE_WORKFLOW_TASK_PERMISSIONS: BuildCoreRolePermission
   canUpload: false,
 };
 
+export const UNRESTRICTED_BUILDCORE_WORKFLOW_TASK_PERMISSIONS: BuildCoreRolePermissionFlags = {
+  canView: true,
+  canCreate: true,
+  canEdit: true,
+  canDelete: true,
+  canApprove: true,
+  canUpload: true,
+};
+
+export function isBuildCoreWorkflowTaskOwnerUnrestricted(
+  actorRole: OrganizationMemberRole | null | undefined
+): boolean {
+  return actorRole === 'owner';
+}
+
 export function defaultBuildCoreRolePermissionFlags(
   roleKey: BuildCorePermissionRoleKey
 ): BuildCoreRolePermissionFlags {
@@ -42,7 +57,7 @@ export function defaultBuildCoreRolePermissionFlags(
         canView: true,
         canCreate: true,
         canEdit: true,
-        canDelete: false,
+        canDelete: true,
         canApprove: true,
         canUpload: true,
       };
@@ -62,12 +77,12 @@ export function defaultBuildCoreRolePermissionFlags(
   }
 }
 
-/** Organization membership role → persisted permission matrix row key. */
+/** Maps org membership to a persisted matrix row. Owner is excluded — use isBuildCoreWorkflowTaskOwnerUnrestricted. */
 export function organizationRoleToBuildCorePermissionRoleKey(
   actorRole: OrganizationMemberRole | null | undefined
 ): BuildCorePermissionRoleKey | null {
-  if (actorRole == null) return null;
-  if (actorRole === 'owner' || actorRole === 'admin') return 'admin';
+  if (actorRole == null || actorRole === 'owner') return null;
+  if (actorRole === 'admin') return 'admin';
   if (actorRole === 'coordinator') return 'coordinator';
   if (actorRole === 'member') return 'member';
   return null;
@@ -86,6 +101,10 @@ export function resolveBuildCoreWorkflowTaskPermissions(
   actorRole: OrganizationMemberRole | null | undefined,
   rows: readonly BuildCoreRolePermissionRow[]
 ): BuildCoreWorkflowTaskAccess {
+  if (isBuildCoreWorkflowTaskOwnerUnrestricted(actorRole)) {
+    return fullOwnerBuildCoreWorkflowTaskAccess();
+  }
+
   const roleKey = organizationRoleToBuildCorePermissionRoleKey(actorRole);
   if (roleKey == null) {
     return {
@@ -107,9 +126,20 @@ export function resolveBuildCoreWorkflowTaskPermissions(
   };
 }
 
+export function fullOwnerBuildCoreWorkflowTaskAccess(): BuildCoreWorkflowTaskAccess {
+  return {
+    actorRole: 'owner',
+    roleKey: null,
+    ...UNRESTRICTED_BUILDCORE_WORKFLOW_TASK_PERMISSIONS,
+  };
+}
+
 export function fullAdminBuildCoreWorkflowTaskAccess(
   actorRole: OrganizationMemberRole | null = 'owner'
 ): BuildCoreWorkflowTaskAccess {
+  if (actorRole === 'owner') {
+    return fullOwnerBuildCoreWorkflowTaskAccess();
+  }
   return {
     actorRole,
     roleKey: 'admin',

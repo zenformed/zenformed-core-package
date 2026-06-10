@@ -132,3 +132,68 @@ export function memberCanBeRemoved(
   if (member.userId == null) return false;
   return roleCanRemoveMember(actorRole, actorUserId, member.userId, member.role);
 }
+
+const OWNER_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
+  canViewOrganizationSettings: true,
+  canEditOrganizationProfile: true,
+  canViewTeamMembers: true,
+  canInviteMembers: true,
+  canCancelInvites: true,
+  canManageMemberRoles: true,
+  canRemoveMembers: true,
+  canManageMemberProfiles: true,
+  canViewAppsBilling: true,
+  canEditAccountEmail: true,
+};
+
+const ADMIN_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
+  canViewOrganizationSettings: true,
+  canEditOrganizationProfile: true,
+  canViewTeamMembers: true,
+  canInviteMembers: true,
+  canCancelInvites: true,
+  canManageMemberRoles: true,
+  canRemoveMembers: true,
+  canManageMemberProfiles: true,
+  canViewAppsBilling: false,
+  canEditAccountEmail: true,
+};
+
+const READ_ONLY_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
+  canViewOrganizationSettings: true,
+  canEditOrganizationProfile: false,
+  canViewTeamMembers: true,
+  canInviteMembers: false,
+  canCancelInvites: false,
+  canManageMemberRoles: false,
+  canRemoveMembers: false,
+  canManageMemberProfiles: false,
+  canViewAppsBilling: false,
+  canEditAccountEmail: true,
+};
+
+/** Authoritative org-management permissions derived from membership role. */
+export function resolveOrganizationPermissionsFromRole(
+  role: OrganizationMemberRole | null | undefined
+): OrganizationPermissions {
+  switch (role) {
+    case 'owner':
+      return OWNER_ORGANIZATION_PERMISSIONS;
+    case 'admin':
+      return ADMIN_ORGANIZATION_PERMISSIONS;
+    case 'coordinator':
+    case 'member':
+      return READ_ONLY_ORGANIZATION_PERMISSIONS;
+    default:
+      return EMPTY_ORGANIZATION_PERMISSIONS;
+  }
+}
+
+export function applyAuthoritativeOrganizationPermissions<
+  T extends { readonly role: OrganizationMemberRole | null; readonly permissions?: OrganizationPermissions },
+>(context: T): T & { readonly permissions: OrganizationPermissions } {
+  return {
+    ...context,
+    permissions: resolveOrganizationPermissionsFromRole(context.role),
+  };
+}

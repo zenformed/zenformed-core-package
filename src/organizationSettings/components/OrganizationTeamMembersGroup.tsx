@@ -209,7 +209,10 @@ export function OrganizationTeamMembersGroup({
   const [roleFilter, setRoleFilter] = useState<TeamMemberRoleFilter>('all');
 
   const canInvite = Boolean(onCreateInvite) && !inviteDisabled && (permissions?.canInviteMembers ?? false);
-  const canManageRoles = Boolean(onUpdateMemberRole) && !roleManagementDisabled;
+  const canManageRoles =
+    Boolean(onUpdateMemberRole) &&
+    !roleManagementDisabled &&
+    (permissions?.canManageMemberRoles ?? false);
   const canRemoveMembers = Boolean(onRemoveMember) && !removeMemberDisabled;
   const canEditMemberProfiles =
     Boolean(onUpdateMemberProfile) && !memberProfileEditDisabled && memberCanBeEdited(permissions);

@@ -94,21 +94,19 @@ export function ZenformedAccountMenu({
             </button>
           </div>
           <div className={classNames.accountMenuShopName}>{displayShopName}</div>
-          {isAdmin && (
-            <button
-              type="button"
-              className={classNames.accountMenuBtn}
-              onClick={() => {
-                closeAccountMenu();
-                onOpenSettings();
-              }}
-            >
-              {settingsIcon ?? (
-                <ZenformedAccountMenuSettingsIcon className={classNames.accountMenuBtnIcon} />
-              )}
-              {labels.settingsButtonLabel}
-            </button>
-          )}
+          <button
+            type="button"
+            className={classNames.accountMenuBtn}
+            onClick={() => {
+              closeAccountMenu();
+              onOpenSettings();
+            }}
+          >
+            {settingsIcon ?? (
+              <ZenformedAccountMenuSettingsIcon className={classNames.accountMenuBtnIcon} />
+            )}
+            {labels.settingsButtonLabel}
+          </button>
           <button
             type="button"
             className={classNames.accountMenuBtn}

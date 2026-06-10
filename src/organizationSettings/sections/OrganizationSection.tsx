@@ -66,7 +66,7 @@ export function OrganizationSection({
   }, [legalName, displayName, industry, timezone, organization]);
 
   const namesReadOnly =
-    !(branding?.canEditOrganizationProfile ?? true) || savingProfile || Boolean(branding?.isLoading);
+    !(branding?.canEditOrganizationProfile ?? false) || savingProfile || Boolean(branding?.isLoading);
   const canSaveProfile = Boolean(branding?.onSaveOrganizationProfile) && profileDirty;
   const logoUploading = branding?.logoUploading ?? false;
   const canUploadLogo = Boolean(branding?.onUploadLogoClick && branding?.onLogoFileChange);

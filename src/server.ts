@@ -8,3 +8,11 @@ export {
   capabilitiesPayloadFingerprint,
   resolveCapabilityEntitlementPayload,
 } from './CapabilityEntitlementResolver';
+export type {
+  OrganizationMemberRole,
+  OrganizationPermissions,
+} from './organizationSettings/organizationPermissions';
+export {
+  applyAuthoritativeOrganizationPermissions,
+  resolveOrganizationPermissionsFromRole,
+} from './organizationSettings/organizationPermissions';

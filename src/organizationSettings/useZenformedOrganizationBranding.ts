@@ -46,7 +46,7 @@ function parseBrandingProfile(json: unknown, logoUrl: string | null): Organizati
     legalName: o.legalName,
     displayName: storedDisplayName,
     publicDisplayName,
-    canEditOrganizationProfile: o.canEditOrganizationProfile !== false,
+    canEditOrganizationProfile: o.canEditOrganizationProfile === true,
     hasLogo: o.hasLogo,
     industry: industry ?? null,
     timezone: timezone ?? null,
@@ -176,6 +176,10 @@ export function useZenformedOrganizationBranding({
       industry: string | null;
       timezone: string | null;
     }) => {
+      if (profile?.canEditOrganizationProfile !== true) {
+        setSaveErrorMessage('You do not have permission to edit organization settings.');
+        return false;
+      }
       const token = getAccessToken()?.trim();
       if (!token) {
         setSaveErrorMessage('Not signed in');
@@ -227,7 +231,7 @@ export function useZenformedOrganizationBranding({
         return false;
       }
     },
-    [brandingApiUrl, fetchBranding, getAccessToken]
+    [brandingApiUrl, fetchBranding, getAccessToken, profile?.canEditOrganizationProfile]
   );
 
   return {

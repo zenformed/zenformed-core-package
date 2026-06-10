@@ -81,6 +81,8 @@ export {
   memberCanBeEdited,
   roleCanRemoveMember,
   parseOrganizationPermissions,
+  resolveOrganizationPermissionsFromRole,
+  applyAuthoritativeOrganizationPermissions,
 } from './organizationPermissions';
 export type {
   UseZenformedOrganizationBrandingOptions,

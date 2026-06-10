@@ -159,10 +159,24 @@ const ADMIN_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
   canEditAccountEmail: true,
 };
 
-const READ_ONLY_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
+const COORDINATOR_READ_ONLY_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
   canViewOrganizationSettings: true,
   canEditOrganizationProfile: false,
   canViewTeamMembers: true,
+  canInviteMembers: false,
+  canCancelInvites: false,
+  canManageMemberRoles: false,
+  canRemoveMembers: false,
+  canManageMemberProfiles: false,
+  canViewAppsBilling: false,
+  canEditAccountEmail: true,
+};
+
+/** Members may edit personal account settings only — no org settings nav sections. */
+const MEMBER_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
+  canViewOrganizationSettings: false,
+  canEditOrganizationProfile: false,
+  canViewTeamMembers: false,
   canInviteMembers: false,
   canCancelInvites: false,
   canManageMemberRoles: false,
@@ -182,8 +196,9 @@ export function resolveOrganizationPermissionsFromRole(
     case 'admin':
       return ADMIN_ORGANIZATION_PERMISSIONS;
     case 'coordinator':
+      return COORDINATOR_READ_ONLY_ORGANIZATION_PERMISSIONS;
     case 'member':
-      return READ_ONLY_ORGANIZATION_PERMISSIONS;
+      return MEMBER_ORGANIZATION_PERMISSIONS;
     default:
       return EMPTY_ORGANIZATION_PERMISSIONS;
   }

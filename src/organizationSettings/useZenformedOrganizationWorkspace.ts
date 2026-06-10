@@ -16,6 +16,7 @@ import type {
 import {
   EMPTY_ORGANIZATION_PERMISSIONS,
   parseOrganizationPermissions,
+  resolveOrganizationPermissionsFromRole,
 } from './organizationPermissions';
 
 type RelayResponse = {
@@ -268,10 +269,11 @@ function parseMembershipContextJson(json: unknown): OrganizationWorkspaceMembers
   const o = json as Record<string, unknown>;
   if (typeof o.hasActiveMembership !== 'boolean') return null;
   if (typeof o.hasNonPersonalOrganizationMembership !== 'boolean') return null;
+  const membershipKind = o.membershipKind;
   if (
-    o.membershipKind !== 'none' &&
-    o.membershipKind !== 'organization_bootstrap_owner' &&
-    o.membershipKind !== 'invited_member'
+    membershipKind !== 'none' &&
+    membershipKind !== 'organization_bootstrap_owner' &&
+    membershipKind !== 'invited_member'
   ) {
     return null;
   }
@@ -288,11 +290,11 @@ function parseMembershipContextJson(json: unknown): OrganizationWorkspaceMembers
   return {
     hasActiveMembership: o.hasActiveMembership,
     hasNonPersonalOrganizationMembership: o.hasNonPersonalOrganizationMembership,
-    membershipKind: o.membershipKind,
+    membershipKind,
     organizationId: typeof o.organizationId === 'string' ? o.organizationId : null,
     currentUserId: o.currentUserId,
     role,
-    permissions,
+    permissions: resolveOrganizationPermissionsFromRole(role),
   };
 }
 

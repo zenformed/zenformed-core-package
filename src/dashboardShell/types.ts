@@ -1,5 +1,8 @@
 import type { ChangeEvent, ReactNode, RefObject } from 'react';
 
+/** Optional CSS module class map override for shared shell components. */
+export type CSSModuleClasses = Record<string, string>;
+
 /** Class names from the app `dashboard.module.css` sidebar branding block. */
 export type ZenformedSidebarBrandingClassNames = {
   accountMenuLogoFileInput: string;

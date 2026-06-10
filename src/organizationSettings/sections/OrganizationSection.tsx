@@ -69,7 +69,9 @@ export function OrganizationSection({
     !(branding?.canEditOrganizationProfile ?? false) || savingProfile || Boolean(branding?.isLoading);
   const canSaveProfile = Boolean(branding?.onSaveOrganizationProfile) && profileDirty;
   const logoUploading = branding?.logoUploading ?? false;
-  const canUploadLogo = Boolean(branding?.onUploadLogoClick && branding?.onLogoFileChange);
+  const canUploadLogo =
+    Boolean(branding?.canEditOrganizationProfile) &&
+    Boolean(branding?.onUploadLogoClick && branding?.onLogoFileChange);
 
   return (
     <>

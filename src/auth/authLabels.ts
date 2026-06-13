@@ -1,4 +1,13 @@
 export const DEFAULT_AUTH_LABELS = {
+  signIn: 'Sign in',
+  signingIn: 'Signing in…',
+  createAccount: 'Create account',
+  creatingAccount: 'Creating account…',
+  passwordLabel: 'Password',
+  firstNameLabel: 'First name',
+  lastNameLabel: 'Last name',
+  registerLink: 'Create an account',
+  signInLink: 'Already have an account? Sign in',
   forgotPassword: 'Forgot password?',
   forgotPasswordTitle: 'Reset password',
   forgotPasswordInstructions:

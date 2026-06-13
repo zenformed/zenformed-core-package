@@ -1,7 +1,7 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { ZenformedAuthSupabaseClient } from './zenformedAuthSupabaseClient';
 
 export type RequestPasswordResetInput = {
-  readonly supabase: SupabaseClient;
+  readonly supabase: ZenformedAuthSupabaseClient;
   readonly email: string;
   readonly redirectTo: string;
 };

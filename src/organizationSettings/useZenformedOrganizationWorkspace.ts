@@ -345,7 +345,9 @@ export type UseZenformedOrganizationWorkspaceResult = {
   readonly memberProfileMutationError: string | null;
   readonly createdInviteAcceptUrl: string | null;
   readonly createdInviteEmailDeliveryStatus: 'sent' | 'failed' | null;
+  readonly inviteMutationSuccessMessage: string | null;
   readonly clearCreatedInviteAcceptUrl: () => void;
+  readonly clearInviteMutationSuccessMessage: () => void;
 };
 
 function readMutationError(json: unknown, fallback: string): string {
@@ -379,10 +381,17 @@ export function useZenformedOrganizationWorkspace({
   const [createdInviteEmailDeliveryStatus, setCreatedInviteEmailDeliveryStatus] = useState<
     'sent' | 'failed' | null
   >(null);
+  const [inviteMutationSuccessMessage, setInviteMutationSuccessMessage] = useState<string | null>(
+    null
+  );
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
     setCreatedInviteAcceptUrl(null);
     setCreatedInviteEmailDeliveryStatus(null);
+  }, []);
+
+  const clearInviteMutationSuccessMessage = useCallback(() => {
+    setInviteMutationSuccessMessage(null);
   }, []);
 
   const fetchAll = useCallback(async () => {
@@ -484,6 +493,7 @@ export function useZenformedOrganizationWorkspace({
       setInviteMutationError(null);
       setCreatedInviteAcceptUrl(null);
       setCreatedInviteEmailDeliveryStatus(null);
+      setInviteMutationSuccessMessage(null);
       try {
         const res = await fetch(apiUrls.invites, {
           method: 'POST',
@@ -506,13 +516,21 @@ export function useZenformedOrganizationWorkspace({
           return false;
         }
         const body = json as Record<string, unknown>;
-        if (typeof body.acceptUrl === 'string' && body.acceptUrl.trim()) {
-          setCreatedInviteAcceptUrl(body.acceptUrl.trim());
-        }
-        if (body.emailDeliveryStatus === 'sent' || body.emailDeliveryStatus === 'failed') {
-          setCreatedInviteEmailDeliveryStatus(body.emailDeliveryStatus);
+        if (body.reactivated === true) {
+          const message =
+            typeof body.message === 'string' && body.message.trim()
+              ? body.message.trim()
+              : 'Member reactivated successfully.';
+          setInviteMutationSuccessMessage(message);
         } else {
-          setCreatedInviteEmailDeliveryStatus(null);
+          if (typeof body.acceptUrl === 'string' && body.acceptUrl.trim()) {
+            setCreatedInviteAcceptUrl(body.acceptUrl.trim());
+          }
+          if (body.emailDeliveryStatus === 'sent' || body.emailDeliveryStatus === 'failed') {
+            setCreatedInviteEmailDeliveryStatus(body.emailDeliveryStatus);
+          } else {
+            setCreatedInviteEmailDeliveryStatus(null);
+          }
         }
         await fetchAll();
         return true;
@@ -718,6 +736,8 @@ export function useZenformedOrganizationWorkspace({
     memberProfileMutationError,
     createdInviteAcceptUrl,
     createdInviteEmailDeliveryStatus,
+    inviteMutationSuccessMessage,
     clearCreatedInviteAcceptUrl,
+    clearInviteMutationSuccessMessage,
   };
 }

@@ -57,7 +57,9 @@ export function TeamMembersSection({ viewModel, labels, classNames, workspace }:
         memberProfileMutationError={workspace?.memberProfileMutationError}
         createdInviteAcceptUrl={workspace?.createdInviteAcceptUrl}
         createdInviteEmailDeliveryStatus={workspace?.createdInviteEmailDeliveryStatus}
+        inviteMutationSuccessMessage={workspace?.inviteMutationSuccessMessage}
         onDismissCreatedInviteLink={workspace?.onDismissCreatedInviteLink}
+        onDismissInviteMutationSuccess={workspace?.onDismissInviteMutationSuccess}
         onCreateInvite={workspace?.onCreateInvite}
         onUpdateMemberRole={workspace?.onUpdateMemberRole}
         onUpdateMemberProfile={workspace?.onUpdateMemberProfile}

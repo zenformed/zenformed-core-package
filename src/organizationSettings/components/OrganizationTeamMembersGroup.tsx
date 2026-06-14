@@ -76,7 +76,9 @@ type Props = {
   readonly memberProfileMutationError?: string | null;
   readonly createdInviteAcceptUrl?: string | null;
   readonly createdInviteEmailDeliveryStatus?: 'sent' | 'failed' | null;
+  readonly inviteMutationSuccessMessage?: string | null;
   readonly onDismissCreatedInviteLink?: () => void;
+  readonly onDismissInviteMutationSuccess?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
   readonly onUpdateMemberRole?: (
     memberId: string,
@@ -192,7 +194,9 @@ export function OrganizationTeamMembersGroup({
   memberProfileMutationError,
   createdInviteAcceptUrl,
   createdInviteEmailDeliveryStatus,
+  inviteMutationSuccessMessage,
   onDismissCreatedInviteLink,
+  onDismissInviteMutationSuccess,
   onCreateInvite,
   onUpdateMemberRole,
   onUpdateMemberProfile,
@@ -344,6 +348,24 @@ export function OrganizationTeamMembersGroup({
           >
             {labels.inviteMember}
           </button>
+        </div>
+      ) : null}
+      {inviteMutationSuccessMessage ? (
+        <div className={classNames.row}>
+          <p className={`${classNames.saveStatus} ${classNames.saveStatusSuccess}`}>
+            {inviteMutationSuccessMessage}
+          </p>
+          {onDismissInviteMutationSuccess ? (
+            <div className={classNames.actions}>
+              <button
+                type="button"
+                className={classNames.btn}
+                onClick={() => onDismissInviteMutationSuccess()}
+              >
+                {labels.dismissInviteLink}
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
       {createdInviteAcceptUrl ? (

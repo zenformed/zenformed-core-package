@@ -63,6 +63,7 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   inviteEmailSent: 'Invite email sent.',
   inviteEmailFailed:
     'Invite created, but the email could not be sent. Copy the link below to share manually.',
+  memberReactivatedSuccess: 'Member reactivated successfully.',
   sendInvite: 'Send Invite',
   cancelInvite: 'Cancel Invite',
   copyInviteLink: 'Copy Invite Link',

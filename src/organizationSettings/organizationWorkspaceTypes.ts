@@ -149,7 +149,9 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly memberProfileMutationError?: string | null;
   readonly createdInviteAcceptUrl?: string | null;
   readonly createdInviteEmailDeliveryStatus?: 'sent' | 'failed' | null;
+  readonly inviteMutationSuccessMessage?: string | null;
   readonly onDismissCreatedInviteLink?: () => void;
+  readonly onDismissInviteMutationSuccess?: () => void;
   readonly onCreateInvite?: (payload: OrganizationInviteCreatePayload) => Promise<boolean>;
   readonly onCancelInvite?: (inviteId: string) => Promise<boolean>;
   readonly onUpdateMemberRole?: (

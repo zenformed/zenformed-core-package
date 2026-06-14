@@ -243,6 +243,7 @@ export type OrganizationSettingsLabels = {
   readonly inviteComingSoon: string;
   readonly inviteEmailSent: string;
   readonly inviteEmailFailed: string;
+  readonly memberReactivatedSuccess: string;
   readonly sendInvite: string;
   readonly cancelInvite: string;
   readonly copyInviteLink: string;

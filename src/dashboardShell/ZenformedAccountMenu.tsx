@@ -58,6 +58,31 @@ export function ZenformedAccountMenu({
       </button>
       {accountMenuOpen && (
         <div className={classNames.accountMenuDropdown} role="menu">
+          <div className={classNames.accountMenuEmail}>{user.email}</div>
+          {(effectiveLicenseTier || organizationRoleLabel) && (
+            <div className={classNames.badgeRow}>
+              {effectiveLicenseTier ? (
+                <span
+                  className={
+                    effectiveLicenseTier === 'PRO'
+                      ? `${classNames.tierBadge} ${classNames.tierBadgePro}`
+                      : `${classNames.tierBadge} ${classNames.tierBadgeStandard}`
+                  }
+                  aria-label={`${labels.planAriaLabelPrefix} ${effectiveLicenseTier}`}
+                >
+                  {effectiveLicenseTier}
+                </span>
+              ) : null}
+              {organizationRoleLabel ? (
+                <span
+                  className={classNames.adminBadge}
+                  aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
+                >
+                  {organizationRoleLabel}
+                </span>
+              ) : null}
+            </div>
+          )}
           <div className={classNames.accountMenuPhotoWrap}>
             <div className={classNames.accountMenuPhotoCircle}>
               {avatarUrl ? (
@@ -93,31 +118,6 @@ export function ZenformedAccountMenu({
           {userDisplayName ? (
             <div className={classNames.accountMenuShopName}>{userDisplayName}</div>
           ) : null}
-          <div className={classNames.accountMenuEmail}>{user.email}</div>
-          {(effectiveLicenseTier || organizationRoleLabel) && (
-            <div className={classNames.badgeRow}>
-              {effectiveLicenseTier ? (
-                <span
-                  className={
-                    effectiveLicenseTier === 'PRO'
-                      ? `${classNames.tierBadge} ${classNames.tierBadgePro}`
-                      : `${classNames.tierBadge} ${classNames.tierBadgeStandard}`
-                  }
-                  aria-label={`${labels.planAriaLabelPrefix} ${effectiveLicenseTier}`}
-                >
-                  {effectiveLicenseTier}
-                </span>
-              ) : null}
-              {organizationRoleLabel ? (
-                <span
-                  className={classNames.adminBadge}
-                  aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
-                >
-                  {organizationRoleLabel}
-                </span>
-              ) : null}
-            </div>
-          )}
           <button
             type="button"
             className={classNames.accountMenuBtn}

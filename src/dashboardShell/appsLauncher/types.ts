@@ -20,6 +20,8 @@ export type ZenformedAppsLauncherClassNames = {
   appsLauncherIcon: string;
   appsPopover: string;
   appsPopoverList: string;
+  appsPopoverSection: string;
+  appsPopoverSectionTitle: string;
   appsTileGrid: string;
   appsTile: string;
   appsTileDisabled: string;
@@ -36,6 +38,8 @@ export type ZenformedAppsLauncherClassNames = {
   appCardGrid: string;
   appCard: string;
   appCardDisabled: string;
+  appCardIcon: string;
+  appCardIconFallback: string;
   appCardTitle: string;
   appCardDescription: string;
   appComingSoon: string;
@@ -45,5 +49,7 @@ export type ZenformedAppsLauncherClassNames = {
 export type ZenformedAppsLauncherLabels = {
   triggerAriaLabel: string;
   popoverAriaLabel: string;
+  /** Section heading above the app grid in the launcher popover (e.g. "Apps"). */
+  sectionTitle: string;
   comingSoonLabel: string;
 };

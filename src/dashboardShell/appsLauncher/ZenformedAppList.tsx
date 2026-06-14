@@ -27,6 +27,10 @@ function isHrefApp(app: ZenformedAppRegistryEntry): boolean {
   return app.status === 'live' && app.href != null;
 }
 
+function isDisabledApp(app: ZenformedAppRegistryEntry): boolean {
+  return !isLaunchableApp(app) && !isHrefApp(app);
+}
+
 type AppActionProps = {
   app: ZenformedAppRegistryEntry;
   classNames: ZenformedAppsLauncherClassNames;
@@ -36,23 +40,30 @@ type AppActionProps = {
   launchingAppId: string | null;
 };
 
-function AppTileIcon({
+type AppIconVariant = 'popover' | 'card';
+
+function AppIcon({
   app,
   classNames,
+  variant,
 }: {
   app: ZenformedAppRegistryEntry;
   classNames: ZenformedAppsLauncherClassNames;
+  variant: AppIconVariant;
 }): ReactElement {
+  const iconClass = variant === 'card' ? classNames.appCardIcon : classNames.appsTileIcon;
+  const fallbackClass =
+    variant === 'card' ? classNames.appCardIconFallback : classNames.appsTileIconFallback;
   const iconSrc = resolveZenformedAppIconSrc(app);
   if (iconSrc) {
     return (
       /* eslint-disable-next-line @next/next/no-img-element */
-      <img src={iconSrc} alt="" className={classNames.appsTileIcon} />
+      <img src={iconSrc} alt="" className={iconClass} />
     );
   }
   const initial = app.name.trim().charAt(0).toUpperCase() || '?';
   return (
-    <span className={classNames.appsTileIconFallback} aria-hidden>
+    <span className={fallbackClass} aria-hidden>
       {initial}
     </span>
   );
@@ -61,45 +72,49 @@ function AppTileIcon({
 function AppCard({
   app,
   classNames,
-  labels,
   onNavigate,
   launchApp,
   launchingAppId,
-}: AppActionProps): ReactElement {
+}: Omit<AppActionProps, 'labels'>): ReactElement {
   const isLaunching = launchingAppId === app.id;
+  const disabled = isDisabledApp(app);
+  const cardClass = disabled
+    ? `${classNames.appCard} ${classNames.appCardDisabled}`
+    : classNames.appCard;
+  const cardBody = (
+    <>
+      <AppIcon app={app} classNames={classNames} variant="card" />
+      <h3 className={classNames.appCardTitle}>{isLaunching ? 'Opening…' : app.name}</h3>
+    </>
+  );
 
   if (isLaunchableApp(app)) {
     return (
       <button
         type="button"
-        className={classNames.appCard}
+        className={cardClass}
         disabled={isLaunching}
         onClick={() => {
           onNavigate?.();
           void launchApp(app.launchTarget!, '/dashboard');
         }}
       >
-        <h3 className={classNames.appCardTitle}>{app.name}</h3>
-        <p className={classNames.appCardDescription}>{app.description}</p>
-        {isLaunching ? <span className={classNames.appComingSoon}>Opening…</span> : null}
+        {cardBody}
       </button>
     );
   }
 
   if (isHrefApp(app)) {
     return (
-      <a href={app.href} className={classNames.appCard} onClick={() => onNavigate?.()}>
-        <h3 className={classNames.appCardTitle}>{app.name}</h3>
-        <p className={classNames.appCardDescription}>{app.description}</p>
+      <a href={app.href} className={cardClass} onClick={() => onNavigate?.()}>
+        {cardBody}
       </a>
     );
   }
 
   return (
-    <div className={`${classNames.appCard} ${classNames.appCardDisabled}`} aria-disabled="true">
-      <h3 className={classNames.appCardTitle}>{app.name}</h3>
-      <p className={classNames.appCardDescription}>{app.description}</p>
-      <span className={classNames.appComingSoon}>{labels.comingSoonLabel}</span>
+    <div className={cardClass} aria-disabled="true">
+      {cardBody}
     </div>
   );
 }
@@ -107,17 +122,18 @@ function AppCard({
 function AppPopoverTile({
   app,
   classNames,
-  labels,
   onNavigate,
   launchApp,
   launchingAppId,
-}: AppActionProps): ReactElement {
+}: Omit<AppActionProps, 'labels'>): ReactElement {
   const isLaunching = launchingAppId === app.id;
+  const disabled = isDisabledApp(app);
+  const tileClass = disabled
+    ? `${classNames.appsTile} ${classNames.appsTileDisabled}`
+    : classNames.appsTile;
   const tileBody = (
     <>
-      <span className={classNames.appsTileIconWrap}>
-        <AppTileIcon app={app} classNames={classNames} />
-      </span>
+      <AppIcon app={app} classNames={classNames} variant="popover" />
       <span className={classNames.appsTileName}>
         {isLaunching ? 'Opening…' : app.name}
       </span>
@@ -128,7 +144,7 @@ function AppPopoverTile({
     return (
       <button
         type="button"
-        className={classNames.appsTile}
+        className={tileClass}
         role="menuitem"
         disabled={isLaunching}
         onClick={() => {
@@ -145,7 +161,7 @@ function AppPopoverTile({
     return (
       <a
         href={app.href}
-        className={classNames.appsTile}
+        className={tileClass}
         role="menuitem"
         onClick={() => onNavigate?.()}
       >
@@ -155,16 +171,8 @@ function AppPopoverTile({
   }
 
   return (
-    <div
-      className={`${classNames.appsTile} ${classNames.appsTileDisabled}`}
-      role="menuitem"
-      aria-disabled="true"
-    >
-      <span className={classNames.appsTileIconWrap}>
-        <AppTileIcon app={app} classNames={classNames} />
-      </span>
-      <span className={classNames.appsTileName}>{app.name}</span>
-      <span className={classNames.appsTileMeta}>{labels.comingSoonLabel}</span>
+    <div className={tileClass} role="menuitem" aria-disabled="true">
+      {tileBody}
     </div>
   );
 }
@@ -186,7 +194,6 @@ export function ZenformedAppList({
             key={app.id}
             app={app}
             classNames={classNames}
-            labels={labels}
             onNavigate={onNavigate}
             launchApp={launchApp}
             launchingAppId={launchingAppId}
@@ -197,7 +204,6 @@ export function ZenformedAppList({
             key={app.id}
             app={app}
             classNames={classNames}
-            labels={labels}
             onNavigate={onNavigate}
             launchApp={launchApp}
             launchingAppId={launchingAppId}
@@ -208,7 +214,10 @@ export function ZenformedAppList({
     return (
       <div className={classNames.appsPopoverList}>
         {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
-        <div className={classNames.appsTileGrid}>{list}</div>
+        <section className={classNames.appsPopoverSection}>
+          <h2 className={classNames.appsPopoverSectionTitle}>{labels.sectionTitle}</h2>
+          <div className={classNames.appsTileGrid}>{list}</div>
+        </section>
       </div>
     );
   }

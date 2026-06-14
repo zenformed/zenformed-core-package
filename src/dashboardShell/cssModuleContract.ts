@@ -72,6 +72,26 @@ export const ZENFORMED_SIDEBAR_ROW_CSS_KEYS = ['dashboardWithSidebar', 'mainColu
 
 export const ZENFORMED_PAGE_LOADING_CSS_KEYS = ['page', 'loading'] as const;
 
+export const ZENFORMED_APPS_LAUNCHER_CSS_KEYS = [
+  'appsLauncherWrap',
+  'appsLauncherTrigger',
+  'appsLauncherIcon',
+  'appsPopover',
+  'appsPopoverList',
+  'appsPopoverRow',
+  'appsPopoverRowDisabled',
+  'appsPopoverRowName',
+  'appsPopoverRowDescription',
+  'appsPopoverRowMeta',
+  'appCardGrid',
+  'appCard',
+  'appCardDisabled',
+  'appCardTitle',
+  'appCardDescription',
+  'appComingSoon',
+  'appsLaunchError',
+] as const;
+
 /** Human-readable bundle labels for dev warnings + docs. */
 export const ZENFORMED_DASHBOARD_SHELL_CSS_SOURCES = {
   sidebarBranding: {
@@ -108,5 +128,14 @@ export const ZENFORMED_DASHBOARD_SHELL_CSS_SOURCES = {
     keys: ZENFORMED_PAGE_LOADING_CSS_KEYS,
     stylesheet: 'App `dashboard.module.css`',
     consumers: ['ZenformedDashboardPageLoading', 'pickDashboardPageLoadingClassNames'],
+  },
+  appsLauncher: {
+    keys: ZENFORMED_APPS_LAUNCHER_CSS_KEYS,
+    stylesheet: 'App `platformDashboard.module.css` or equivalent apps launcher stylesheet',
+    consumers: [
+      'ZenformedAppsLauncher',
+      'ZenformedAppList',
+      'pickAppsLauncherClassNames',
+    ],
   },
 } as const;

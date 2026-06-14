@@ -1,6 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import {
+  invalidateSessionBlob,
+  loadSessionBlob,
+} from '../organizationBranding/sessionBlobCache';
 import { resolveDefaultTimezone } from './timezoneData';
 import type { OrganizationBrandingProfileDto } from './types';
 import type { SettingsSaveStatus } from './userSettingsTypes';
@@ -90,19 +94,23 @@ export function useZenformedOrganizationBranding({
   const [profileSaveStatus, setProfileSaveStatus] = useState<SettingsSaveStatus>('idle');
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
 
+const ORGANIZATION_SETTINGS_LOGO_CACHE_KEY = 'branding-logo:organization-settings';
+
   const fetchLogoBlob = useCallback(
     async (token: string, hasLogo: boolean): Promise<string | null> => {
       if (!hasLogo) return null;
-      try {
-        const res = await fetch(brandingLogoApiUrl, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) return null;
-        const blob = await res.blob();
-        return URL.createObjectURL(blob);
-      } catch {
-        return null;
-      }
+      invalidateSessionBlob(ORGANIZATION_SETTINGS_LOGO_CACHE_KEY);
+      return loadSessionBlob(ORGANIZATION_SETTINGS_LOGO_CACHE_KEY, async () => {
+        try {
+          const res = await fetch(brandingLogoApiUrl, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) return null;
+          return res.blob();
+        } catch {
+          return null;
+        }
+      });
     },
     [brandingLogoApiUrl]
   );

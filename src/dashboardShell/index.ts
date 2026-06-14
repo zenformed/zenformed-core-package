@@ -36,6 +36,23 @@ export {
 export { ZenformedDashboardPageLoading } from './ZenformedDashboardPageLoading';
 export { pickDashboardPageLoadingClassNames } from './pickDashboardPageLoadingClassNames';
 
+export { ZenformedAppsLauncher } from './appsLauncher/ZenformedAppsLauncher';
+export { ZenformedAppList } from './appsLauncher/ZenformedAppList';
+export { useZenformedAppLaunch } from './appsLauncher/useZenformedAppLaunch';
+export { pickAppsLauncherClassNames } from './appsLauncher/pickAppsLauncherClassNames';
+export type {
+  ZenformedAppRegistryEntry,
+  ZenformedAppStatus,
+  ZenformedAppsLauncherClassNames,
+  ZenformedAppsLauncherLabels,
+} from './appsLauncher/types';
+export type { ZenformedAppsLauncherProps } from './appsLauncher/ZenformedAppsLauncher';
+export type { ZenformedAppListProps } from './appsLauncher/ZenformedAppList';
+export type {
+  UseZenformedAppLaunchOptions,
+  UseZenformedAppLaunchResult,
+} from './appsLauncher/useZenformedAppLaunch';
+
 export {
   ZENFORMED_DEFAULT_AVATAR_SEEDS,
   zenformedDefaultAvatarSrc,
@@ -50,6 +67,7 @@ export {
   ZENFORMED_APP_SHELL_CSS_KEYS,
   ZENFORMED_SIDEBAR_ROW_CSS_KEYS,
   ZENFORMED_PAGE_LOADING_CSS_KEYS,
+  ZENFORMED_APPS_LAUNCHER_CSS_KEYS,
   ZENFORMED_DASHBOARD_SHELL_CSS_SOURCES,
 } from './cssModuleContract';
 

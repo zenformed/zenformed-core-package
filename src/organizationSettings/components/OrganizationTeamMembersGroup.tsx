@@ -281,7 +281,8 @@ export function OrganizationTeamMembersGroup({
 
   async function handleConfirmRemove(): Promise<void> {
     if (pendingRemoveMember == null) return;
-    await onRemoveMember?.(pendingRemoveMember.id);
+    const ok = (await onRemoveMember?.(pendingRemoveMember.id)) ?? false;
+    if (ok) setPendingRemoveMember(null);
   }
 
   return (

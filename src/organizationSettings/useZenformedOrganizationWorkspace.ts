@@ -18,6 +18,10 @@ import {
   parseOrganizationPermissions,
   resolveOrganizationPermissionsFromRole,
 } from './organizationPermissions';
+import {
+  applyRemovedMemberToSnapshot,
+  filterActiveWorkspaceMembers,
+} from './organizationWorkspaceMemberUtils';
 
 type RelayResponse = {
   relay?: string;
@@ -120,7 +124,7 @@ function parseMembersJson(json: unknown): OrganizationWorkspaceMemberDto[] | nul
       status: row.status,
     });
   }
-  return members;
+  return filterActiveWorkspaceMembers(members);
 }
 
 function parseInvitesJson(json: unknown): OrganizationWorkspaceInviteDto[] | null {
@@ -630,6 +634,9 @@ export function useZenformedOrganizationWorkspace({
           setRemoveMemberMutationError(readMutationError(json, 'Failed to remove member'));
           return false;
         }
+        setSnapshot((prev) =>
+          prev != null ? applyRemovedMemberToSnapshot(prev, memberId) : prev
+        );
         await fetchAll();
         return true;
       } catch (e) {

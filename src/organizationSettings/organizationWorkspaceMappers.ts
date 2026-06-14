@@ -7,6 +7,7 @@ import type {
   OrganizationSettingsViewModel,
 } from './types';
 import type { OrganizationWorkspaceInviteDto, OrganizationWorkspaceSnapshot } from './organizationWorkspaceTypes';
+import { filterActiveWorkspaceMembers } from './organizationWorkspaceMemberUtils';
 
 function inviteStatusLabel(status: OrganizationWorkspaceInviteDto['status']): string {
   if (status === 'pending') return 'Pending';
@@ -63,7 +64,7 @@ export function workspaceSnapshotToViewModelOverrides(
 ): Partial<OrganizationSettingsViewModel> {
   const members: OrganizationSettingsMember[] | undefined =
     snapshot.members != null
-      ? snapshot.members.map((m) => ({
+      ? filterActiveWorkspaceMembers(snapshot.members).map((m) => ({
           id: m.id,
           userId: m.userId,
           name: m.displayName,

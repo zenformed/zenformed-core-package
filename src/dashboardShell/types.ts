@@ -85,12 +85,12 @@ export type ZenformedAccountMenuLabels = {
 
 export type ZenformedAccountMenuProps = {
   classNames: ZenformedDashboardHeaderClassNames;
-  user: { email: string };
+  user: ZenformedDashboardHeaderUser;
+  userDisplayName: string;
   avatarUrl: string | null | undefined;
   avatarLoading: boolean;
-  shopName: string | null | undefined;
-  defaultShopNameFallback: string;
-  isAdmin: boolean;
+  effectiveLicenseTier?: string | null;
+  organizationRoleLabel?: string | null;
   labels: ZenformedAccountMenuLabels;
   onOpenSettings: () => void;
   onRequestSignOutConfirm: () => void;
@@ -104,22 +104,30 @@ export type ZenformedAccountMenuProps = {
   closeAccountMenu: () => void;
 };
 
+export type ZenformedDashboardHeaderUser = {
+  email: string;
+  displayName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+};
+
 export type ZenformedDashboardHeaderProps = {
   classNames: ZenformedDashboardHeaderClassNames;
-  user: { email: string } | null;
+  user: ZenformedDashboardHeaderUser | null;
   avatarUrl: string | null | undefined;
   avatarLoading: boolean;
-  shopName: string | null | undefined;
-  defaultShopNameFallback: string;
-  effectiveLicenseTier: string | null | undefined;
+  effectiveLicenseTier?: string | null;
   /** Organization role badge (Owner, Admin, Coordinator, Member). */
   organizationRoleLabel?: string | null;
-  isAdmin: boolean;
   labels: ZenformedAccountMenuLabels;
   themeToggle: ReactNode;
   onOpenSettings: () => void;
   onRequestSignOutConfirm: () => void;
   onRequestProfilePhotoModal: () => void;
+  /** When set with `getAccessToken` and `sessionUserId`, loads first/last name for the menu label. */
+  settingsApiUrl?: string;
+  getAccessToken?: () => string | null;
+  sessionUserId?: string | null;
   /** App-specific toolbar (e.g. ForgeCore search + new work order). */
   centerSlot?: ReactNode;
   /** Override default empty `headerLeft` (ForgeCore uses aria-hidden placeholder). */

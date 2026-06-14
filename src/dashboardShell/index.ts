@@ -7,7 +7,10 @@
 
 export { formatOrganizationRoleLabel } from './formatOrganizationRoleLabel';
 export { getCompanyInitial, companyCircleColor } from './brandingUtils';
-export { getUserInitials, userCircleColor } from './accountMenuUtils';
+export { getUserInitials, userCircleColor, resolveAccountMenuDisplayName } from './accountMenuUtils';
+export type { AccountMenuUserIdentity } from './accountMenuUtils';
+export { useZenformedShellUserDisplay } from './useZenformedShellUserDisplay';
+export type { UseZenformedShellUserDisplayOptions } from './useZenformedShellUserDisplay';
 export { pickSidebarBrandingClassNames } from './pickSidebarBrandingClassNames';
 export { ZenformedSidebarBranding } from './ZenformedSidebarBranding';
 export { ZenformedSidebarBrandingCameraIcon } from './ZenformedSidebarBrandingCameraIcon';
@@ -52,6 +55,17 @@ export type {
   UseZenformedAppLaunchOptions,
   UseZenformedAppLaunchResult,
 } from './appsLauncher/useZenformedAppLaunch';
+export {
+  ZENFORMED_ECOSYSTEM_APP_ICON_IDS,
+  isZenformedEcosystemAppIconId,
+  resolveZenformedAppIconSrc,
+  zenformedAppIconPublicSrc,
+  zenformedAppIconSrc,
+} from './appsLauncher/zenformedAppIconCatalog';
+export type {
+  ZenformedEcosystemAppIconId,
+  ZenformedAppIconPublicSrcOptions,
+} from './appsLauncher/zenformedAppIconCatalog';
 
 export {
   ZENFORMED_DEFAULT_AVATAR_SEEDS,
@@ -78,6 +92,7 @@ export type {
   UseOrganizationLogoUploadResult,
   ZenformedDashboardHeaderClassNames,
   ZenformedDashboardHeaderProps,
+  ZenformedDashboardHeaderUser,
   ZenformedAccountMenuLabels,
   ZenformedAccountMenuProps,
   ZenformedConfirmSnackbarClassNames,

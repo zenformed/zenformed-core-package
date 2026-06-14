@@ -3,6 +3,7 @@
 import type { ReactElement } from 'react';
 import { ZenformedAccountMenu } from './ZenformedAccountMenu';
 import { useAccountMenuState } from './useAccountMenuState';
+import { useZenformedShellUserDisplay } from './useZenformedShellUserDisplay';
 import type { ZenformedDashboardHeaderProps } from './types';
 
 export function ZenformedDashboardHeader({
@@ -10,11 +11,8 @@ export function ZenformedDashboardHeader({
   user,
   avatarUrl,
   avatarLoading,
-  shopName,
-  defaultShopNameFallback,
   effectiveLicenseTier,
   organizationRoleLabel,
-  isAdmin,
   labels,
   themeToggle,
   onOpenSettings,
@@ -25,8 +23,19 @@ export function ZenformedDashboardHeader({
   settingsIcon,
   signOutIcon,
   profilePhotoCameraIcon,
+  settingsApiUrl,
+  getAccessToken,
+  sessionUserId,
 }: ZenformedDashboardHeaderProps): ReactElement {
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } = useAccountMenuState();
+
+  const userDisplayName = useZenformedShellUserDisplay({
+    settingsApiUrl: settingsApiUrl ?? '/api/internal/users-me-settings',
+    getAccessToken: getAccessToken ?? (() => null),
+    sessionUserId: sessionUserId ?? null,
+    user,
+    enabled: Boolean(user && settingsApiUrl && getAccessToken && sessionUserId),
+  });
 
   return (
     <header className={classNames.header}>
@@ -34,40 +43,15 @@ export function ZenformedDashboardHeader({
       {centerSlot}
       {user ? (
         <div className={classNames.headerRight}>
-          <div className={classNames.headerRightUserBlock}>
-            <div className={classNames.headerUserEmail}>{user.email}</div>
-            <div className={classNames.badgeRow}>
-              {effectiveLicenseTier && (
-                <span
-                  className={
-                    effectiveLicenseTier === 'PRO'
-                      ? `${classNames.tierBadge} ${classNames.tierBadgePro}`
-                      : `${classNames.tierBadge} ${classNames.tierBadgeStandard}`
-                  }
-                  aria-label={`${labels.planAriaLabelPrefix} ${effectiveLicenseTier}`}
-                >
-                  {effectiveLicenseTier}
-                </span>
-              )}
-              {organizationRoleLabel ? (
-                <span
-                  className={classNames.adminBadge}
-                  aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
-                >
-                  {organizationRoleLabel}
-                </span>
-              ) : null}
-            </div>
-          </div>
           {themeToggle}
           <ZenformedAccountMenu
             classNames={classNames}
             user={user}
+            userDisplayName={userDisplayName}
             avatarUrl={avatarUrl}
             avatarLoading={avatarLoading}
-            shopName={shopName}
-            defaultShopNameFallback={defaultShopNameFallback}
-            isAdmin={isAdmin}
+            effectiveLicenseTier={effectiveLicenseTier}
+            organizationRoleLabel={organizationRoleLabel}
             labels={labels}
             onOpenSettings={onOpenSettings}
             onRequestSignOutConfirm={onRequestSignOutConfirm}

@@ -1,11 +1,12 @@
 'use client';
 
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement } from 'react';
 import type {
   ZenformedAppRegistryEntry,
   ZenformedAppsLauncherClassNames,
   ZenformedAppsLauncherLabels,
 } from './types';
+import { resolveZenformedAppIconSrc } from './zenformedAppIconCatalog';
 
 export type ZenformedAppListProps = {
   readonly apps: readonly ZenformedAppRegistryEntry[];
@@ -34,6 +35,28 @@ type AppActionProps = {
   launchApp: (targetApp: string, returnPath?: string) => Promise<void>;
   launchingAppId: string | null;
 };
+
+function AppTileIcon({
+  app,
+  classNames,
+}: {
+  app: ZenformedAppRegistryEntry;
+  classNames: ZenformedAppsLauncherClassNames;
+}): ReactElement {
+  const iconSrc = resolveZenformedAppIconSrc(app);
+  if (iconSrc) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img src={iconSrc} alt="" className={classNames.appsTileIcon} />
+    );
+  }
+  const initial = app.name.trim().charAt(0).toUpperCase() || '?';
+  return (
+    <span className={classNames.appsTileIconFallback} aria-hidden>
+      {initial}
+    </span>
+  );
+}
 
 function AppCard({
   app,
@@ -81,7 +104,7 @@ function AppCard({
   );
 }
 
-function AppPopoverRow({
+function AppPopoverTile({
   app,
   classNames,
   labels,
@@ -90,12 +113,22 @@ function AppPopoverRow({
   launchingAppId,
 }: AppActionProps): ReactElement {
   const isLaunching = launchingAppId === app.id;
+  const tileBody = (
+    <>
+      <span className={classNames.appsTileIconWrap}>
+        <AppTileIcon app={app} classNames={classNames} />
+      </span>
+      <span className={classNames.appsTileName}>
+        {isLaunching ? 'Opening…' : app.name}
+      </span>
+    </>
+  );
 
   if (isLaunchableApp(app)) {
     return (
       <button
         type="button"
-        className={classNames.appsPopoverRow}
+        className={classNames.appsTile}
         role="menuitem"
         disabled={isLaunching}
         onClick={() => {
@@ -103,10 +136,7 @@ function AppPopoverRow({
           void launchApp(app.launchTarget!, '/dashboard');
         }}
       >
-        <span className={classNames.appsPopoverRowName}>{app.name}</span>
-        <span className={classNames.appsPopoverRowDescription}>
-          {isLaunching ? 'Opening…' : app.description}
-        </span>
+        {tileBody}
       </button>
     );
   }
@@ -115,23 +145,26 @@ function AppPopoverRow({
     return (
       <a
         href={app.href}
-        className={classNames.appsPopoverRow}
+        className={classNames.appsTile}
         role="menuitem"
         onClick={() => onNavigate?.()}
       >
-        <span className={classNames.appsPopoverRowName}>{app.name}</span>
-        <span className={classNames.appsPopoverRowDescription}>{app.description}</span>
+        {tileBody}
       </a>
     );
   }
 
   return (
     <div
-      className={`${classNames.appsPopoverRow} ${classNames.appsPopoverRowDisabled}`}
+      className={`${classNames.appsTile} ${classNames.appsTileDisabled}`}
       role="menuitem"
+      aria-disabled="true"
     >
-      <span className={classNames.appsPopoverRowName}>{app.name}</span>
-      <span className={classNames.appsPopoverRowMeta}>{labels.comingSoonLabel}</span>
+      <span className={classNames.appsTileIconWrap}>
+        <AppTileIcon app={app} classNames={classNames} />
+      </span>
+      <span className={classNames.appsTileName}>{app.name}</span>
+      <span className={classNames.appsTileMeta}>{labels.comingSoonLabel}</span>
     </div>
   );
 }
@@ -149,7 +182,7 @@ export function ZenformedAppList({
   const list =
     variant === 'popover'
       ? apps.map((app) => (
-          <AppPopoverRow
+          <AppPopoverTile
             key={app.id}
             app={app}
             classNames={classNames}
@@ -175,7 +208,7 @@ export function ZenformedAppList({
     return (
       <div className={classNames.appsPopoverList}>
         {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
-        {list}
+        <div className={classNames.appsTileGrid}>{list}</div>
       </div>
     );
   }

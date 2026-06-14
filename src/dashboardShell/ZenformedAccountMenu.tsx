@@ -12,11 +12,11 @@ import {
 export function ZenformedAccountMenu({
   classNames,
   user,
+  userDisplayName,
   avatarUrl,
   avatarLoading,
-  shopName,
-  defaultShopNameFallback,
-  isAdmin,
+  effectiveLicenseTier,
+  organizationRoleLabel,
   labels,
   onOpenSettings,
   onRequestSignOutConfirm,
@@ -29,8 +29,6 @@ export function ZenformedAccountMenu({
   accountMenuRef,
   closeAccountMenu,
 }: ZenformedAccountMenuProps): ReactElement {
-  const displayShopName = shopName || defaultShopNameFallback;
-
   return (
     <div className={classNames.accountMenuWrap} ref={accountMenuRef}>
       <button
@@ -60,7 +58,6 @@ export function ZenformedAccountMenu({
       </button>
       {accountMenuOpen && (
         <div className={classNames.accountMenuDropdown} role="menu">
-          <div className={classNames.accountMenuEmail}>{user.email}</div>
           <div className={classNames.accountMenuPhotoWrap}>
             <div className={classNames.accountMenuPhotoCircle}>
               {avatarUrl ? (
@@ -93,7 +90,34 @@ export function ZenformedAccountMenu({
               {profilePhotoCameraIcon ?? <ZenformedAccountMenuCameraIcon />}
             </button>
           </div>
-          <div className={classNames.accountMenuShopName}>{displayShopName}</div>
+          {userDisplayName ? (
+            <div className={classNames.accountMenuShopName}>{userDisplayName}</div>
+          ) : null}
+          <div className={classNames.accountMenuEmail}>{user.email}</div>
+          {(effectiveLicenseTier || organizationRoleLabel) && (
+            <div className={classNames.badgeRow}>
+              {effectiveLicenseTier ? (
+                <span
+                  className={
+                    effectiveLicenseTier === 'PRO'
+                      ? `${classNames.tierBadge} ${classNames.tierBadgePro}`
+                      : `${classNames.tierBadge} ${classNames.tierBadgeStandard}`
+                  }
+                  aria-label={`${labels.planAriaLabelPrefix} ${effectiveLicenseTier}`}
+                >
+                  {effectiveLicenseTier}
+                </span>
+              ) : null}
+              {organizationRoleLabel ? (
+                <span
+                  className={classNames.adminBadge}
+                  aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
+                >
+                  {organizationRoleLabel}
+                </span>
+              ) : null}
+            </div>
+          )}
           <button
             type="button"
             className={classNames.accountMenuBtn}

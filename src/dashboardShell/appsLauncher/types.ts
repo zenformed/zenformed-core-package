@@ -4,6 +4,10 @@ export type ZenformedAppRegistryEntry = {
   readonly id: string;
   readonly name: string;
   readonly description: string;
+  /** Bundled or absolute URL for launcher tile icon (overrides catalog when set). */
+  readonly icon?: string;
+  /** Explicit icon URL override (highest priority). */
+  readonly iconSrc?: string;
   /** When set, opens via one-time launch handoff instead of a direct href. */
   readonly launchTarget?: string;
   readonly href?: string;
@@ -16,6 +20,14 @@ export type ZenformedAppsLauncherClassNames = {
   appsLauncherIcon: string;
   appsPopover: string;
   appsPopoverList: string;
+  appsTileGrid: string;
+  appsTile: string;
+  appsTileDisabled: string;
+  appsTileIconWrap: string;
+  appsTileIcon: string;
+  appsTileIconFallback: string;
+  appsTileName: string;
+  appsTileMeta: string;
   appsPopoverRow: string;
   appsPopoverRowDisabled: string;
   appsPopoverRowName: string;

@@ -8,8 +8,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": false,
-    "rootDir": "src"
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "jsx": "react-jsx"
+  "include": ["src/**/*", "src/global.d.ts"]
 }

@@ -3,30 +3,24 @@ import type { ChangeEvent, ReactNode, RefObject } from 'react';
 /** Optional CSS module class map override for shared shell components. */
 export type CSSModuleClasses = Record<string, string>;
 
-/** Class names from the app `dashboard.module.css` sidebar branding block. */
+/** Class names from the app `dashboard.module.css` sidebar app branding block. */
 export type ZenformedSidebarBrandingClassNames = {
-  accountMenuLogoFileInput: string;
+  sidebarAppBranding: string;
   sidebarLogoCircleWrap: string;
   sidebarLogoCircle: string;
   sidebarLogoImg: string;
   sidebarLogoInitial: string;
-  sidebarLogoCameraBtn: string;
+  sidebarAppName: string;
 };
 
 export type ZenformedSidebarBrandingProps = {
   classNames: ZenformedSidebarBrandingClassNames;
-  shopName: string;
-  defaultShopNameFallback: string;
-  logoUrl: string | null;
-  brandingLoading: boolean;
-  logoUploading: boolean;
-  showCameraButton: boolean;
-  fileInputRef: RefObject<HTMLInputElement>;
-  onLogoFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  companyLogoChangeTitle: string;
-  companyLogoChangeAriaLabel: string;
-  /** Optional camera icon; defaults to built-in SVG when omitted. */
-  cameraIcon?: ReactNode;
+  /** Current consuming app display name (e.g. BuildCore, Zenformed Core). */
+  appName: string;
+  /** App icon URL — use `zenformedAppIconSrc` or a custom asset. */
+  appIconSrc?: string | null;
+  /** Image alt text; defaults to `appName`. */
+  appAltText?: string;
 };
 
 export type UseOrganizationLogoUploadOptions = {

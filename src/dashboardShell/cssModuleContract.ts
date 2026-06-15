@@ -4,12 +4,12 @@
  */
 
 export const ZENFORMED_SIDEBAR_BRANDING_CSS_KEYS = [
-  'accountMenuLogoFileInput',
+  'sidebarAppBranding',
   'sidebarLogoCircleWrap',
   'sidebarLogoCircle',
   'sidebarLogoImg',
   'sidebarLogoInitial',
-  'sidebarLogoCameraBtn',
+  'sidebarAppName',
 ] as const;
 
 export const ZENFORMED_HEADER_SHELL_CSS_KEYS = [

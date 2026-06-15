@@ -26,12 +26,12 @@ Typical path: `app/(dashboard)/dashboard/dashboard.module.css`.
 
 | Key | Role |
 |-----|------|
-| `accountMenuLogoFileInput` | Hidden file input (shared class name with account menu pattern). |
-| `sidebarLogoCircleWrap` | Wrapper for logo circle + camera. |
-| `sidebarLogoCircle` | Logo / initial circle. |
-| `sidebarLogoImg` | `<img>` when org logo present. |
-| `sidebarLogoInitial` | Initial letter span. |
-| `sidebarLogoCameraBtn` | Admin camera button. |
+| `sidebarAppBranding` | Column wrapper for app icon + name. |
+| `sidebarLogoCircleWrap` | Icon container. |
+| `sidebarLogoCircle` | Icon box (rounded square). |
+| `sidebarLogoImg` | App icon `<img>`. |
+| `sidebarLogoInitial` | Fallback initial when no icon. |
+| `sidebarAppName` | App display name below icon. |
 
 ### Header & account menu — `pickHeaderShellClassNames` → `ZenformedDashboardHeader`, `ZenformedAccountMenu`
 

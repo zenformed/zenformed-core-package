@@ -39,6 +39,10 @@ export {
 export { ZenformedDashboardPageLoading } from './ZenformedDashboardPageLoading';
 export { pickDashboardPageLoadingClassNames } from './pickDashboardPageLoadingClassNames';
 
+export { useZenformedMobileShellLayout, ZENFORMED_MOBILE_SHELL_BREAKPOINT_PX } from './useZenformedMobileShellLayout';
+export { ZenformedAppIconNavMenu } from './ZenformedAppIconNavMenu';
+export { pickAppIconNavMenuClassNames } from './pickAppIconNavMenuClassNames';
+
 export { ZenformedAppsLauncher } from './appsLauncher/ZenformedAppsLauncher';
 export { ZenformedAppList } from './appsLauncher/ZenformedAppList';
 export { useZenformedAppLaunch } from './appsLauncher/useZenformedAppLaunch';
@@ -102,6 +106,9 @@ export type {
   ZenformedDashboardAppShellClassNames,
   ZenformedDashboardSidebarRowClassNames,
   ZenformedDashboardPageLoadingClassNames,
+  ZenformedAppIconNavMenuClassNames,
+  ZenformedAppIconNavMenuItem,
+  ZenformedAppIconNavMenuProps,
 } from './types';
 export type { ZenformedConfirmSnackbarProps } from './ZenformedConfirmSnackbar';
 export type { ZenformedSettingsDrawerProps } from './ZenformedSettingsDrawer';

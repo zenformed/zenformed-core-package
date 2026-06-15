@@ -67,7 +67,20 @@ export const ZENFORMED_SETTINGS_DRAWER_CSS_KEYS = [
 
 export const ZENFORMED_APP_SHELL_CSS_KEYS = ['appLayout'] as const;
 
-export const ZENFORMED_SIDEBAR_ROW_CSS_KEYS = ['dashboardWithSidebar', 'mainColumn'] as const;
+export const ZENFORMED_SIDEBAR_ROW_CSS_KEYS = [
+  'dashboardWithSidebar',
+  'sidebarRail',
+  'mainColumn',
+] as const;
+
+export const ZENFORMED_APP_ICON_NAV_MENU_CSS_KEYS = [
+  'appIconNavWrap',
+  'appIconNavTrigger',
+  'appIconNavMenu',
+  'appIconNavMenuItem',
+  'appIconNavMenuItemActive',
+  'appIconNavMenuItemDisabled',
+] as const;
 
 export const ZENFORMED_PAGE_LOADING_CSS_KEYS = ['page', 'loading'] as const;
 
@@ -135,6 +148,11 @@ export const ZENFORMED_DASHBOARD_SHELL_CSS_SOURCES = {
     keys: ZENFORMED_SIDEBAR_ROW_CSS_KEYS,
     stylesheet: 'App `dashboard.module.css`',
     consumers: ['ZenformedDashboardSidebarRow', 'pickDashboardSidebarRowClassNames', 'pickDashboardLayoutClassNames'],
+  },
+  appIconNavMenu: {
+    keys: ZENFORMED_APP_ICON_NAV_MENU_CSS_KEYS,
+    stylesheet: 'App `dashboard.module.css`',
+    consumers: ['ZenformedAppIconNavMenu', 'pickAppIconNavMenuClassNames'],
   },
   pageLoading: {
     keys: ZENFORMED_PAGE_LOADING_CSS_KEYS,

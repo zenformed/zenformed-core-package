@@ -177,7 +177,36 @@ export type ZenformedDashboardAppShellClassNames = {
 
 export type ZenformedDashboardSidebarRowClassNames = {
   dashboardWithSidebar: string;
+  sidebarRail: string;
   mainColumn: string;
+};
+
+export type ZenformedAppIconNavMenuClassNames = {
+  appIconNavWrap: string;
+  appIconNavTrigger: string;
+  appIconNavMenu: string;
+  appIconNavMenuItem: string;
+  appIconNavMenuItemActive: string;
+  appIconNavMenuItemDisabled: string;
+};
+
+export type ZenformedAppIconNavMenuItem = {
+  readonly id: string;
+  readonly label: string;
+  readonly active?: boolean;
+  readonly disabled?: boolean;
+  readonly onSelect: () => void;
+};
+
+export type ZenformedAppIconNavMenuProps = {
+  readonly brandingClassNames: ZenformedSidebarBrandingClassNames;
+  readonly menuClassNames: ZenformedAppIconNavMenuClassNames;
+  readonly appName: string;
+  readonly appIconSrc?: string | null;
+  readonly appAltText?: string;
+  readonly menuAriaLabel: string;
+  readonly triggerAriaLabel: string;
+  readonly items: readonly ZenformedAppIconNavMenuItem[];
 };
 
 export type ZenformedDashboardPageLoadingClassNames = {

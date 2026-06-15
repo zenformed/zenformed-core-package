@@ -81,9 +81,25 @@ Typical path: `app/(dashboard)/dashboard/dashboard.module.css`.
 |-----|------|
 | `appLayout` | `ZenformedDashboardAppShell` root. |
 | `dashboardWithSidebar` | Row: sidebar + main. |
+| `sidebarRail` | Wrapper around the primary sidebar; hide on mobile (`max-width: 767px`) so main content uses full width. |
 | `mainColumn` | Main column wrapper (header + content). |
 
-`pickDashboardLayoutClassNames` validates **all three** in one dev warning.
+`pickDashboardLayoutClassNames` validates **all four** in one dev warning.
+
+### Mobile app icon nav menu — `pickAppIconNavMenuClassNames` → `ZenformedAppIconNavMenu`
+
+Used in `headerLeft` on mobile (`< 768px`) when the sidebar rail is hidden. Apps pass nav items from existing sidebar config (no duplicate nav definitions).
+
+| Key | Role |
+|-----|------|
+| `appIconNavWrap` | Positioning context for trigger + dropdown. |
+| `appIconNavTrigger` | App icon button that opens the menu. |
+| `appIconNavMenu` | Dropdown panel (`role="menu"`). |
+| `appIconNavMenuItem` | Nav row button. |
+| `appIconNavMenuItemActive` | Current route / view. |
+| `appIconNavMenuItemDisabled` | Permission- or feature-gated item. |
+
+**Mobile shell CSS** (app-owned, not validated by picks): at `max-width: 767px`, hide `.sidebarRail` and show `.headerLeft` (e.g. `display: flex !important` if a wider breakpoint hides it).
 
 ### Page loading — `pickDashboardPageLoadingClassNames` → `ZenformedDashboardPageLoading`
 

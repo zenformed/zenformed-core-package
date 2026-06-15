@@ -101,7 +101,7 @@ Used in `headerLeft` on mobile (`< 768px`) when the sidebar rail is hidden. Apps
 
 **Mobile shell CSS** (app-owned, not validated by picks): at `max-width: 767px`, hide `.sidebarRail` and show `.headerLeft` (e.g. `display: flex !important` if a wider breakpoint hides it).
 
-**Platform import (recommended):** `import '@zenformed/core/dashboard-shell/mobile-shell.css'` in the app dashboard layout — hides `[data-zenformed-sidebar-rail]` and shows `[data-zenformed-header-left]` on phones using core data attributes on `ZenformedDashboardSidebarRow` / `ZenformedDashboardHeader`.
+**Platform import (recommended):** `import '@zenformed/core/dashboard-shell/mobile-shell.css'` in the app dashboard layout — hides `[data-zenformed-sidebar-rail]`, shows `[data-zenformed-header-left]`, tightens `[data-zenformed-dashboard-header]` padding (`0.5rem`), and reduces `[data-zenformed-header-right]` icon gap on phones (`max-width: 767px`).
 
 ### Page loading — `pickDashboardPageLoadingClassNames` → `ZenformedDashboardPageLoading`
 

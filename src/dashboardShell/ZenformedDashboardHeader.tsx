@@ -38,7 +38,7 @@ export function ZenformedDashboardHeader({
   });
 
   return (
-    <header className={classNames.header}>
+    <header className={classNames.header} data-zenformed-dashboard-header>
       <div
         className={classNames.headerLeft}
         data-zenformed-header-left
@@ -48,7 +48,7 @@ export function ZenformedDashboardHeader({
       </div>
       {centerSlot}
       {user ? (
-        <div className={classNames.headerRight}>
+        <div className={classNames.headerRight} data-zenformed-header-right>
           {themeToggle}
           <ZenformedAccountMenu
             classNames={classNames}

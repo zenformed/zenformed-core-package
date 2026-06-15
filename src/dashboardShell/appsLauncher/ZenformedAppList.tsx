@@ -209,7 +209,10 @@ function LauncherPopoverContent({
   return (
     <div className={classNames.appsPopoverList}>
       {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
-      <section className={classNames.appsPopoverSection} aria-label={resolveAppsSectionTitle(labels)}>
+      <div
+        className={classNames.appsPopoverAppsPanel}
+        aria-label={resolveAppsSectionTitle(labels)}
+      >
         <h2 className={classNames.appsPopoverSectionTitle}>{resolveAppsSectionTitle(labels)}</h2>
         <div className={classNames.appsTileGrid}>
           {launcherApps.map((app) => (
@@ -223,7 +226,7 @@ function LauncherPopoverContent({
             />
           ))}
         </div>
-      </section>
+      </div>
       {accountEntry ? (
         <section
           className={classNames.appsPopoverSection}

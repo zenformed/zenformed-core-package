@@ -20,6 +20,7 @@ export type ZenformedAppsLauncherClassNames = {
   appsLauncherIcon: string;
   appsPopover: string;
   appsPopoverList: string;
+  appsPopoverAppsPanel: string;
   appsPopoverSection: string;
   appsPopoverSectionTitle: string;
   appsTileGrid: string;

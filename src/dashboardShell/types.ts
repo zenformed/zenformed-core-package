@@ -14,12 +14,20 @@ export type ZenformedSidebarBrandingClassNames = {
 
 export type ZenformedSidebarBrandingProps = {
   classNames: ZenformedSidebarBrandingClassNames;
-  /** App display name — used for image alt/title and icon fallback; not rendered as sidebar text. */
-  appName: string;
+  /** App display name — alt/title and icon fallback; not rendered as sidebar text. */
+  appName?: string;
   /** App icon URL — use `zenformedAppIconSrc` or a custom asset. */
   appIconSrc?: string | null;
-  /** Image alt text; defaults to `appName`. */
+  /** Image alt text; defaults to resolved display name. */
   appAltText?: string;
+  /** @deprecated Pre–app-icon sidebar API; used when `appName` is omitted during rollout. */
+  shopName?: string;
+  /** @deprecated Pre–app-icon sidebar API; fallback display name. */
+  defaultShopNameFallback?: string;
+  /** @deprecated Pre–app-icon sidebar API; shown only when `appIconSrc` is omitted. */
+  logoUrl?: string | null;
+  /** @deprecated Pre–app-icon sidebar API; loading placeholder for legacy org logo. */
+  brandingLoading?: boolean;
 };
 
 export type UseOrganizationLogoUploadOptions = {

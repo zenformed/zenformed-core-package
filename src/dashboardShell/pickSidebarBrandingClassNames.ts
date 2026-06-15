@@ -17,5 +17,9 @@ export function pickSidebarBrandingClassNames(
   for (const key of ZENFORMED_SIDEBAR_BRANDING_CSS_KEYS) {
     out[key] = styles[key] ?? '';
   }
+  // Older app CSS modules omit `sidebarAppBranding`; wrapper is optional in the component.
+  if (!out.sidebarAppBranding && out.sidebarLogoCircleWrap) {
+    out.sidebarAppBranding = out.sidebarLogoCircleWrap;
+  }
   return out;
 }

@@ -1,0 +1,19 @@
+/**
+ * Shared Zenformed dashboard mobile shell (< 768px).
+ * Import once per app: `import '@zenformed/core/dashboard-shell/mobile-shell.css'`
+ *
+ * Works with data attributes on ZenformedDashboardSidebarRow + ZenformedDashboardHeader.
+ * App icon nav menu visuals still come from each app's dashboard.module.css pick helpers.
+ */
+
+@media (max-width: 767px) {
+  [data-zenformed-sidebar-rail] {
+    display: none !important;
+  }
+
+  [data-zenformed-header-left]:not([aria-hidden='true']) {
+    display: flex !important;
+    flex: 0 0 auto;
+    align-items: center;
+  }
+}

@@ -39,7 +39,11 @@ export function ZenformedDashboardHeader({
 
   return (
     <header className={classNames.header}>
-      <div className={classNames.headerLeft} aria-hidden={leftSlot == null ? true : undefined}>
+      <div
+        className={classNames.headerLeft}
+        data-zenformed-header-left
+        aria-hidden={leftSlot == null ? true : undefined}
+      >
         {leftSlot}
       </div>
       {centerSlot}

@@ -19,7 +19,9 @@ export function ZenformedDashboardSidebarRow({
 }: ZenformedDashboardSidebarRowProps): ReactElement {
   return (
     <div className={classNames.dashboardWithSidebar}>
-      <div className={classNames.sidebarRail}>{sidebar}</div>
+      <div className={classNames.sidebarRail} data-zenformed-sidebar-rail>
+        {sidebar}
+      </div>
       <div className={classNames.mainColumn}>{mainColumn}</div>
     </div>
   );

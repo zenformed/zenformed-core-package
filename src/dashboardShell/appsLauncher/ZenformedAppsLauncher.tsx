@@ -4,12 +4,13 @@ import type { ReactElement, ReactNode } from 'react';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { ZenformedAppList } from './ZenformedAppList';
 import type {
-  ZenformedAppRegistryEntry,
   ZenformedAppsLauncherClassNames,
   ZenformedAppsLauncherLabels,
+  ZenformedAppsLauncherLayoutOptions,
 } from './types';
+import type { ZenformedAppRegistryEntry } from './types';
 
-export type ZenformedAppsLauncherProps = {
+export type ZenformedAppsLauncherProps = ZenformedAppsLauncherLayoutOptions & {
   readonly apps: readonly ZenformedAppRegistryEntry[];
   readonly classNames: ZenformedAppsLauncherClassNames;
   readonly labels: ZenformedAppsLauncherLabels;
@@ -27,6 +28,9 @@ export function ZenformedAppsLauncher({
   launchingAppId,
   launchError,
   appsIcon,
+  accountAppId,
+  showAccountSection,
+  accountHomeLabel,
 }: ZenformedAppsLauncherProps): ReactElement {
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState();
@@ -60,6 +64,9 @@ export function ZenformedAppsLauncher({
             launchApp={launchApp}
             launchingAppId={launchingAppId}
             launchError={launchError}
+            accountAppId={accountAppId}
+            showAccountSection={showAccountSection}
+            accountHomeLabel={accountHomeLabel}
           />
         </div>
       ) : null}

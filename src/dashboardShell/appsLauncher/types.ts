@@ -49,7 +49,23 @@ export type ZenformedAppsLauncherClassNames = {
 export type ZenformedAppsLauncherLabels = {
   triggerAriaLabel: string;
   popoverAriaLabel: string;
-  /** Section heading above the app grid in the launcher popover (e.g. "Apps"). */
-  sectionTitle: string;
-  comingSoonLabel: string;
+  /** Heading for the application tiles section. */
+  appsSectionTitle: string;
+  /** Heading for the account / platform home section (popover only). */
+  accountSectionTitle?: string;
+  /** @deprecated Use `appsSectionTitle`. */
+  sectionTitle?: string;
+  /** Label for the platform home tile (defaults to the account registry entry name). */
+  accountHomeLabel?: string;
+  /** @deprecated Coming soon is not shown in the launcher. */
+  comingSoonLabel?: string;
+};
+
+export type ZenformedAppsLauncherLayoutOptions = {
+  /** Registry id moved to the Account section (default `platform`). */
+  readonly accountAppId?: string;
+  /** When false, the Account section is hidden (e.g. on Zenformed Core). */
+  readonly showAccountSection?: boolean;
+  /** Overrides the account tile label (e.g. "Zenformed Home"). */
+  readonly accountHomeLabel?: string;
 };

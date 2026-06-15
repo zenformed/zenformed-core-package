@@ -48,6 +48,7 @@ export type {
   ZenformedAppStatus,
   ZenformedAppsLauncherClassNames,
   ZenformedAppsLauncherLabels,
+  ZenformedAppsLauncherLayoutOptions,
 } from './appsLauncher/types';
 export type { ZenformedAppsLauncherProps } from './appsLauncher/ZenformedAppsLauncher';
 export type { ZenformedAppListProps } from './appsLauncher/ZenformedAppList';

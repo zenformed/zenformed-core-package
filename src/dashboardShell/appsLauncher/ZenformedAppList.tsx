@@ -5,10 +5,12 @@ import type {
   ZenformedAppRegistryEntry,
   ZenformedAppsLauncherClassNames,
   ZenformedAppsLauncherLabels,
+  ZenformedAppsLauncherLayoutOptions,
 } from './types';
+import { partitionLauncherApps } from './partitionLauncherApps';
 import { resolveZenformedAppIconSrc } from './zenformedAppIconCatalog';
 
-export type ZenformedAppListProps = {
+export type ZenformedAppListProps = ZenformedAppsLauncherLayoutOptions & {
   readonly apps: readonly ZenformedAppRegistryEntry[];
   readonly classNames: ZenformedAppsLauncherClassNames;
   readonly labels: ZenformedAppsLauncherLabels;
@@ -34,7 +36,6 @@ function isDisabledApp(app: ZenformedAppRegistryEntry): boolean {
 type AppActionProps = {
   app: ZenformedAppRegistryEntry;
   classNames: ZenformedAppsLauncherClassNames;
-  labels: ZenformedAppsLauncherLabels;
   onNavigate?: () => void;
   launchApp: (targetApp: string, returnPath?: string) => Promise<void>;
   launchingAppId: string | null;
@@ -61,7 +62,7 @@ function AppIcon({
       <img src={iconSrc} alt="" className={iconClass} />
     );
   }
-  const initial = app.name.trim().charAt(0).toUpperCase() || '?';
+  const initial = (app.name ?? '').trim().charAt(0).toUpperCase() || '?';
   return (
     <span className={fallbackClass} aria-hidden>
       {initial}
@@ -75,7 +76,7 @@ function AppCard({
   onNavigate,
   launchApp,
   launchingAppId,
-}: Omit<AppActionProps, 'labels'>): ReactElement {
+}: AppActionProps): ReactElement {
   const isLaunching = launchingAppId === app.id;
   const disabled = isDisabledApp(app);
   const cardClass = disabled
@@ -125,7 +126,7 @@ function AppPopoverTile({
   onNavigate,
   launchApp,
   launchingAppId,
-}: Omit<AppActionProps, 'labels'>): ReactElement {
+}: AppActionProps): ReactElement {
   const isLaunching = launchingAppId === app.id;
   const disabled = isDisabledApp(app);
   const tileClass = disabled
@@ -177,6 +178,75 @@ function AppPopoverTile({
   );
 }
 
+function resolveAppsSectionTitle(labels: ZenformedAppsLauncherLabels): string {
+  return labels.appsSectionTitle ?? labels.sectionTitle ?? 'Apps';
+}
+
+function resolveAccountSectionTitle(labels: ZenformedAppsLauncherLabels): string {
+  return labels.accountSectionTitle ?? 'Account';
+}
+
+function LauncherPopoverContent({
+  apps,
+  classNames,
+  labels,
+  onNavigate,
+  launchApp,
+  launchingAppId,
+  launchError,
+  accountAppId,
+  showAccountSection,
+  accountHomeLabel,
+}: Omit<ZenformedAppListProps, 'variant'>): ReactElement {
+  const { launcherApps, accountApp } = partitionLauncherApps(apps, accountAppId);
+  const accountLabel =
+    accountHomeLabel ?? labels.accountHomeLabel ?? accountApp?.name ?? 'Zenformed Home';
+  const accountEntry =
+    showAccountSection !== false && accountApp != null
+      ? { ...accountApp, name: accountLabel }
+      : null;
+
+  return (
+    <div className={classNames.appsPopoverList}>
+      {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
+      <section className={classNames.appsPopoverSection} aria-label={resolveAppsSectionTitle(labels)}>
+        <h2 className={classNames.appsPopoverSectionTitle}>{resolveAppsSectionTitle(labels)}</h2>
+        <div className={classNames.appsTileGrid}>
+          {launcherApps.map((app) => (
+            <AppPopoverTile
+              key={app.id}
+              app={app}
+              classNames={classNames}
+              onNavigate={onNavigate}
+              launchApp={launchApp}
+              launchingAppId={launchingAppId}
+            />
+          ))}
+        </div>
+      </section>
+      {accountEntry ? (
+        <section
+          className={classNames.appsPopoverSection}
+          aria-label={resolveAccountSectionTitle(labels)}
+        >
+          <h2 className={classNames.appsPopoverSectionTitle}>
+            {resolveAccountSectionTitle(labels)}
+          </h2>
+          <div className={classNames.appsTileGrid}>
+            <AppPopoverTile
+              app={accountEntry}
+              classNames={classNames}
+              onNavigate={onNavigate}
+              launchApp={launchApp}
+              launchingAppId={launchingAppId}
+            />
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
 export function ZenformedAppList({
   apps,
   classNames,
@@ -186,20 +256,34 @@ export function ZenformedAppList({
   launchApp,
   launchingAppId,
   launchError,
+  accountAppId,
+  showAccountSection,
+  accountHomeLabel,
 }: ZenformedAppListProps): ReactElement {
-  const list =
-    variant === 'popover'
-      ? apps.map((app) => (
-          <AppPopoverTile
-            key={app.id}
-            app={app}
-            classNames={classNames}
-            onNavigate={onNavigate}
-            launchApp={launchApp}
-            launchingAppId={launchingAppId}
-          />
-        ))
-      : apps.map((app) => (
+  if (variant === 'popover') {
+    return (
+      <LauncherPopoverContent
+        apps={apps}
+        classNames={classNames}
+        labels={labels}
+        onNavigate={onNavigate}
+        launchApp={launchApp}
+        launchingAppId={launchingAppId}
+        launchError={launchError}
+        accountAppId={accountAppId}
+        showAccountSection={showAccountSection}
+        accountHomeLabel={accountHomeLabel}
+      />
+    );
+  }
+
+  const { launcherApps } = partitionLauncherApps(apps, accountAppId);
+
+  return (
+    <div>
+      {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
+      <div className={classNames.appCardGrid}>
+        {launcherApps.map((app) => (
           <AppCard
             key={app.id}
             app={app}
@@ -208,24 +292,8 @@ export function ZenformedAppList({
             launchApp={launchApp}
             launchingAppId={launchingAppId}
           />
-        ));
-
-  if (variant === 'popover') {
-    return (
-      <div className={classNames.appsPopoverList}>
-        {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
-        <section className={classNames.appsPopoverSection}>
-          <h2 className={classNames.appsPopoverSectionTitle}>{labels.sectionTitle}</h2>
-          <div className={classNames.appsTileGrid}>{list}</div>
-        </section>
+        ))}
       </div>
-    );
-  }
-
-  return (
-    <div>
-      {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
-      <div className={classNames.appCardGrid}>{list}</div>
     </div>
   );
 }

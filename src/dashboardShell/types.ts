@@ -10,12 +10,11 @@ export type ZenformedSidebarBrandingClassNames = {
   sidebarLogoCircle: string;
   sidebarLogoImg: string;
   sidebarLogoInitial: string;
-  sidebarAppName: string;
 };
 
 export type ZenformedSidebarBrandingProps = {
   classNames: ZenformedSidebarBrandingClassNames;
-  /** Current consuming app display name (e.g. BuildCore, Zenformed Core). */
+  /** App display name — used for image alt/title and icon fallback; not rendered as sidebar text. */
   appName: string;
   /** App icon URL — use `zenformedAppIconSrc` or a custom asset. */
   appIconSrc?: string | null;

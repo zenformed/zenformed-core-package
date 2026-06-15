@@ -26,12 +26,11 @@ Typical path: `app/(dashboard)/dashboard/dashboard.module.css`.
 
 | Key | Role |
 |-----|------|
-| `sidebarAppBranding` | Column wrapper for app icon + name. |
+| `sidebarAppBranding` | Wrapper for app icon. |
 | `sidebarLogoCircleWrap` | Icon container. |
 | `sidebarLogoCircle` | Icon box (rounded square). |
 | `sidebarLogoImg` | App icon `<img>`. |
 | `sidebarLogoInitial` | Fallback initial when no icon. |
-| `sidebarAppName` | App display name below icon. |
 
 ### Header & account menu — `pickHeaderShellClassNames` → `ZenformedDashboardHeader`, `ZenformedAccountMenu`
 

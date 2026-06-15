@@ -35,9 +35,6 @@ export function ZenformedSidebarBranding({
           )}
         </div>
       </div>
-      {displayName ? (
-        <span className={classNames.sidebarAppName}>{displayName}</span>
-      ) : null}
     </div>
   );
 }

@@ -366,18 +366,6 @@ export function ZenformedProfilePhotoModal({
                       <span aria-hidden>{getInitials(userEmail)}</span>
                     )}
                   </div>
-                  {hasPhoto && (
-                    <button
-                      type="button"
-                      className={styles.avatarRemoveBtn}
-                      onClick={() => void handleDelete()}
-                      disabled={saving}
-                      title="Remove photo"
-                      aria-label="Remove photo"
-                    >
-                      <TrashIcon />
-                    </button>
-                  )}
                 </div>
               </div>
               <input

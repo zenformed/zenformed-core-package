@@ -13,10 +13,11 @@
   background: var(--color-bg, #fff);
   border-radius: 24px;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
-  max-width: 32rem;
+  max-width: 28rem;
   width: 100%;
-  min-height: 28rem;
-  max-height: min(92vh, 44rem);
+  height: auto;
+  min-height: 0;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -131,12 +132,11 @@
 
 .mainView {
   position: relative;
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 .avatarHero {
@@ -144,8 +144,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 11rem;
-  padding: 2rem 1.5rem 1.25rem;
+  width: 100%;
+  min-height: 12rem;
+  padding: 2rem 1.5rem 1.5rem;
   background: var(--color-bg, #fff);
 }
 
@@ -159,14 +160,13 @@
   position: relative;
   background: var(--color-bg, #fff);
   border-radius: 0;
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 1.5rem 1.75rem;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   justify-content: flex-start;
   align-content: stretch;
   gap: 0;
-  overflow: hidden;
 }
 
 :global([data-theme="dark"]) .optionsList {
@@ -174,14 +174,11 @@
 }
 
 .avatarWrap {
-  position: static;
-  top: auto;
-  left: auto;
-  transform: none;
-  width: 9rem;
-  height: 9rem;
+  position: relative;
+  width: 10rem;
+  height: 10rem;
   flex-shrink: 0;
-  z-index: 1;
+  margin: 0 auto;
 }
 
 .avatarCircle {
@@ -206,7 +203,6 @@
 }
 
 .avatarRemoveBtn {
-  display: none;
   position: absolute;
   bottom: -2px;
   right: -2px;
@@ -336,6 +332,16 @@
 }
 
 @media (min-width: 768px) {
+  .container {
+    max-width: 30rem;
+    max-height: min(90vh, 36rem);
+  }
+
+  .content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
   .optionBtnCameraRow {
     display: none;
   }
@@ -649,6 +655,12 @@
     overscroll-behavior: none;
     flex: 1;
     min-height: 0;
+  }
+
+  .mainView {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .avatarHero {

@@ -96,6 +96,8 @@ export type ZenformedAccountMenuProps = {
   onOpenSettings: () => void;
   onRequestSignOutConfirm: () => void;
   onRequestProfilePhotoModal: () => void;
+  /** When false, account menu shows initials only and hides change-photo control. Default false. */
+  profilePhotoChangeEnabled?: boolean;
   settingsIcon?: ReactNode;
   signOutIcon?: ReactNode;
   profilePhotoCameraIcon?: ReactNode;
@@ -125,6 +127,8 @@ export type ZenformedDashboardHeaderProps = {
   onOpenSettings: () => void;
   onRequestSignOutConfirm: () => void;
   onRequestProfilePhotoModal: () => void;
+  /** When false, account menu shows initials only and hides change-photo control. Default false. */
+  profilePhotoChangeEnabled?: boolean;
   /** When set with `getAccessToken` and `sessionUserId`, loads first/last name for the menu label. */
   settingsApiUrl?: string;
   getAccessToken?: () => string | null;

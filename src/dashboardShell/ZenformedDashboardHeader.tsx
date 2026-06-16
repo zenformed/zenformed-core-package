@@ -18,6 +18,7 @@ export function ZenformedDashboardHeader({
   onOpenSettings,
   onRequestSignOutConfirm,
   onRequestProfilePhotoModal,
+  profilePhotoChangeEnabled = false,
   centerSlot,
   leftSlot,
   settingsIcon,
@@ -62,6 +63,7 @@ export function ZenformedDashboardHeader({
             onOpenSettings={onOpenSettings}
             onRequestSignOutConfirm={onRequestSignOutConfirm}
             onRequestProfilePhotoModal={onRequestProfilePhotoModal}
+            profilePhotoChangeEnabled={profilePhotoChangeEnabled}
             settingsIcon={settingsIcon}
             signOutIcon={signOutIcon}
             profilePhotoCameraIcon={profilePhotoCameraIcon}

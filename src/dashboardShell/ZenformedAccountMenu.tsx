@@ -21,6 +21,7 @@ export function ZenformedAccountMenu({
   onOpenSettings,
   onRequestSignOutConfirm,
   onRequestProfilePhotoModal,
+  profilePhotoChangeEnabled = false,
   settingsIcon,
   signOutIcon,
   profilePhotoCameraIcon,
@@ -29,6 +30,8 @@ export function ZenformedAccountMenu({
   accountMenuRef,
   closeAccountMenu,
 }: ZenformedAccountMenuProps): ReactElement {
+  const displayAvatarUrl = profilePhotoChangeEnabled ? avatarUrl : null;
+
   return (
     <div className={classNames.accountMenuWrap} ref={accountMenuRef}>
       <button
@@ -39,9 +42,9 @@ export function ZenformedAccountMenu({
         aria-expanded={accountMenuOpen}
         aria-haspopup="true"
       >
-        {avatarUrl ? (
+        {displayAvatarUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={avatarUrl} alt="" className={classNames.accountMenuTriggerImg} />
+          <img src={displayAvatarUrl} alt="" className={classNames.accountMenuTriggerImg} />
         ) : (
           <div
             className={classNames.accountMenuTriggerAvatar}
@@ -85,9 +88,9 @@ export function ZenformedAccountMenu({
           )}
           <div className={classNames.accountMenuPhotoWrap}>
             <div className={classNames.accountMenuPhotoCircle}>
-              {avatarUrl ? (
+              {displayAvatarUrl ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={avatarUrl} alt="" className={classNames.accountMenuPhotoImg} aria-hidden />
+                <img src={displayAvatarUrl} alt="" className={classNames.accountMenuPhotoImg} aria-hidden />
               ) : (
                 <div
                   className={classNames.accountMenuAvatar}
@@ -102,18 +105,20 @@ export function ZenformedAccountMenu({
                 </div>
               )}
             </div>
-            <button
-              type="button"
-              className={classNames.accountMenuPhotoCameraBtn}
-              onClick={() => {
-                closeAccountMenu();
-                onRequestProfilePhotoModal();
-              }}
-              title={labels.profilePhotoChangeTitle}
-              aria-label={labels.profilePhotoChangeAriaLabel}
-            >
-              {profilePhotoCameraIcon ?? <ZenformedAccountMenuCameraIcon />}
-            </button>
+            {profilePhotoChangeEnabled ? (
+              <button
+                type="button"
+                className={classNames.accountMenuPhotoCameraBtn}
+                onClick={() => {
+                  closeAccountMenu();
+                  onRequestProfilePhotoModal();
+                }}
+                title={labels.profilePhotoChangeTitle}
+                aria-label={labels.profilePhotoChangeAriaLabel}
+              >
+                {profilePhotoCameraIcon ?? <ZenformedAccountMenuCameraIcon />}
+              </button>
+            ) : null}
           </div>
           {userDisplayName ? (
             <div className={classNames.accountMenuShopName}>{userDisplayName}</div>

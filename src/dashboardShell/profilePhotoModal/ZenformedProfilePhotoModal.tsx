@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { createCroppedImage } from './createCroppedImage';
+import { formatPhotoApiError } from './formatPhotoApiError';
 import styles from './ZenformedProfilePhotoModal.module.css';
 import {
   ZENFORMED_DEFAULT_AVATAR_SEEDS,
@@ -166,8 +167,11 @@ export function ZenformedProfilePhotoModal({
     setSaving(true);
     setError(null);
     try {
+      if (getAccessToken != null && (getAccessToken() ?? null) == null) {
+        throw new Error('Session expired — sign in again and retry.');
+      }
       const formData = new FormData();
-      formData.set('photo', blob);
+      formData.set('photo', blob, blob.type === 'image/jpeg' ? 'avatar.jpg' : 'avatar.png');
       const res = await fetch('/api/auth/me/photo', {
         method: 'POST',
         body: formData,
@@ -176,7 +180,7 @@ export function ZenformedProfilePhotoModal({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? 'Failed to save photo');
+        throw new Error(formatPhotoApiError(data, 'Failed to save photo'));
       }
       onSuccess();
       resetView();
@@ -185,7 +189,7 @@ export function ZenformedProfilePhotoModal({
     } finally {
       setSaving(false);
     }
-  }, [onSuccess, resetView, authHeaders]);
+  }, [onSuccess, resetView, authHeaders, getAccessToken]);
 
   const handleCropComplete = useCallback((_croppedArea: Area, pixels: Area) => {
     setCroppedAreaPixels(pixels);
@@ -196,7 +200,7 @@ export function ZenformedProfilePhotoModal({
     setSaving(true);
     setError(null);
     try {
-      const blob = await createCroppedImage(imageToCrop, croppedAreaPixels);
+      const blob = await createCroppedImage(imageToCrop, croppedAreaPixels, 'image/jpeg');
       await uploadPhoto(blob);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to crop');
@@ -264,6 +268,9 @@ export function ZenformedProfilePhotoModal({
       setSaving(true);
       setError(null);
       try {
+        if (getAccessToken != null && (getAccessToken() ?? null) == null) {
+          throw new Error('Session expired — sign in again and retry.');
+        }
         const postRes = await fetch('/api/auth/me/photo', {
           method: 'POST',
           credentials: 'include',
@@ -275,7 +282,7 @@ export function ZenformedProfilePhotoModal({
         });
         if (!postRes.ok) {
           const data = await postRes.json().catch(() => ({}));
-          throw new Error(data.error ?? 'Failed to save avatar');
+          throw new Error(formatPhotoApiError(data, 'Failed to save avatar'));
         }
         onSuccess();
         resetView();
@@ -285,7 +292,7 @@ export function ZenformedProfilePhotoModal({
         setSaving(false);
       }
     },
-    [onSuccess, resetView, authHeaders]
+    [onSuccess, resetView, authHeaders, getAccessToken]
   );
 
   const handleDelete = useCallback(async () => {

@@ -39,6 +39,13 @@ export { ZenformedDashboardPageLoading } from './ZenformedDashboardPageLoading';
 export { pickDashboardPageLoadingClassNames } from './pickDashboardPageLoadingClassNames';
 
 export { useZenformedMobileShellLayout, ZENFORMED_MOBILE_SHELL_BREAKPOINT_PX } from './useZenformedMobileShellLayout';
+export { useZenformedUserAvatar } from './useZenformedUserAvatar';
+export type {
+  UseZenformedUserAvatarOptions,
+  UseZenformedUserAvatarResult,
+  ZenformedUserAvatarIdentity,
+  ZenformedUserAvatarMeResponse,
+} from './useZenformedUserAvatar';
 export { ZenformedAppIconNavMenu } from './ZenformedAppIconNavMenu';
 export { pickAppIconNavMenuClassNames } from './pickAppIconNavMenuClassNames';
 

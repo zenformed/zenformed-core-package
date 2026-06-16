@@ -683,15 +683,15 @@
     gap: 1rem;
     width: 100%;
     padding: 1rem 1.25rem;
-    border: 1px solid var(--theme-table-header-bg, #5a7a9e);
+    border: 1px solid var(--theme-border-main, var(--color-border, #e2e8f0));
     border-bottom: none;
     border-radius: 0;
     font-size: 1rem;
     font-weight: 400;
     text-align: left;
     opacity: 1;
-    background: var(--theme-table-header-bg, #5a7a9e);
-    color: var(--theme-table-header-text, #ffffff);
+    background: var(--theme-surface-muted, #f0f2f5);
+    color: var(--color-text, #0f172a);
   }
 
   .optionBtn:first-child {
@@ -700,28 +700,28 @@
   }
 
   .optionBtn:last-child {
-    border-bottom: 1px solid var(--theme-table-header-bg, #5a7a9e);
+    border-bottom: 1px solid var(--theme-border-main, var(--color-border, #e2e8f0));
     border-bottom-left-radius: 0.75rem;
     border-bottom-right-radius: 0.75rem;
   }
 
   .optionBtn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--theme-table-header-text, #ffffff) 8%, var(--theme-table-header-bg, #5a7a9e));
+    background: var(--theme-surface-hover, #e8eaed);
     opacity: 1;
   }
 
   :global([data-theme="dark"]) .optionBtn {
-    border-color: var(--theme-table-header-bg, #1d2029);
-    background: var(--theme-table-header-bg, #1d2029);
-    color: var(--theme-table-header-text, #94a3b8);
+    border-color: var(--theme-border-main, #3d3e4a);
+    background: var(--theme-surface-muted, #1a1d26);
+    color: #f1f5f9;
   }
 
   :global([data-theme="dark"]) .optionBtn:last-child {
-    border-bottom-color: var(--theme-table-header-bg, #1d2029);
+    border-bottom-color: var(--theme-border-main, #3d3e4a);
   }
 
   :global([data-theme="dark"]) .optionBtn:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--theme-table-header-text, #94a3b8) 8%, var(--theme-table-header-bg, #1d2029));
+    background: var(--theme-surface-hover, #252b36);
   }
 
   .optionBtnIcon {
@@ -731,7 +731,6 @@
     border: none;
     box-shadow: none;
     background: transparent;
-    color: inherit;
   }
 
   :global([data-theme="dark"]) .optionBtnIcon {
@@ -752,7 +751,6 @@
     text-align: left;
     max-width: none;
     line-height: 1.35;
-    color: inherit;
   }
 
   .optionBtnDanger .optionBtnLabel,

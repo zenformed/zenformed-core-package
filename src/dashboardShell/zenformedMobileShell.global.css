@@ -2,7 +2,8 @@
  * Shared Zenformed dashboard mobile shell (< 768px).
  * Import once per app: `import '@zenformed/core/dashboard-shell/mobile-shell.css'`
  *
- * Works with data attributes on ZenformedDashboardSidebarRow + ZenformedDashboardHeader.
+ * Works with data attributes on ZenformedDashboardSidebarRow, ZenformedDashboardHeader,
+ * and ProfilePhotoModal (`data-zenformed-profile-photo-modal-*`).
  * App icon nav menu visuals still come from each app's dashboard.module.css pick helpers.
  */
 
@@ -24,5 +25,62 @@
 
   [data-zenformed-header-right] {
     gap: 0.25rem !important;
+  }
+
+  /* Mobile refinement for the ProfilePhotoModal (Change Profile Picture). */
+  [data-zenformed-profile-photo-modal-overlay] {
+    align-items: flex-start !important;
+    overflow-y: auto;
+    padding: calc(0.75rem + env(safe-area-inset-top)) 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  [data-zenformed-profile-photo-modal-panel] {
+    height: min(88svh, 40rem) !important;
+    max-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1.5rem) !important;
+  }
+
+  [data-zenformed-profile-photo-modal-layout] {
+    padding: 0.5rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-top-spacer] {
+    height: 5.5rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-action] {
+    padding: 3.25rem 1.25rem 1.25rem !important;
+    gap: 1.15rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-avatar-wrap] {
+    top: -1.55rem !important;
+    width: 6.2rem !important;
+    height: 6.2rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-avatar-circle] {
+    font-size: 1.5rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-avatar-remove-btn] {
+    width: 1.55rem !important;
+    height: 1.55rem !important;
+    bottom: -1px !important;
+    right: -1px !important;
+  }
+
+  [data-zenformed-profile-photo-modal-options-row] {
+    gap: 0.85rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-options-row] > button > span:first-child {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+  }
+
+  [data-zenformed-profile-photo-modal-options-row] > button > span:last-child {
+    font-size: 0.6875rem !important;
+    max-width: 4.5rem !important;
   }
 }

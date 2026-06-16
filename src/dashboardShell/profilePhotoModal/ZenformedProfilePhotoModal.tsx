@@ -420,7 +420,12 @@ export function ZenformedProfilePhotoModal({
                   <span className={styles.optionBtnLabel}>Upload from Device</span>
                 </button>
                 {enableCameraCapture ? (
-                  <button type="button" className={styles.optionBtn} onClick={() => void startCamera()} disabled={saving}>
+                  <button
+                    type="button"
+                    className={`${styles.optionBtn} ${styles.optionBtnCameraRow}`}
+                    onClick={() => void startCamera()}
+                    disabled={saving}
+                  >
                     <span className={styles.optionBtnIcon}>
                       <CameraIcon />
                     </span>

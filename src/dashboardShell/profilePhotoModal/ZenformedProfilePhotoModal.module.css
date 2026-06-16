@@ -13,11 +13,10 @@
   background: var(--color-bg, #fff);
   border-radius: 24px;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
-  max-width: 22rem;
+  max-width: 32rem;
   width: 100%;
-  height: 35vh;
-  min-height: 20rem;
-  max-height: min(90vh, 34rem);
+  min-height: 28rem;
+  max-height: min(92vh, 44rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -28,9 +27,9 @@
 }
 
 .header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  gap: 0.75rem;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--color-border, #e2e8f0);
   flex-shrink: 0;
@@ -44,11 +43,12 @@
 
 .title {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 500;
+  font-size: 1.25rem;
+  font-weight: 400;
   color: var(--color-text, #0f172a);
-  text-align: center;
-  grid-column: 2;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
 }
 
 :global([data-theme="dark"]) .title {
@@ -56,7 +56,7 @@
 }
 
 .headerBackBtn {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 2.5rem;
@@ -89,7 +89,7 @@
 }
 
 .closeBtn {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 2.5rem;
@@ -103,7 +103,7 @@
   font-size: 1.5rem;
   line-height: 1;
   transition: background 0.15s, color 0.15s;
-  justify-self: start;
+  flex-shrink: 0;
 }
 
 .closeBtn:hover {
@@ -135,12 +135,17 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 0.625rem;
+  padding: 0;
+  overflow: hidden;
 }
 
 .avatarHero {
-  height: 8rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 11rem;
+  padding: 2rem 1.5rem 1.25rem;
   background: var(--color-bg, #fff);
 }
 
@@ -149,17 +154,19 @@
 }
 
 .optionsList {
-  flex: 1;
-  min-height: 14rem;
+  flex: 0 0 auto;
+  min-height: 0;
   position: relative;
   background: var(--color-bg, #fff);
-  border-radius: 1.25rem;
-  padding: 4rem 1.5rem 1.5rem;
+  border-radius: 0;
+  padding: 0 1.5rem 1.5rem;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: flex-start;
-  gap: 1.5rem;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-content: stretch;
+  gap: 0;
+  overflow: hidden;
 }
 
 :global([data-theme="dark"]) .optionsList {
@@ -167,12 +174,12 @@
 }
 
 .avatarWrap {
-  position: absolute;
-  top: calc(8rem + 0.625rem);
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8rem;
-  height: 8rem;
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 9rem;
+  height: 9rem;
   flex-shrink: 0;
   z-index: 1;
 }
@@ -199,6 +206,7 @@
 }
 
 .avatarRemoveBtn {
+  display: none;
   position: absolute;
   bottom: -2px;
   right: -2px;
@@ -238,21 +246,39 @@
 
 .optionBtn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0;
-  border: none;
-  background: transparent;
+  justify-content: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--theme-border-main, var(--color-border, #e2e8f0));
+  border-bottom: none;
+  border-radius: 0;
+  background: var(--theme-surface-muted, #f0f2f5);
   color: var(--color-text, #0f172a);
   cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: opacity 0.15s;
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: left;
+  opacity: 1;
+  transition: background 0.15s;
+}
+
+.optionBtn:first-child {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+.optionBtn:last-child {
+  border-bottom: 1px solid var(--theme-border-main, var(--color-border, #e2e8f0));
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
 }
 
 .optionBtn:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--theme-surface-hover, #e8eaed);
+  opacity: 1;
 }
 
 .optionBtn:disabled {
@@ -261,47 +287,71 @@
 }
 
 .optionBtnIcon {
-  width: 4rem;
-  height: 4rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  background: var(--color-bg, #fff);
-  border: 1px solid var(--color-border, #e2e8f0);
-  color: var(--color-text, #0f172a);
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  color: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
 }
 
-.optionBtn:hover:not(:disabled) .optionBtnIcon {
-  background: var(--color-muted, #f1f5f9);
+:global([data-theme="dark"]) .optionBtn {
+  border-color: var(--theme-border-main, #3d3e4a);
+  background: var(--theme-surface-muted, #1a1d26);
+  color: #f1f5f9;
 }
 
-:global([data-theme="dark"]) .optionBtn {
-  color: #f1f5f9;
+:global([data-theme="dark"]) .optionBtn:last-child {
+  border-bottom-color: var(--theme-border-main, #3d3e4a);
+}
+
+:global([data-theme="dark"]) .optionBtn:hover:not(:disabled) {
+  background: var(--theme-surface-hover, #252b36);
 }
 
 :global([data-theme="dark"]) .optionBtnIcon {
-  background: #1d2029;
-  border-color: #3d3e4a;
-  color: #f1f5f9;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-:global([data-theme="dark"]) .optionBtn:hover:not(:disabled) .optionBtnIcon {
-  background: #2a2e3d;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: inherit;
 }
 
 .optionBtnLabel {
-  text-align: center;
-  max-width: 5rem;
-  line-height: 1.2;
+  text-align: left;
+  max-width: none;
+  line-height: 1.35;
 }
 
 .optionBtnDeleteRow {
-  display: none;
+  display: flex;
+}
+
+.optionBtnCameraRow {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .optionBtnCameraRow {
+    display: none;
+  }
+
+  .browseBackRow {
+    display: none;
+  }
+
+  .cropContainer {
+    height: 18rem;
+  }
+
+  .browseGrid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.625rem;
+  }
 }
 
 .optionBtnDanger .optionBtnLabel {
@@ -310,6 +360,11 @@
 
 .optionBtnDanger .optionBtnIcon {
   color: var(--color-error, #b91c1c);
+}
+
+:global([data-theme="dark"]) .optionBtnDanger .optionBtnLabel,
+:global([data-theme="dark"]) .optionBtnDanger .optionBtnIcon {
+  color: var(--color-error, #f87171);
 }
 
 .optionBtnIcon svg {
@@ -581,29 +636,12 @@
   }
 
   .header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 1rem 0.75rem;
     border-bottom: none;
-    flex-shrink: 0;
-  }
-
-  .headerBackBtn {
-    display: flex;
-  }
-
-  .closeBtn {
-    display: none;
   }
 
   .title {
-    grid-column: unset;
-    text-align: left;
     font-size: 1.375rem;
-    font-weight: 400;
-    flex: 1;
-    min-width: 0;
   }
 
   .content {
@@ -613,44 +651,15 @@
     min-height: 0;
   }
 
-  .mainView {
-    padding: 0;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
   .avatarHero {
     height: 25svh;
     min-height: 9rem;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-bg, #fff);
-  }
-
-  :global([data-theme="dark"]) .avatarHero {
-    background: #1d2029;
+    padding: 0;
   }
 
   .avatarWrap {
-    position: static;
-    top: auto;
-    left: auto;
-    transform: none;
     width: min(25svh, 9rem);
     height: min(25svh, 9rem);
-  }
-
-  .avatarRemoveBtn {
-    display: none;
-  }
-
-  .optionBtnDeleteRow {
-    display: flex;
   }
 
   .avatarCircle {
@@ -658,109 +667,7 @@
   }
 
   .optionsList {
-    flex: 0 0 auto;
-    min-height: 0;
-    border-radius: 0;
     padding: 0 1rem 1rem;
-    margin-top: 0;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    align-content: stretch;
-    gap: 0;
-    background: var(--color-bg, #fff);
-    overflow: hidden;
-  }
-
-  :global([data-theme="dark"]) .optionsList {
-    background: #1d2029;
-  }
-
-  .optionBtn {
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 1rem;
-    width: 100%;
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--theme-border-main, var(--color-border, #e2e8f0));
-    border-bottom: none;
-    border-radius: 0;
-    font-size: 1rem;
-    font-weight: 400;
-    text-align: left;
-    opacity: 1;
-    background: var(--theme-surface-muted, #f0f2f5);
-    color: var(--color-text, #0f172a);
-  }
-
-  .optionBtn:first-child {
-    border-top-left-radius: 0.75rem;
-    border-top-right-radius: 0.75rem;
-  }
-
-  .optionBtn:last-child {
-    border-bottom: 1px solid var(--theme-border-main, var(--color-border, #e2e8f0));
-    border-bottom-left-radius: 0.75rem;
-    border-bottom-right-radius: 0.75rem;
-  }
-
-  .optionBtn:hover:not(:disabled) {
-    background: var(--theme-surface-hover, #e8eaed);
-    opacity: 1;
-  }
-
-  :global([data-theme="dark"]) .optionBtn {
-    border-color: var(--theme-border-main, #3d3e4a);
-    background: var(--theme-surface-muted, #1a1d26);
-    color: #f1f5f9;
-  }
-
-  :global([data-theme="dark"]) .optionBtn:last-child {
-    border-bottom-color: var(--theme-border-main, #3d3e4a);
-  }
-
-  :global([data-theme="dark"]) .optionBtn:hover:not(:disabled) {
-    background: var(--theme-surface-hover, #252b36);
-  }
-
-  .optionBtnIcon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    border: none;
-    box-shadow: none;
-    background: transparent;
-  }
-
-  :global([data-theme="dark"]) .optionBtnIcon {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-  }
-
-  .optionBtn:hover:not(:disabled) .optionBtnIcon {
-    background: transparent;
-  }
-
-  :global([data-theme="dark"]) .optionBtn:hover:not(:disabled) .optionBtnIcon {
-    background: transparent;
-  }
-
-  .optionBtnLabel {
-    text-align: left;
-    max-width: none;
-    line-height: 1.35;
-  }
-
-  .optionBtnDanger .optionBtnLabel,
-  .optionBtnDanger .optionBtnIcon {
-    color: var(--color-error, #b91c1c);
-  }
-
-  :global([data-theme="dark"]) .optionBtnDanger .optionBtnLabel,
-  :global([data-theme="dark"]) .optionBtnDanger .optionBtnIcon {
-    color: var(--color-error, #f87171);
   }
 
   .browseBackRow,

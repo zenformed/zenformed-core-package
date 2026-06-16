@@ -1,8 +1,7 @@
 /**
- * @zenformed/core/dashboard-shell — shared Zenformed dashboard frame, header, branding, confirms, settings drawer (client-only).
+ * @zenformed/core/dashboard-shell — shared Zenformed dashboard frame, header, branding, confirms, settings drawer, profile photo modal (client-only).
  *
- * Intentionally app-local (large surface; calls app `/api/auth/*`): **ProfilePhotoModal** shell —
- * shared **default avatar catalog** (`ZENFORMED_DEFAULT_AVATAR_SEEDS`, `zenformedDefaultAvatarSrc`) lives here; SVG bytes stay under each app `public/avatars/` (see `assets/default-avatars/README.md`).
+ * Shared **default avatar catalog** (`ZENFORMED_DEFAULT_AVATAR_SEEDS`, `zenformedDefaultAvatarSrc`) lives here; SVG bytes stay under each app `public/avatars/` (see `assets/default-avatars/README.md`).
  */
 
 export { formatOrganizationRoleLabel } from './formatOrganizationRoleLabel';
@@ -77,6 +76,17 @@ export {
   zenformedDefaultAvatarSrc,
   isZenformedDefaultAvatarSeed,
 } from './avatars/defaultAvatarCatalog';
+
+export {
+  ZenformedProfilePhotoModal,
+  ProfilePhotoModal,
+} from './profilePhotoModal/ZenformedProfilePhotoModal';
+export type {
+  ZenformedProfilePhotoModalProps,
+  ProfilePhotoModalProps,
+} from './profilePhotoModal/ZenformedProfilePhotoModal';
+export { createCroppedImage } from './profilePhotoModal/createCroppedImage';
+export type { Area as ProfilePhotoCropArea } from './profilePhotoModal/createCroppedImage';
 
 export {
   ZENFORMED_SIDEBAR_BRANDING_CSS_KEYS,

@@ -108,6 +108,21 @@ export function useZenformedUserAvatar(
   }, [user?.email, fetchPhotoStatus]);
 
   useEffect(() => {
+    if (!user?.email) return;
+    const refreshIfVisible = (): void => {
+      if (document.visibilityState === 'visible') {
+        void fetchPhotoStatus();
+      }
+    };
+    document.addEventListener('visibilitychange', refreshIfVisible);
+    window.addEventListener('focus', refreshIfVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', refreshIfVisible);
+      window.removeEventListener('focus', refreshIfVisible);
+    };
+  }, [user?.email, fetchPhotoStatus]);
+
+  useEffect(() => {
     if (!user?.email || !hasPhoto || avatarRevision == null) {
       revokeBlobUrl();
       setAvatarUrl(null);

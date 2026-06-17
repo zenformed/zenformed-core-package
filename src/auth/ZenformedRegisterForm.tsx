@@ -25,6 +25,7 @@ export type ZenformedRegisterFormProps = {
   readonly initialEmail?: string;
   readonly emailReadOnly?: boolean;
   readonly collectName?: boolean;
+  readonly requireName?: boolean;
   readonly initialFirstName?: string;
   readonly initialLastName?: string;
   readonly submitLabel?: string;
@@ -38,6 +39,7 @@ export function ZenformedRegisterForm({
   initialEmail = '',
   emailReadOnly = false,
   collectName = false,
+  requireName = false,
   initialFirstName = '',
   initialLastName = '',
   submitLabel,
@@ -65,6 +67,17 @@ export function ZenformedRegisterForm({
       return;
     }
 
+    if (collectName && requireName) {
+      if (!firstName.trim()) {
+        setSubmitError(`${resolvedLabels.firstNameLabel} is required.`);
+        return;
+      }
+      if (!lastName.trim()) {
+        setSubmitError(`${resolvedLabels.lastNameLabel} is required.`);
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       await onSubmit({
@@ -83,6 +96,38 @@ export function ZenformedRegisterForm({
 
   return (
     <form onSubmit={(event) => void handleSubmit(event)} className={formStyles.form}>
+      {collectName && !emailReadOnly ? (
+        <>
+          <label htmlFor="zenformed-register-first-name" className={formStyles.label}>
+            {resolvedLabels.firstNameLabel}
+          </label>
+          <input
+            id="zenformed-register-first-name"
+            name="first-name"
+            type="text"
+            value={firstName}
+            onChange={(event) => setFirstName(event.target.value)}
+            autoComplete="given-name"
+            required={requireName}
+            className={formStyles.input}
+            disabled={submitting}
+          />
+          <label htmlFor="zenformed-register-last-name" className={formStyles.label}>
+            {resolvedLabels.lastNameLabel}
+          </label>
+          <input
+            id="zenformed-register-last-name"
+            name="last-name"
+            type="text"
+            value={lastName}
+            onChange={(event) => setLastName(event.target.value)}
+            autoComplete="family-name"
+            required={requireName}
+            className={formStyles.input}
+            disabled={submitting}
+          />
+        </>
+      ) : null}
       <label htmlFor="zenformed-register-email" className={formStyles.label}>
         {resolvedLabels.emailLabel}
       </label>
@@ -98,7 +143,7 @@ export function ZenformedRegisterForm({
         className={emailReadOnly ? formStyles.inputReadOnly : formStyles.input}
         disabled={submitting}
       />
-      {collectName ? (
+      {collectName && emailReadOnly ? (
         <>
           <label htmlFor="zenformed-register-first-name" className={formStyles.label}>
             {resolvedLabels.firstNameLabel}
@@ -110,6 +155,7 @@ export function ZenformedRegisterForm({
             value={firstName}
             onChange={(event) => setFirstName(event.target.value)}
             autoComplete="given-name"
+            required={requireName}
             className={formStyles.input}
             disabled={submitting}
           />
@@ -123,6 +169,7 @@ export function ZenformedRegisterForm({
             value={lastName}
             onChange={(event) => setLastName(event.target.value)}
             autoComplete="family-name"
+            required={requireName}
             className={formStyles.input}
             disabled={submitting}
           />

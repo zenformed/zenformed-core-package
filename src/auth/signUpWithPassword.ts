@@ -4,6 +4,8 @@ import type { ZenformedAuthSupabaseClient } from './zenformedAuthSupabaseClient'
 export type SignUpWithPasswordOptions = {
   readonly firstName?: string | null;
   readonly lastName?: string | null;
+  /** When true, Supabase user metadata requests personal default org bootstrap on signup. */
+  readonly bootstrapDefaultOrganization?: boolean;
 };
 
 export type SignUpWithPasswordResult =
@@ -29,6 +31,9 @@ export async function signUpWithPassword(
         ...(firstName ? { first_name: firstName } : {}),
         ...(lastName ? { last_name: lastName } : {}),
         ...(fullName ? { full_name: fullName } : {}),
+        ...(options?.bootstrapDefaultOrganization
+          ? { bootstrap_default_organization: 'true' }
+          : {}),
       },
     },
   });

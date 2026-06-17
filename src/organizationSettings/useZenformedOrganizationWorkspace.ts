@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
   OrganizationInviteCreatePayload,
   OrganizationMemberRoleUpdatePayload,
@@ -20,7 +20,9 @@ import {
 } from './organizationPermissions';
 import {
   applyRemovedMemberToSnapshot,
+  applyReactivatedMemberToSnapshot,
   filterActiveWorkspaceMembers,
+  parseOrganizationWorkspaceMemberDto,
 } from './organizationWorkspaceMemberUtils';
 
 type RelayResponse = {
@@ -384,6 +386,7 @@ export function useZenformedOrganizationWorkspace({
   const [inviteMutationSuccessMessage, setInviteMutationSuccessMessage] = useState<string | null>(
     null
   );
+  const fetchGenerationRef = useRef(0);
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
     setCreatedInviteAcceptUrl(null);
@@ -401,6 +404,7 @@ export function useZenformedOrganizationWorkspace({
       setHasLiveData(false);
       return;
     }
+    const generation = ++fetchGenerationRef.current;
     setIsLoading(true);
     setLoadError(null);
     try {
@@ -409,6 +413,7 @@ export function useZenformedOrganizationWorkspace({
         token,
         parseMembershipContextJson
       );
+      if (generation !== fetchGenerationRef.current) return;
       if (!contextRes.ok) {
         setLoadError(contextRes.reason);
         setHasLiveData(false);
@@ -438,6 +443,7 @@ export function useZenformedOrganizationWorkspace({
       }
 
       const results = await Promise.all(fetches);
+      if (generation !== fetchGenerationRef.current) return;
       let membersRes: SliceResult<OrganizationWorkspaceMemberDto[]> | null = null;
       let invitesRes: SliceResult<OrganizationWorkspaceInviteDto[]> | null = null;
       let seatsRes: SliceResult<OrganizationWorkspaceSeatsDto> | null = null;
@@ -470,10 +476,13 @@ export function useZenformedOrganizationWorkspace({
       });
       setHasLiveData(true);
     } catch (e) {
+      if (generation !== fetchGenerationRef.current) return;
       setLoadError(e instanceof Error ? e.message : 'Failed to load organization data');
       setHasLiveData(false);
     } finally {
-      setIsLoading(false);
+      if (generation === fetchGenerationRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [apiUrls.appAccess, apiUrls.invites, apiUrls.members, apiUrls.membershipContext, apiUrls.seats, getAccessToken]);
 
@@ -522,6 +531,12 @@ export function useZenformedOrganizationWorkspace({
               ? body.message.trim()
               : 'Member reactivated successfully.';
           setInviteMutationSuccessMessage(message);
+          const reactivatedMember = parseOrganizationWorkspaceMemberDto(body.member);
+          if (reactivatedMember != null) {
+            setSnapshot((prev) =>
+              prev != null ? applyReactivatedMemberToSnapshot(prev, reactivatedMember) : prev
+            );
+          }
         } else {
           if (typeof body.acceptUrl === 'string' && body.acceptUrl.trim()) {
             setCreatedInviteAcceptUrl(body.acceptUrl.trim());

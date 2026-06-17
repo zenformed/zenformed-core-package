@@ -36,8 +36,7 @@ function AppActiveCheck({
 }
 
 export function AppsBillingSection({ viewModel, labels, classNames, workspace }: Props) {
-  const { plan, billingApps } = viewModel;
-  const planConnected = plan.seatsTotal > 0 && plan.planName !== '—';
+  const { billingApps } = viewModel;
   const workspaceLive = workspace?.hasLiveData ?? false;
   const showBillingPlaceholder = !workspaceLive;
 
@@ -46,34 +45,6 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
       {showBillingPlaceholder ? (
         <PlaceholderSectionNote message={labels.billingPlaceholderNote} classNames={classNames} />
       ) : null}
-
-      <ZenformedSettingsGroup title={labels.organizationPlan} classNames={classNames}>
-        {planConnected ? (
-          <>
-            <div className={classNames.row}>
-              <span className={classNames.rowLabel}>Plan</span>
-              <span className={classNames.rowValue}>{plan.planName}</span>
-            </div>
-            <div className={classNames.row}>
-              <span className={classNames.rowLabel}>{labels.seatsUsed}</span>
-              <span className={classNames.rowValue}>
-                {plan.seatsUsed} / {plan.seatsTotal}
-              </span>
-            </div>
-            <div className={classNames.row}>
-              <span className={classNames.rowLabel}>Status</span>
-              <span className={`${classNames.badge} ${classNames.badgeSuccess}`}>
-                {plan.statusLabel}
-              </span>
-            </div>
-            {workspace?.snapshot?.seats?.notes ? (
-              <p className={classNames.hint}>{workspace.snapshot.seats.notes}</p>
-            ) : null}
-          </>
-        ) : (
-          <p className={classNames.hint}>{labels.planNotConnected}</p>
-        )}
-      </ZenformedSettingsGroup>
 
       <ZenformedSettingsGroup title={labels.apps} classNames={classNames}>
         {billingApps.length === 0 ? (

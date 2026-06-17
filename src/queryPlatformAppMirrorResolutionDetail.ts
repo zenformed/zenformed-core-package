@@ -70,7 +70,7 @@ export async function queryPlatformAppMirrorResolutionDetail(
     sortedOrgIds.length > 0
       ? await supabase
           .from('platform_app_entitlements')
-          .select('id, organization_id, entitlement_status, plan_code')
+          .select('id, organization_id, entitlement_status, plan_code, effective_from, effective_to')
           .eq('app_id', appId)
           .in('organization_id', sortedOrgIds)
       : {
@@ -79,6 +79,8 @@ export async function queryPlatformAppMirrorResolutionDetail(
             organization_id: string;
             entitlement_status: string;
             plan_code: string | null;
+            effective_from: string | null;
+            effective_to: string | null;
           }[],
           error: null,
         };

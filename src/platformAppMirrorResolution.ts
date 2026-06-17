@@ -1,30 +1,70 @@
 import type { SaaSEntitlementSnapshot } from './entitlementSnapshot';
 import { resolvePlatformOrganizationPreferenceOrder } from './platformOrganizationPreference';
 
-/** True when mirrored entitlement_status grants app access (matches legacy subscription active). */
+/** True when mirrored entitlement_status is the active lifecycle state. */
 export function isPlatformEntitlementStatusActive(entitlementStatus: string): boolean {
   return typeof entitlementStatus === 'string' && entitlementStatus.trim().toLowerCase() === 'active';
 }
 
-/** Mirrors legacy semantics for mirrored rows: active ↔ subscriptionActive; PRO tier strict match. */
-export function mapPlatformEntitlementRowToSnapshot(row: {
+export type PlatformAppEntitlementEffectiveWindow = {
   entitlement_status: string;
-  plan_code: string | null;
-}): SaaSEntitlementSnapshot {
-  const subscriptionActive = isPlatformEntitlementStatusActive(row.entitlement_status);
+  effective_from?: string | null;
+  effective_to?: string | null;
+  now?: Date;
+};
 
-  const licenseTier = row.plan_code === 'PRO' ? 'PRO' : 'STANDARD';
+/** Active when status is active and the effective window includes `now`. */
+export function isPlatformAppEntitlementCurrentlyActive(
+  row: PlatformAppEntitlementEffectiveWindow
+): boolean {
+  if (!isPlatformEntitlementStatusActive(row.entitlement_status)) return false;
+
+  const now = row.now ?? new Date();
+
+  const effectiveFrom = row.effective_from;
+  if (effectiveFrom != null && String(effectiveFrom).trim() !== '') {
+    const from = new Date(effectiveFrom);
+    if (!Number.isNaN(from.getTime()) && from.getTime() > now.getTime()) return false;
+  }
+
+  const effectiveTo = row.effective_to;
+  if (effectiveTo != null && String(effectiveTo).trim() !== '') {
+    const to = new Date(effectiveTo);
+    if (!Number.isNaN(to.getTime()) && to.getTime() <= now.getTime()) return false;
+  }
+
+  return true;
+}
+
+function resolvePlanCode(planCode: string | null | undefined): string {
+  if (planCode == null) return '';
+  return String(planCode).trim();
+}
+
+/** Maps a platform_app_entitlements row to the runtime entitlement snapshot. */
+export function mapPlatformEntitlementRowToSnapshot(
+  row: {
+    entitlement_status: string;
+    plan_code: string | null;
+    effective_from?: string | null;
+    effective_to?: string | null;
+  },
+  now?: Date
+): SaaSEntitlementSnapshot {
+  const subscriptionActive = isPlatformAppEntitlementCurrentlyActive({
+    entitlement_status: row.entitlement_status,
+    effective_from: row.effective_from ?? null,
+    effective_to: row.effective_to ?? null,
+    now,
+  });
 
   return {
     subscriptionActive,
-    licenseTier,
+    licenseTier: resolvePlanCode(row.plan_code),
     resolutionSource: 'platform_tables',
   };
 }
 
-/**
- * Failure bucket for batch diagnostics (aligned with platform entitlement reader null exits).
- */
 export type PlatformAppMirrorBatchFailureCategory =
   | 'missing_app_catalog'
   | 'membership_or_org_gap'
@@ -32,7 +72,6 @@ export type PlatformAppMirrorBatchFailureCategory =
 
 export interface PlatformAppMirrorResolutionDetail {
   snapshot: SaaSEntitlementSnapshot | null;
-  /** Preferred spine when entitlement rows include `id`. */
   resolvedSpine?: { id: string; organization_id: string } | null;
   failureDetail?:
     | 'app_row_missing'
@@ -43,46 +82,40 @@ export interface PlatformAppMirrorResolutionDetail {
     | 'no_entitlement_row_for_preferred_org_chain';
 }
 
-/**
- * Pure resolution: walk org preference order; prefer the first **active** entitlement so invited
- * members inherit org subscription instead of a personal-default org mirror with inactive profile.
- * Falls back to the first entitlement row (inactive/expired/trial) when none are active.
- */
+export type PlatformAppEntitlementPrefetchedRow = {
+  id?: string;
+  organization_id: string;
+  entitlement_status: string;
+  plan_code: string | null;
+  effective_from?: string | null;
+  effective_to?: string | null;
+};
+
 export function resolvePlatformAppEntitlementFromPrefetched(params: {
   userId: string;
   appId: string | null;
   memberRows: { organization_id: string }[] | null;
   orgRows: { id: string; status: string; created_for_user_id: string | null }[] | null;
-  entitlementRows:
-    | { id?: string; organization_id: string; entitlement_status: string; plan_code: string | null }[]
-    | null;
+  entitlementRows: PlatformAppEntitlementPrefetchedRow[] | null;
   memberQueryFailed?: boolean;
   orgQueryFailed?: boolean;
   entitlementQueryFailed?: boolean;
+  now?: Date;
 }): PlatformAppMirrorResolutionDetail {
-  const { userId, appId } = params;
+  const { userId, appId, now } = params;
 
   if (appId == null) {
     return { snapshot: null, failureDetail: 'app_row_missing' };
   }
 
   if (params.memberQueryFailed) {
-    return {
-      snapshot: null,
-      failureDetail: 'members_query_failed_or_empty',
-    };
+    return { snapshot: null, failureDetail: 'members_query_failed_or_empty' };
   }
   if (params.orgQueryFailed) {
-    return {
-      snapshot: null,
-      failureDetail: 'organizations_query_failed_or_empty',
-    };
+    return { snapshot: null, failureDetail: 'organizations_query_failed_or_empty' };
   }
   if (params.entitlementQueryFailed) {
-    return {
-      snapshot: null,
-      failureDetail: 'entitlements_query_failed_or_empty',
-    };
+    return { snapshot: null, failureDetail: 'entitlements_query_failed_or_empty' };
   }
 
   const memberRows = params.memberRows ?? [];
@@ -108,19 +141,19 @@ export function resolvePlatformAppEntitlementFromPrefetched(params: {
   const byOrgId = new Map(entitlementRows.map((r) => [r.organization_id, r]));
 
   function snapshotFromRow(
-    row: { id?: string; organization_id: string; entitlement_status: string; plan_code: string | null },
+    row: PlatformAppEntitlementPrefetchedRow,
     organizationId: string
   ): PlatformAppMirrorResolutionDetail {
     const sid = row.id != null && String(row.id).trim() !== '' ? String(row.id) : null;
     return {
-      snapshot: mapPlatformEntitlementRowToSnapshot(row),
+      snapshot: mapPlatformEntitlementRowToSnapshot(row, now),
       resolvedSpine: sid != null ? { id: sid, organization_id: organizationId } : null,
     };
   }
 
   for (const organizationId of sortedOrgIds) {
     const row = byOrgId.get(organizationId);
-    if (row != null && isPlatformEntitlementStatusActive(row.entitlement_status)) {
+    if (row != null && isPlatformAppEntitlementCurrentlyActive({ ...row, now })) {
       return snapshotFromRow(row, organizationId);
     }
   }

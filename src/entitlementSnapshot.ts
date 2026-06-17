@@ -11,7 +11,8 @@ export type SaaSEntitlementResolutionSource =
 export interface SaaSEntitlementSnapshot {
   /** True when subscription is active for app entry (legacy: profiles.subscription_status). */
   subscriptionActive: boolean;
-  licenseTier: 'STANDARD' | 'PRO';
+  /** App plan code (platform_app_entitlements.plan_code) or legacy profiles.license_tier when mapped. */
+  licenseTier: string;
   resolutionSource: SaaSEntitlementResolutionSource;
   /** Present when values come from a signed offline authorization payload. */
   offlineExpiresAt?: string;

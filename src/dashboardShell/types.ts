@@ -90,6 +90,7 @@ export type ZenformedAccountMenuProps = {
   userDisplayName: string;
   avatarUrl: string | null | undefined;
   avatarLoading: boolean;
+  /** @deprecated Ignored in account menu UI; legacy profiles.license_tier must not render as a plan badge. */
   effectiveLicenseTier?: string | null;
   organizationRoleLabel?: string | null;
   labels: ZenformedAccountMenuLabels;
@@ -119,6 +120,7 @@ export type ZenformedDashboardHeaderProps = {
   user: ZenformedDashboardHeaderUser | null;
   avatarUrl: string | null | undefined;
   avatarLoading: boolean;
+  /** @deprecated Ignored in account menu UI; legacy profiles.license_tier must not render as a plan badge. */
   effectiveLicenseTier?: string | null;
   /** Organization role badge (Owner, Admin, Coordinator, Member). */
   organizationRoleLabel?: string | null;

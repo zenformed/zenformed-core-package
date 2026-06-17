@@ -15,7 +15,7 @@ export function ZenformedAccountMenu({
   userDisplayName,
   avatarUrl,
   avatarLoading,
-  effectiveLicenseTier,
+  effectiveLicenseTier: _effectiveLicenseTier,
   organizationRoleLabel,
   labels,
   onOpenSettings,
@@ -62,30 +62,16 @@ export function ZenformedAccountMenu({
       {accountMenuOpen && (
         <div className={classNames.accountMenuDropdown} role="menu">
           <div className={classNames.accountMenuEmail}>{user.email}</div>
-          {(effectiveLicenseTier || organizationRoleLabel) && (
+          {organizationRoleLabel ? (
             <div className={classNames.badgeRow}>
-              {effectiveLicenseTier ? (
-                <span
-                  className={
-                    effectiveLicenseTier === 'PRO'
-                      ? `${classNames.tierBadge} ${classNames.tierBadgePro}`
-                      : `${classNames.tierBadge} ${classNames.tierBadgeStandard}`
-                  }
-                  aria-label={`${labels.planAriaLabelPrefix} ${effectiveLicenseTier}`}
-                >
-                  {effectiveLicenseTier}
-                </span>
-              ) : null}
-              {organizationRoleLabel ? (
-                <span
-                  className={classNames.adminBadge}
-                  aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
-                >
-                  {organizationRoleLabel}
-                </span>
-              ) : null}
+              <span
+                className={classNames.adminBadge}
+                aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
+              >
+                {organizationRoleLabel}
+              </span>
             </div>
-          )}
+          ) : null}
           <div className={classNames.accountMenuPhotoWrap}>
             <div className={classNames.accountMenuPhotoCircle}>
               {displayAvatarUrl ? (

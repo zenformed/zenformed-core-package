@@ -13,7 +13,32 @@ export type {
 } from './entitlementSnapshot';
 export type { ISaaSEntitlementReader, LoadEntitlementsForAppInput } from './entitlementReaderPort';
 
-export { mapLegacyProfilesFieldsToSnapshot } from './legacyProfilesEntitlementMapping';
+export { mapLegacyProfilesFieldsToSnapshot, mapLegacyProfilesFieldsToDiagnosticSnapshot } from './legacyProfilesEntitlementMapping';
+
+export type {
+  NormalizedPlanSlug,
+  AppPlanCapabilityKey,
+  AppPlanCatalogEntry,
+} from './appPlanCatalog';
+export {
+  PLATFORM_APP_PLAN_CATALOG,
+  normalizeAppSlug,
+  getAppPlanCatalogEntries,
+  findAppPlanCatalogEntry,
+  listPurchasablePlansForApp,
+  hasAppPlanCapability,
+} from './appPlanCatalog';
+
+export { normalizePlanSlug, resolvePlanCodeOriginal } from './planNormalization';
+
+export {
+  isAppEntitlementActive,
+  hasActiveAppPlan,
+  hasAppEntitlementCapability,
+  inactiveAppEntitlementSnapshot,
+} from './appEntitlementAccess';
+
+export { parseSaaSEntitlementSnapshotJson } from './parseEntitlementSnapshot';
 
 export type {
   EntitlementReaderBrowserSupabaseProvider,

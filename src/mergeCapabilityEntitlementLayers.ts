@@ -34,9 +34,17 @@ export function pickCapabilityValue(
   }
 }
 
-export function normalizeEntitlementPlanCode(planCode: string | null | undefined): string {
+import { normalizePlanSlug } from './planNormalization';
+
+export function normalizeEntitlementPlanCode(
+  planCode: string | null | undefined,
+  appSlug?: string
+): string {
   const t = typeof planCode === 'string' ? planCode.trim() : '';
-  return t !== '' ? t : 'STANDARD';
+  if (t === '') return '';
+  return appSlug != null && appSlug.trim() !== ''
+    ? normalizePlanSlug(appSlug, t)
+    : t.toLowerCase();
 }
 
 /**

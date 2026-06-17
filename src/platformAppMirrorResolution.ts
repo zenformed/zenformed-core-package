@@ -1,4 +1,5 @@
 import type { SaaSEntitlementSnapshot } from './entitlementSnapshot';
+import { normalizePlanSlug, resolvePlanCodeOriginal } from './planNormalization';
 import { resolvePlatformOrganizationPreferenceOrder } from './platformOrganizationPreference';
 
 /** True when mirrored entitlement_status is the active lifecycle state. */
@@ -36,13 +37,9 @@ export function isPlatformAppEntitlementCurrentlyActive(
   return true;
 }
 
-function resolvePlanCode(planCode: string | null | undefined): string {
-  if (planCode == null) return '';
-  return String(planCode).trim();
-}
-
 /** Maps a platform_app_entitlements row to the runtime entitlement snapshot. */
 export function mapPlatformEntitlementRowToSnapshot(
+  appSlug: string,
   row: {
     entitlement_status: string;
     plan_code: string | null;
@@ -58,10 +55,29 @@ export function mapPlatformEntitlementRowToSnapshot(
     now,
   });
 
+  const planCodeOriginal = resolvePlanCodeOriginal(row.plan_code);
+  const normalizedAppSlug = appSlug.trim().toLowerCase();
+  const planSlugNormalized = normalizePlanSlug(normalizedAppSlug, planCodeOriginal);
+
+  const effectiveFrom =
+    row.effective_from != null && String(row.effective_from).trim() !== ''
+      ? String(row.effective_from)
+      : null;
+  const effectiveTo =
+    row.effective_to != null && String(row.effective_to).trim() !== ''
+      ? String(row.effective_to)
+      : null;
+
   return {
+    appSlug: normalizedAppSlug,
     subscriptionActive,
-    licenseTier: resolvePlanCode(row.plan_code),
+    planCodeOriginal,
+    planSlugNormalized,
+    entitlementStatus: row.entitlement_status,
+    effectiveFrom,
+    effectiveTo,
     resolutionSource: 'platform_tables',
+    ...(planCodeOriginal !== '' ? { licenseTier: planCodeOriginal } : {}),
   };
 }
 
@@ -93,6 +109,7 @@ export type PlatformAppEntitlementPrefetchedRow = {
 
 export function resolvePlatformAppEntitlementFromPrefetched(params: {
   userId: string;
+  appSlug: string;
   appId: string | null;
   memberRows: { organization_id: string }[] | null;
   orgRows: { id: string; status: string; created_for_user_id: string | null }[] | null;
@@ -102,7 +119,7 @@ export function resolvePlatformAppEntitlementFromPrefetched(params: {
   entitlementQueryFailed?: boolean;
   now?: Date;
 }): PlatformAppMirrorResolutionDetail {
-  const { userId, appId, now } = params;
+  const { userId, appSlug, appId, now } = params;
 
   if (appId == null) {
     return { snapshot: null, failureDetail: 'app_row_missing' };
@@ -146,7 +163,7 @@ export function resolvePlatformAppEntitlementFromPrefetched(params: {
   ): PlatformAppMirrorResolutionDetail {
     const sid = row.id != null && String(row.id).trim() !== '' ? String(row.id) : null;
     return {
-      snapshot: mapPlatformEntitlementRowToSnapshot(row, now),
+      snapshot: mapPlatformEntitlementRowToSnapshot(appSlug, row, now),
       resolvedSpine: sid != null ? { id: sid, organization_id: organizationId } : null,
     };
   }

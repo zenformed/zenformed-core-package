@@ -1,6 +1,6 @@
 import type { ISaaSEntitlementReader, LoadEntitlementsForAppInput } from './entitlementReaderPort';
 import type { SaaSEntitlementSnapshot } from './entitlementSnapshot';
-import { mapLegacyProfilesFieldsToSnapshot } from './legacyProfilesEntitlementMapping';
+import { mapLegacyProfilesFieldsToDiagnosticSnapshot } from './legacyProfilesEntitlementMapping';
 import {
   createJwtAwareAnonSupabaseClient,
   type EntitlementReaderSupabaseDeps,
@@ -31,7 +31,7 @@ export class ProfilesColumnEntitlementReader implements ISaaSEntitlementReader {
         return null;
       }
 
-      return mapLegacyProfilesFieldsToSnapshot(data);
+      return mapLegacyProfilesFieldsToDiagnosticSnapshot(data, input.appSlug);
     } catch {
       return null;
     }

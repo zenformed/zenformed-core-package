@@ -87,6 +87,7 @@ export async function queryPlatformAppMirrorResolutionDetail(
 
   const resolved = resolvePlatformAppEntitlementFromPrefetched({
     userId,
+    appSlug,
     appId,
     memberRows: memberRows ?? [],
     orgRows: orgRows ?? [],

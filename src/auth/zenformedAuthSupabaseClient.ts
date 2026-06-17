@@ -21,12 +21,14 @@ export type ZenformedAuthSupabaseClient = {
       email: string;
       password: string;
       options?: {
+        emailRedirectTo?: string;
         data?: Record<string, string>;
       };
     }): Promise<{
       data: { session: Session | null; user: User | null };
       error: { message: string } | null;
     }>;
+    signOut(): Promise<{ error: { message: string } | null }>;
     updateUser(attributes: { password: string }): Promise<{ error: { message: string } | null }>;
     resetPasswordForEmail(
       email: string,

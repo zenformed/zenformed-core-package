@@ -28,6 +28,8 @@ export const DEFAULT_AUTH_LABELS = {
   resetPasswordInvalidLink:
     'This reset link is invalid or has expired. Request a new password reset email.',
   backToSignIn: 'Back to sign in',
+  registerEmailVerificationSuccess:
+    'Check your email to verify your account. After verifying, return to login.',
 } as const;
 
 export type ZenformedAuthLabels = {

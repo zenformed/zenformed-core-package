@@ -21,7 +21,7 @@ export function userCircleColor(email: string): string {
   return `hsl(${h % 360}, 55%, 42%)`;
 }
 
-/** Display label for account menu (full name, first name, or email local-part). */
+/** Display label for account menu (display name or first/last name only — never email). */
 export function resolveAccountMenuDisplayName(user: AccountMenuUserIdentity): string {
   const display = user.displayName?.trim();
   if (display) return display;
@@ -32,8 +32,5 @@ export function resolveAccountMenuDisplayName(user: AccountMenuUserIdentity): st
   if (first) return first;
   if (last) return last;
 
-  const email = user.email.trim();
-  if (!email) return '';
-  const local = email.split('@')[0]?.trim();
-  return local || email;
+  return '';
 }

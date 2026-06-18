@@ -21,7 +21,9 @@ export function useZenformedShellUserDisplay({
   user,
   enabled = true,
 }: UseZenformedShellUserDisplayOptions): string {
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState(() =>
+    user ? resolveAccountMenuDisplayName(user) : ''
+  );
 
   useEffect(() => {
     if (!user) {
@@ -29,20 +31,22 @@ export function useZenformedShellUserDisplay({
       return;
     }
 
-    const fallback = resolveAccountMenuDisplayName(user);
+    const syncName = resolveAccountMenuDisplayName(user);
     if (!enabled || !sessionUserId) {
-      setDisplayName(fallback);
+      setDisplayName(syncName);
       return;
     }
 
     const token = getAccessToken()?.trim();
     if (!token) {
-      setDisplayName(fallback);
+      setDisplayName(syncName);
       return;
     }
 
     let cancelled = false;
-    setDisplayName(fallback);
+    if (syncName) {
+      setDisplayName(syncName);
+    }
 
     void fetch(settingsApiUrl, {
       cache: 'no-store',
@@ -65,21 +69,22 @@ export function useZenformedShellUserDisplay({
           json != null && typeof json.settings === 'object'
             ? (json.settings as Record<string, unknown>)
             : null;
-        if (settings == null) {
-          setDisplayName(fallback);
-          return;
-        }
-        setDisplayName(
-          resolveAccountMenuDisplayName({
-            email: user.email,
-            displayName: user.displayName,
-            firstName: typeof settings.firstName === 'string' ? settings.firstName : null,
-            lastName: typeof settings.lastName === 'string' ? settings.lastName : null,
-          })
-        );
+        const resolved = resolveAccountMenuDisplayName({
+          email: user.email,
+          displayName: user.displayName,
+          firstName:
+            settings != null && typeof settings.firstName === 'string'
+              ? settings.firstName
+              : user.firstName ?? null,
+          lastName:
+            settings != null && typeof settings.lastName === 'string'
+              ? settings.lastName
+              : user.lastName ?? null,
+        });
+        setDisplayName(resolved || syncName);
       })
       .catch(() => {
-        if (!cancelled) setDisplayName(fallback);
+        if (!cancelled) setDisplayName(syncName);
       });
 
     return () => {

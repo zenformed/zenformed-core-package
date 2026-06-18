@@ -61,7 +61,6 @@ export function ZenformedAccountMenu({
       </button>
       {accountMenuOpen && (
         <div className={classNames.accountMenuDropdown} role="menu">
-          <div className={classNames.accountMenuEmail}>{user.email}</div>
           {organizationRoleLabel ? (
             <div className={classNames.badgeRow}>
               <span

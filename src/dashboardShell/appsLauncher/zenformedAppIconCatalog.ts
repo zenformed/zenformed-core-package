@@ -21,7 +21,9 @@ export const ZENFORMED_ECOSYSTEM_APP_ICON_IDS = [
 
 export type ZenformedEcosystemAppIconId = (typeof ZENFORMED_ECOSYSTEM_APP_ICON_IDS)[number];
 
-const BUNDLED_ICON_SRC: Record<ZenformedEcosystemAppIconId, string> = {
+type ZenformedBundledAppIconId = Exclude<ZenformedEcosystemAppIconId, 'analyticscore'>;
+
+const BUNDLED_ICON_SRC: Record<ZenformedBundledAppIconId, string> = {
   platform: toBundledImageUrl(platformIcon),
   buildcore: toBundledImageUrl(buildcoreIcon),
   forgecore: toBundledImageUrl(forgecoreIcon),

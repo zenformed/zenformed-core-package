@@ -55,7 +55,7 @@ export function ZenformedAccountMenu({
             }}
             aria-hidden
           >
-            {!avatarLoading ? getUserInitials(user.email) : null}
+            {!avatarLoading ? getUserInitials(user, userDisplayName) : null}
           </div>
         )}
       </button>
@@ -86,7 +86,7 @@ export function ZenformedAccountMenu({
                   }}
                   aria-hidden
                 >
-                  {!avatarLoading ? getUserInitials(user.email) : null}
+                  {!avatarLoading ? getUserInitials(user, userDisplayName) : null}
                 </div>
               )}
             </div>

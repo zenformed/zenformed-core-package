@@ -6,7 +6,14 @@
 
 export { formatOrganizationRoleLabel } from './formatOrganizationRoleLabel';
 export { getCompanyInitial, companyCircleColor } from './brandingUtils';
-export { getUserInitials, userCircleColor, resolveAccountMenuDisplayName } from './accountMenuUtils';
+export {
+  getUserInitials,
+  resolveInitialsFromLabel,
+  resolveAccountMenuUser,
+  readNameFieldsFromUserMetadata,
+  userCircleColor,
+  resolveAccountMenuDisplayName,
+} from './accountMenuUtils';
 export type { AccountMenuUserIdentity } from './accountMenuUtils';
 export { useZenformedShellUserDisplay } from './useZenformedShellUserDisplay';
 export type { UseZenformedShellUserDisplayOptions } from './useZenformedShellUserDisplay';

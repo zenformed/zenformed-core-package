@@ -5,6 +5,7 @@ import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 import { createCroppedImage } from './createCroppedImage';
 import { formatPhotoApiError } from './formatPhotoApiError';
+import { getUserInitials, userCircleColor, type AccountMenuUserIdentity } from '../accountMenuUtils';
 import styles from './ZenformedProfilePhotoModal.module.css';
 import {
   ZENFORMED_DEFAULT_AVATAR_SEEDS,
@@ -59,18 +60,6 @@ function BackIcon(): React.ReactElement {
   );
 }
 
-function getInitials(email: string): string {
-  const local = (email || '').split('@')[0] || '';
-  if (local.length >= 2) return local.slice(0, 2).toUpperCase();
-  return local.slice(0, 1).toUpperCase() || '?';
-}
-
-function avatarColor(email: string): string {
-  let h = 0;
-  for (let i = 0; i < email.length; i++) h = (h * 31 + email.charCodeAt(i)) >>> 0;
-  return `hsl(${h % 360}, 55%, 42%)`;
-}
-
 type ViewMode = 'main' | 'crop' | 'camera' | 'browse';
 
 function getViewTitle(view: ViewMode): string {
@@ -84,6 +73,9 @@ export interface ZenformedProfilePhotoModalProps {
   isOpen: boolean;
   onClose: () => void;
   userEmail: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  displayName?: string | null;
   avatarUrl: string | null;
   hasPhoto: boolean;
   onSuccess: () => void;
@@ -97,12 +89,21 @@ export function ZenformedProfilePhotoModal({
   isOpen,
   onClose,
   userEmail,
+  firstName,
+  lastName,
+  displayName,
   getAccessToken,
   avatarUrl,
   hasPhoto,
   onSuccess,
   enableCameraCapture = false,
 }: ZenformedProfilePhotoModalProps): React.ReactElement | null {
+  const userIdentity: AccountMenuUserIdentity = {
+    email: userEmail,
+    firstName: firstName ?? null,
+    lastName: lastName ?? null,
+    displayName: displayName ?? null,
+  };
   const [view, setView] = useState<ViewMode>('main');
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -358,12 +359,12 @@ export function ZenformedProfilePhotoModal({
                 <div className={styles.avatarWrap}>
                   <div
                     className={styles.avatarCircle}
-                    style={!avatarUrl ? { backgroundColor: avatarColor(userEmail) } : undefined}
+                    style={!avatarUrl ? { backgroundColor: userCircleColor(userEmail) } : undefined}
                   >
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="" className={styles.avatarCircleImg} />
                     ) : (
-                      <span aria-hidden>{getInitials(userEmail)}</span>
+                      <span aria-hidden>{getUserInitials(userIdentity, displayName)}</span>
                     )}
                   </div>
                 </div>

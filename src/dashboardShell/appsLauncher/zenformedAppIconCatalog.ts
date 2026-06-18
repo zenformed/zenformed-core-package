@@ -16,6 +16,7 @@ export const ZENFORMED_ECOSYSTEM_APP_ICON_IDS = [
   'buildcore',
   'forgecore',
   'formcore',
+  'analyticscore',
 ] as const;
 
 export type ZenformedEcosystemAppIconId = (typeof ZENFORMED_ECOSYSTEM_APP_ICON_IDS)[number];
@@ -39,7 +40,8 @@ export type ZenformedAppIconPublicSrcOptions = {
 /** Bundled icon URL resolved by Next/webpack when `transpilePackages` includes `@zenformed/core`. */
 export function zenformedAppIconSrc(id: string): string | undefined {
   if (!isZenformedEcosystemAppIconId(id)) return undefined;
-  return BUNDLED_ICON_SRC[id];
+  if (!(id in BUNDLED_ICON_SRC)) return undefined;
+  return BUNDLED_ICON_SRC[id as keyof typeof BUNDLED_ICON_SRC];
 }
 
 export function isZenformedEcosystemAppIconId(id: string): id is ZenformedEcosystemAppIconId {

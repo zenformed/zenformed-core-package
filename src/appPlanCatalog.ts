@@ -88,10 +88,36 @@ const FORMCORE_PLANS: readonly AppPlanCatalogEntry[] = [
   },
 ];
 
+
+const ANALYTICSCORE_PLANS: readonly AppPlanCatalogEntry[] = [
+  {
+    appSlug: 'analyticscore',
+    planSlug: 'starter',
+    displayName: 'Starter',
+    monthlyPriceCents: null,
+    capabilities: {},
+  },
+  {
+    appSlug: 'analyticscore',
+    planSlug: 'growth',
+    displayName: 'Growth',
+    monthlyPriceCents: null,
+    capabilities: {},
+  },
+  {
+    appSlug: 'analyticscore',
+    planSlug: 'pro',
+    displayName: 'Pro',
+    monthlyPriceCents: null,
+    capabilities: {},
+  },
+];
+
 export const PLATFORM_APP_PLAN_CATALOG: readonly AppPlanCatalogEntry[] = [
   ...BUILDCORE_PLANS,
   ...FORGECORE_PLANS,
   ...FORMCORE_PLANS,
+  ...ANALYTICSCORE_PLANS,
 ];
 
 export function normalizeAppSlug(appSlug: string | null | undefined): string {

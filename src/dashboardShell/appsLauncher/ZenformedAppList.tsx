@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactElement } from 'react';
+import { AppEntitlementBadges } from '../../organizationSettings/components/AppEntitlementBadges';
 import type {
   ZenformedAppRegistryEntry,
   ZenformedAppsLauncherClassNames,
@@ -85,7 +86,12 @@ function AppCard({
   const cardBody = (
     <>
       <AppIcon app={app} classNames={classNames} variant="card" />
-      <h3 className={classNames.appCardTitle}>{isLaunching ? 'Opening…' : app.name}</h3>
+      <div className={classNames.appCardBody}>
+        <h3 className={classNames.appCardTitle}>{isLaunching ? 'Opening…' : app.name}</h3>
+        {app.entitlementBadges ? (
+          <AppEntitlementBadges {...app.entitlementBadges} compact />
+        ) : null}
+      </div>
     </>
   );
 

@@ -7,7 +7,32 @@ import {
   formatPlatformAppDisplayName,
   resolvePlanBadgeVariant,
   resolveStatusBadgeVariant,
+  type BillingPlanBadgeVariant,
+  type BillingStatusBadgeVariant,
 } from './platformAppBillingCatalog';
+
+export type AppEntitlementBadgeViewModel = {
+  readonly planLabel: string;
+  readonly planBadgeVariant: BillingPlanBadgeVariant;
+  readonly statusLabel: string;
+  readonly statusBadgeVariant: BillingStatusBadgeVariant;
+};
+
+export function resolveAppEntitlementBadges(
+  appSlug: string,
+  planSlug: string,
+  entitlementStatus: string
+): AppEntitlementBadgeViewModel {
+  const status = entitlementStatus.trim().toLowerCase();
+  const isTrial = status === 'trial';
+  return {
+    planLabel: formatPlanDisplayName(appSlug, planSlug),
+    planBadgeVariant: resolvePlanBadgeVariant(planSlug),
+    statusLabel: isTrial ? 'Trial' : status === 'active' ? 'Active' : 'Inactive',
+    statusBadgeVariant: resolveStatusBadgeVariant(entitlementStatus),
+  };
+}
+
 export function formatPlanDisplayName(appSlug: string, planSlug: string): string {
   const normalizedPlan = planSlug.trim().toLowerCase();
   const catalog = findAppPlanCatalogEntry(appSlug, normalizedPlan);

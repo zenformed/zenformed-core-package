@@ -1,5 +1,9 @@
 'use client';
 
+export { resolveAppEntitlementBadges } from './billingAppEntitlements';
+export type { AppEntitlementBadgeViewModel } from './billingAppEntitlements';
+export { AppEntitlementBadges } from './components/AppEntitlementBadges';
+export type { AppEntitlementBadgesProps } from './components/AppEntitlementBadges';
 export { OrganizationAvatarFallback } from './components/OrganizationAvatarFallback';
 export type { OrganizationAvatarFallbackProps } from './components/OrganizationAvatarFallback';
 export { ZenformedOrganizationSettingsOverlay } from './ZenformedOrganizationSettingsOverlay';

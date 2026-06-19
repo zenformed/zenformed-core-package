@@ -1,5 +1,12 @@
 export type ZenformedAppStatus = 'live' | 'coming_soon';
 
+export type ZenformedAppEntitlementBadges = {
+  readonly planLabel: string;
+  readonly planBadgeVariant: 'starter' | 'growth' | 'pro' | 'standard' | 'single' | 'default';
+  readonly statusLabel: string;
+  readonly statusBadgeVariant: 'trial' | 'active' | 'inactive';
+};
+
 export type ZenformedAppRegistryEntry = {
   readonly id: string;
   readonly name: string;
@@ -12,6 +19,8 @@ export type ZenformedAppRegistryEntry = {
   readonly launchTarget?: string;
   readonly href?: string;
   readonly status: ZenformedAppStatus;
+  /** Plan + status pills shown under the app name (dashboard My Apps). */
+  readonly entitlementBadges?: ZenformedAppEntitlementBadges;
 };
 
 export type ZenformedAppsLauncherClassNames = {
@@ -41,7 +50,9 @@ export type ZenformedAppsLauncherClassNames = {
   appCardDisabled: string;
   appCardIcon: string;
   appCardIconFallback: string;
+  appCardBody: string;
   appCardTitle: string;
+  appCardBadges: string;
   appCardDescription: string;
   appComingSoon: string;
   appsLaunchError: string;

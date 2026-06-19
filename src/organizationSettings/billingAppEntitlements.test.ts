@@ -5,7 +5,16 @@ import {
   formatPlanDisplayName,
   mapEntitlementSnapshotToBillingApp,
   mapEntitlementsRecordToBillingApps,
+  resolveAppEntitlementBadges,
 } from './billingAppEntitlements';
+
+test('resolveAppEntitlementBadges returns separate plan and trial pills', () => {
+  const badges = resolveAppEntitlementBadges('buildcore', 'starter', 'trial');
+  assert.equal(badges.planLabel, 'Starter');
+  assert.equal(badges.planBadgeVariant, 'starter');
+  assert.equal(badges.statusLabel, 'Trial');
+  assert.equal(badges.statusBadgeVariant, 'trial');
+});
 
 test('formatPlanDisplayName uses catalog labels', () => {
   assert.equal(formatPlanDisplayName('buildcore', 'starter'), 'Starter');

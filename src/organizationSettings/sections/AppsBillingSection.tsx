@@ -1,6 +1,7 @@
 'use client';
 
 import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
+import { AppEntitlementBadges } from '../components/AppEntitlementBadges';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import { resolveBillingAppIconSrc } from '../billingAppIcons';
 import type {
@@ -17,38 +18,6 @@ type Props = {
   readonly classNames: OrganizationSettingsClassNames;
   readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
-
-function planBadgeClassName(
-  app: OrganizationSettingsAppAccess,
-  classNames: OrganizationSettingsClassNames
-): string {
-  const base = classNames.appBillingBadge;
-  switch (app.planBadgeVariant) {
-    case 'starter':
-      return `${base} ${classNames.appBillingBadgePlanStarter}`;
-    case 'growth':
-      return `${base} ${classNames.appBillingBadgePlanGrowth}`;
-    case 'pro':
-      return `${base} ${classNames.appBillingBadgePlanPro}`;
-    default:
-      return `${base} ${classNames.appBillingBadgePlanDefault}`;
-  }
-}
-
-function statusBadgeClassName(
-  app: OrganizationSettingsAppAccess,
-  classNames: OrganizationSettingsClassNames
-): string {
-  const base = classNames.appBillingBadge;
-  switch (app.statusBadgeVariant) {
-    case 'trial':
-      return `${base} ${classNames.appBillingBadgeStatusTrial}`;
-    case 'active':
-      return `${base} ${classNames.appBillingBadgeStatusActive}`;
-    default:
-      return `${base} ${classNames.appBillingBadgeStatusInactive}`;
-  }
-}
 
 function BillingDetailRow({
   label,
@@ -125,10 +94,12 @@ function BillingAppCard({
         <BillingAppLogo app={app} iconBaseUrl={iconBaseUrl} classNames={classNames} />
         <div className={classNames.appBillingTitleBlock}>
           <strong>{app.name}</strong>
-          <div className={classNames.appBillingBadges}>
-            <span className={planBadgeClassName(app, classNames)}>{planBadgeText}</span>
-            <span className={statusBadgeClassName(app, classNames)}>{app.statusLabel}</span>
-          </div>
+          <AppEntitlementBadges
+            planLabel={planBadgeText}
+            planBadgeVariant={app.planBadgeVariant ?? 'default'}
+            statusLabel={app.statusLabel}
+            statusBadgeVariant={app.statusBadgeVariant ?? 'inactive'}
+          />
         </div>
       </div>
 

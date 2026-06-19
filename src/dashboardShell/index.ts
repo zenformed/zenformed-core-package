@@ -62,6 +62,7 @@ export { useZenformedAppLaunch } from './appsLauncher/useZenformedAppLaunch';
 export { pickAppsLauncherClassNames } from './appsLauncher/pickAppsLauncherClassNames';
 export type {
   ZenformedAppRegistryEntry,
+  ZenformedAppEntitlementBadges,
   ZenformedAppStatus,
   ZenformedAppsLauncherClassNames,
   ZenformedAppsLauncherLabels,

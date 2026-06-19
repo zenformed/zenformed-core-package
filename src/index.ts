@@ -97,6 +97,7 @@ export { resolvePlatformOrganizationPreferenceOrder } from './platformOrganizati
 
 export {
   categorizeMirrorFailureForBatch,
+  isPlatformEntitlementStatusGrantingAccess,
   mapPlatformEntitlementRowToSnapshot,
   resolvePlatformAppEntitlementFromPrefetched,
   type PlatformAppMirrorBatchFailureCategory,

@@ -2,9 +2,15 @@ import type { SaaSEntitlementSnapshot } from './entitlementSnapshot';
 import { normalizePlanSlug, resolvePlanCodeOriginal } from './planNormalization';
 import { resolvePlatformOrganizationPreferenceOrder } from './platformOrganizationPreference';
 
-/** True when mirrored entitlement_status is the active lifecycle state. */
+/** True when mirrored entitlement_status grants app access (active or trial). */
 export function isPlatformEntitlementStatusActive(entitlementStatus: string): boolean {
-  return typeof entitlementStatus === 'string' && entitlementStatus.trim().toLowerCase() === 'active';
+  return isPlatformEntitlementStatusGrantingAccess(entitlementStatus);
+}
+
+export function isPlatformEntitlementStatusGrantingAccess(entitlementStatus: string): boolean {
+  if (typeof entitlementStatus !== 'string') return false;
+  const normalized = entitlementStatus.trim().toLowerCase();
+  return normalized === 'active' || normalized === 'trial';
 }
 
 export type PlatformAppEntitlementEffectiveWindow = {
@@ -14,11 +20,11 @@ export type PlatformAppEntitlementEffectiveWindow = {
   now?: Date;
 };
 
-/** Active when status is active and the effective window includes `now`. */
+/** Grants access when status is active or trial and the effective window includes `now`. */
 export function isPlatformAppEntitlementCurrentlyActive(
   row: PlatformAppEntitlementEffectiveWindow
 ): boolean {
-  if (!isPlatformEntitlementStatusActive(row.entitlement_status)) return false;
+  if (!isPlatformEntitlementStatusGrantingAccess(row.entitlement_status)) return false;
 
   const now = row.now ?? new Date();
 

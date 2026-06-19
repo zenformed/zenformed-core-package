@@ -35,6 +35,11 @@ export {
   formatPlanDisplayName,
   mapEntitlementsRecordToBillingApps,
 } from './billingAppEntitlements';
+export {
+  formatPlatformAppDisplayName,
+  PLATFORM_SUITE_APP_SLUGS,
+} from './platformAppBillingCatalog';
+export { resolveBillingAppIconSrc } from './billingAppIcons';
 export type {
   OrganizationAssignmentIdentityDto,
   OrganizationAssignmentIdentitiesResponse,

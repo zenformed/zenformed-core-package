@@ -38,6 +38,8 @@ test('mapEntitlementSnapshotToBillingApp renders trial billing fields', () => {
   assert.ok(billingApp != null);
   assert.equal(billingApp.name, 'BuildCore');
   assert.equal(billingApp.planLabel, 'Starter Trial');
+  assert.equal(billingApp.planBadgeVariant, 'starter');
+  assert.equal(billingApp.statusBadgeVariant, 'trial');
   assert.equal(billingApp.actionLabel, 'Manage Subscription');
   assert.equal(billingApp.manageEnabled, true);
   assert.equal(billingApp.trialEndsLabel, '06/30/2026');

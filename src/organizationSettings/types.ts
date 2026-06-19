@@ -29,8 +29,11 @@ export type OrganizationSettingsAppAccess = {
   readonly id: string;
   readonly appSlug?: string;
   readonly name: string;
+  readonly planSlug?: string;
   readonly planLabel: string;
+  readonly planBadgeVariant?: 'starter' | 'growth' | 'pro' | 'standard' | 'single' | 'default';
   readonly statusLabel: string;
+  readonly statusBadgeVariant?: 'trial' | 'active' | 'inactive';
   readonly actionLabel: string;
   readonly isActive: boolean;
   readonly entitlementStatus?: string;
@@ -155,9 +158,23 @@ export type OrganizationSettingsClassNames = {
   readonly appBillingPlan: string;
   readonly appBillingActiveCheck: string;
   readonly appBillingCard: string;
+  readonly appBillingCardHeader: string;
+  readonly appBillingLogo: string;
+  readonly appBillingLogoFallback: string;
+  readonly appBillingTitleBlock: string;
+  readonly appBillingBadges: string;
+  readonly appBillingBadge: string;
+  readonly appBillingBadgePlanStarter: string;
+  readonly appBillingBadgePlanGrowth: string;
+  readonly appBillingBadgePlanPro: string;
+  readonly appBillingBadgePlanDefault: string;
+  readonly appBillingBadgeStatusTrial: string;
+  readonly appBillingBadgeStatusActive: string;
+  readonly appBillingBadgeStatusInactive: string;
   readonly appBillingDetails: string;
   readonly appBillingDetailRow: string;
   readonly appBillingActions: string;
+  readonly appBillingFooter: string;
 };
 
 export type OrganizationSettingsDrawerClassNames = {

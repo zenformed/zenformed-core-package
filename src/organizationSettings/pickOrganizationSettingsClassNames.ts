@@ -71,9 +71,23 @@ export function pickOrganizationSettingsClassNames(
     'appBillingPlan',
     'appBillingActiveCheck',
     'appBillingCard',
+    'appBillingCardHeader',
+    'appBillingLogo',
+    'appBillingLogoFallback',
+    'appBillingTitleBlock',
+    'appBillingBadges',
+    'appBillingBadge',
+    'appBillingBadgePlanStarter',
+    'appBillingBadgePlanGrowth',
+    'appBillingBadgePlanPro',
+    'appBillingBadgePlanDefault',
+    'appBillingBadgeStatusTrial',
+    'appBillingBadgeStatusActive',
+    'appBillingBadgeStatusInactive',
     'appBillingDetails',
     'appBillingDetailRow',
     'appBillingActions',
+    'appBillingFooter',
   ];
 
   const out: Record<string, string> = {};

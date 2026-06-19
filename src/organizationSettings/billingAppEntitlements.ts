@@ -3,19 +3,11 @@ import type { SaaSEntitlementSnapshot } from '../entitlementSnapshot';
 import { isPlatformEntitlementStatusGrantingAccess } from '../platformAppMirrorResolution';
 import { parseSaaSEntitlementSnapshotJson } from '../parseEntitlementSnapshot';
 import type { OrganizationSettingsAppAccess } from './types';
-
-const PLATFORM_APP_DISPLAY_NAMES: Readonly<Record<string, string>> = {
-  buildcore: 'BuildCore',
-  forgecore: 'ForgeCore',
-  formcore: 'FormCore',
-  analyticscore: 'AnalyticsCore',
-};
-
-export function formatPlatformAppDisplayName(appSlug: string): string {
-  const normalized = appSlug.trim().toLowerCase();
-  return PLATFORM_APP_DISPLAY_NAMES[normalized] ?? normalized;
-}
-
+import {
+  formatPlatformAppDisplayName,
+  resolvePlanBadgeVariant,
+  resolveStatusBadgeVariant,
+} from './platformAppBillingCatalog';
 export function formatPlanDisplayName(appSlug: string, planSlug: string): string {
   const normalizedPlan = planSlug.trim().toLowerCase();
   const catalog = findAppPlanCatalogEntry(appSlug, normalizedPlan);
@@ -83,8 +75,11 @@ export function mapEntitlementSnapshotToBillingApp(
     id: appSlug,
     appSlug,
     name: formatPlatformAppDisplayName(appSlug),
+    planSlug,
     planLabel: buildBillingPlanLabel(appSlug, planSlug, snapshot.entitlementStatus),
+    planBadgeVariant: resolvePlanBadgeVariant(planSlug),
     statusLabel: isTrial ? 'Trial' : 'Active',
+    statusBadgeVariant: resolveStatusBadgeVariant(snapshot.entitlementStatus),
     actionLabel: 'Manage Subscription',
     isActive: true,
     entitlementStatus: snapshot.entitlementStatus,
@@ -92,8 +87,7 @@ export function mapEntitlementSnapshotToBillingApp(
     daysRemaining,
     nextBillingDateLabel,
     manageEnabled: true,
-  };
-}
+  };}
 
 export function mapEntitlementsRecordToBillingApps(
   entitlements: Readonly<Record<string, unknown>>,

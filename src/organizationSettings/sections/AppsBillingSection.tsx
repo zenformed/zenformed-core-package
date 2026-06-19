@@ -2,6 +2,7 @@
 
 import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
+import { resolveBillingAppIconSrc } from '../billingAppIcons';
 import type {
   OrganizationSettingsAppAccess,
   OrganizationSettingsClassNames,
@@ -16,6 +17,38 @@ type Props = {
   readonly classNames: OrganizationSettingsClassNames;
   readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
+
+function planBadgeClassName(
+  app: OrganizationSettingsAppAccess,
+  classNames: OrganizationSettingsClassNames
+): string {
+  const base = classNames.appBillingBadge;
+  switch (app.planBadgeVariant) {
+    case 'starter':
+      return `${base} ${classNames.appBillingBadgePlanStarter}`;
+    case 'growth':
+      return `${base} ${classNames.appBillingBadgePlanGrowth}`;
+    case 'pro':
+      return `${base} ${classNames.appBillingBadgePlanPro}`;
+    default:
+      return `${base} ${classNames.appBillingBadgePlanDefault}`;
+  }
+}
+
+function statusBadgeClassName(
+  app: OrganizationSettingsAppAccess,
+  classNames: OrganizationSettingsClassNames
+): string {
+  const base = classNames.appBillingBadge;
+  switch (app.statusBadgeVariant) {
+    case 'trial':
+      return `${base} ${classNames.appBillingBadgeStatusTrial}`;
+    case 'active':
+      return `${base} ${classNames.appBillingBadgeStatusActive}`;
+    default:
+      return `${base} ${classNames.appBillingBadgeStatusInactive}`;
+  }
+}
 
 function BillingDetailRow({
   label,
@@ -34,41 +67,71 @@ function BillingDetailRow({
   );
 }
 
+function BillingAppLogo({
+  app,
+  iconBaseUrl,
+  classNames,
+}: {
+  readonly app: OrganizationSettingsAppAccess;
+  readonly iconBaseUrl?: string | null;
+  readonly classNames: OrganizationSettingsClassNames;
+}) {
+  const appSlug = app.appSlug ?? app.id;
+  const iconSrc = resolveBillingAppIconSrc(appSlug, iconBaseUrl);
+  if (iconSrc == null) {
+    return (
+      <span className={classNames.appBillingLogoFallback} aria-hidden="true">
+        {app.name.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
+  return (
+    <img
+      className={classNames.appBillingLogo}
+      src={iconSrc}
+      alt=""
+      width={40}
+      height={40}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+}
+
 function BillingAppCard({
   app,
   labels,
   classNames,
+  iconBaseUrl,
   onManage,
 }: {
   readonly app: OrganizationSettingsAppAccess;
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
+  readonly iconBaseUrl?: string | null;
   readonly onManage?: (appSlug: string) => void;
 }) {
   const isTrial = app.entitlementStatus?.trim().toLowerCase() === 'trial';
   const manageEnabled = app.manageEnabled === true && onManage != null;
   const appSlug = app.appSlug ?? app.id;
+  const planBadgeText =
+    app.planSlug != null && app.planSlug.trim() !== ''
+      ? app.planLabel.replace(/\s+Trial$/i, '').trim()
+      : app.planLabel;
 
   return (
     <article className={classNames.appBillingCard}>
-      <div className={classNames.appBillingRow}>
-        <div className={classNames.appBillingName}>
+      <div className={classNames.appBillingCardHeader}>
+        <BillingAppLogo app={app} iconBaseUrl={iconBaseUrl} classNames={classNames} />
+        <div className={classNames.appBillingTitleBlock}>
           <strong>{app.name}</strong>
-          <div className={classNames.appBillingPlan}>{app.planLabel}</div>
-        </div>
-        <div className={classNames.appBillingActions}>
-          <button
-            type="button"
-            className={`${classNames.btn} ${classNames.btnSmall}`}
-            disabled={!manageEnabled}
-            onClick={() => {
-              if (manageEnabled) onManage?.(appSlug);
-            }}
-          >
-            {app.actionLabel || labels.manageSubscription}
-          </button>
+          <div className={classNames.appBillingBadges}>
+            <span className={planBadgeClassName(app, classNames)}>{planBadgeText}</span>
+            <span className={statusBadgeClassName(app, classNames)}>{app.statusLabel}</span>
+          </div>
         </div>
       </div>
+
       {isTrial || app.nextBillingDateLabel != null ? (
         <div className={classNames.appBillingDetails}>
           {isTrial && app.trialEndsLabel != null ? (
@@ -94,6 +157,19 @@ function BillingAppCard({
           ) : null}
         </div>
       ) : null}
+
+      <div className={classNames.appBillingFooter}>
+        <button
+          type="button"
+          className={`${classNames.btn} ${classNames.btnSmall}`}
+          disabled={!manageEnabled}
+          onClick={() => {
+            if (manageEnabled) onManage?.(appSlug);
+          }}
+        >
+          {app.actionLabel || labels.manageSubscription}
+        </button>
+      </div>
     </article>
   );
 }
@@ -120,6 +196,7 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
               app={app}
               labels={labels}
               classNames={classNames}
+              iconBaseUrl={workspace?.appBillingIconBaseUrl}
               onManage={workspace?.onManageAppSubscription}
             />
           ))

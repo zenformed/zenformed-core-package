@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { OrganizationAvatarFallback } from '../components/OrganizationAvatarFallback';
 import { SettingsSaveStatusLine } from '../components/SettingsSaveStatusLine';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
@@ -95,14 +96,14 @@ export function OrganizationSection({
         <div className={classNames.field}>
           <span className={classNames.fieldLabel}>{labels.logo}</span>
           <div className={classNames.logoPreview}>
-            <div className={classNames.logoInitial}>
-              {logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
+            {logoUrl ? (
+              <div className={classNames.logoInitial}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={logoUrl} alt="" />
-              ) : (
-                initial
-              )}
-            </div>
+              </div>
+            ) : (
+              <OrganizationAvatarFallback initial={initial} size="md" />
+            )}
             <button
               type="button"
               className={classNames.btn}

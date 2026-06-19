@@ -856,6 +856,27 @@
   gap: 0.75rem;
 }
 
+.organizationAvatarFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  background-color: #4b5563;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.organizationAvatarFallbackMd {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.875rem;
+}
+
 .logoInitial {
   display: flex;
   align-items: center;
@@ -863,9 +884,6 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 8px;
-  color: var(--color-text);
-  font-size: 0.875rem;
-  font-weight: 600;
   overflow: hidden;
 }
 
@@ -1048,9 +1066,6 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 10px;
-  color: var(--theme-settings-sidebar-text);
-  font-size: 0.9375rem;
-  font-weight: 600;
   overflow: hidden;
   flex-shrink: 0;
 }

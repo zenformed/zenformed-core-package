@@ -1,5 +1,7 @@
 'use client';
 
+export { OrganizationAvatarFallback } from './components/OrganizationAvatarFallback';
+export type { OrganizationAvatarFallbackProps } from './components/OrganizationAvatarFallback';
 export { ZenformedOrganizationSettingsOverlay } from './ZenformedOrganizationSettingsOverlay';
 export type { ZenformedOrganizationSettingsOverlayProps } from './ZenformedOrganizationSettingsOverlay';
 export { ZenformedOrganizationSettingsDrawer } from './ZenformedOrganizationSettingsDrawer';

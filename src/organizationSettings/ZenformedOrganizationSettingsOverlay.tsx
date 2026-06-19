@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_ORGANIZATION_SETTINGS_LABELS } from './defaultLabels';
 import { mergeOrganizationSettingsViewModel } from './mergeViewModel';
+import { OrganizationAvatarFallback } from './components/OrganizationAvatarFallback';
 import orgStyles from './organizationSettings.module.css';
 import { SETTINGS_CATEGORY_ORDER, type SettingsCategoryId } from './settingsCategories';
 import { buildSettingsSearchIndex, filterSettingsSearch } from './settingsSearch';
@@ -154,14 +155,14 @@ export function ZenformedOrganizationSettingsOverlay({
         <div className={orgStyles.overlayBody}>
           <aside className={orgStyles.overlaySidebar} aria-label="Settings navigation">
             <div className={orgStyles.sidebarIdentity}>
-              <div className={orgStyles.sidebarLogo}>
-                {logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+              {logoUrl ? (
+                <div className={orgStyles.sidebarLogo}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={logoUrl} alt="" />
-                ) : (
-                  logoInitial
-                )}
-              </div>
+                </div>
+              ) : (
+                <OrganizationAvatarFallback initial={logoInitial} />
+              )}
               <div className={orgStyles.sidebarIdentityText}>
                 <p className={orgStyles.sidebarDisplayName}>{publicDisplayName}</p>
                 <p className={orgStyles.sidebarLegalName}>{legalName}</p>

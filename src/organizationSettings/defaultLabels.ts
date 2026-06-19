@@ -50,6 +50,10 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   manageBilling: 'Manage Billing',
   viewInvoices: 'View Invoices',
   manage: 'Manage',
+  manageSubscription: 'Manage Subscription',
+  trialEnds: 'Trial ends',
+  daysRemaining: 'Days remaining',
+  nextBillingDate: 'Next billing date',
   appActiveAriaLabel: 'Active',
   buy: 'Buy',
   upgrade: 'Upgrade',
@@ -58,7 +62,7 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   organizationPlaceholderNote:
     'Team and invite data will appear when your organization workspace is connected.',
   billingPlaceholderNote:
-    'Billing actions are not connected yet. App access and plan details reflect organization entitlements when available.',
+    'App subscriptions load from ZenformedCore entitlements when your workspace is connected.',
   inviteComingSoon: 'Invite email is not available yet',
   inviteEmailSent: 'Invite email sent.',
   inviteEmailFailed:

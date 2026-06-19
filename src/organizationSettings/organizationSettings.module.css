@@ -175,9 +175,22 @@
 
 .appBillingRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 1rem;
   padding: 0.35rem 0;
+}
+
+.appBillingCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-subtle, rgba(127, 127, 127, 0.2));
+}
+
+.appBillingCard:last-child {
+  border-bottom: none;
 }
 
 .appBillingName {
@@ -187,13 +200,37 @@
   color: var(--color-text-muted);
 }
 
+.appBillingName strong {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
 .appBillingPlan {
   flex-shrink: 0;
-  min-width: 3.25rem;
+  margin-top: 0.15rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text);
-  text-align: right;
+}
+
+.appBillingDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-left: 0.125rem;
+}
+
+.appBillingDetailRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.appBillingActions {
+  flex-shrink: 0;
 }
 
 .appBillingActiveCheck {

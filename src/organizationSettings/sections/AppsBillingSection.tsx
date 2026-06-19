@@ -3,6 +3,7 @@
 import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import type {
+  OrganizationSettingsAppAccess,
   OrganizationSettingsClassNames,
   OrganizationSettingsLabels,
   OrganizationSettingsViewModel,
@@ -16,29 +17,92 @@ type Props = {
   readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
 };
 
-function AppActiveCheck({
-  className,
-  ariaLabel,
+function BillingDetailRow({
+  label,
+  value,
+  classNames,
 }: {
-  readonly className: string;
-  readonly ariaLabel: string;
+  readonly label: string;
+  readonly value: string;
+  readonly classNames: OrganizationSettingsClassNames;
 }) {
   return (
-    <span className={className} role="img" aria-label={ariaLabel}>
-      <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L5.69 10.19l6.72-6.72a.75.75 0 0 1 1.06 0Z"
-          fill="currentColor"
-        />
-      </svg>
-    </span>
+    <div className={classNames.appBillingDetailRow}>
+      <span className={classNames.rowLabel}>{label}</span>
+      <span className={classNames.rowValue}>{value}</span>
+    </div>
+  );
+}
+
+function BillingAppCard({
+  app,
+  labels,
+  classNames,
+  onManage,
+}: {
+  readonly app: OrganizationSettingsAppAccess;
+  readonly labels: OrganizationSettingsLabels;
+  readonly classNames: OrganizationSettingsClassNames;
+  readonly onManage?: (appSlug: string) => void;
+}) {
+  const isTrial = app.entitlementStatus?.trim().toLowerCase() === 'trial';
+  const manageEnabled = app.manageEnabled === true && onManage != null;
+  const appSlug = app.appSlug ?? app.id;
+
+  return (
+    <article className={classNames.appBillingCard}>
+      <div className={classNames.appBillingRow}>
+        <div className={classNames.appBillingName}>
+          <strong>{app.name}</strong>
+          <div className={classNames.appBillingPlan}>{app.planLabel}</div>
+        </div>
+        <div className={classNames.appBillingActions}>
+          <button
+            type="button"
+            className={`${classNames.btn} ${classNames.btnSmall}`}
+            disabled={!manageEnabled}
+            onClick={() => {
+              if (manageEnabled) onManage?.(appSlug);
+            }}
+          >
+            {app.actionLabel || labels.manageSubscription}
+          </button>
+        </div>
+      </div>
+      {isTrial || app.nextBillingDateLabel != null ? (
+        <div className={classNames.appBillingDetails}>
+          {isTrial && app.trialEndsLabel != null ? (
+            <BillingDetailRow
+              label={labels.trialEnds}
+              value={app.trialEndsLabel}
+              classNames={classNames}
+            />
+          ) : null}
+          {isTrial && app.daysRemaining != null ? (
+            <BillingDetailRow
+              label={labels.daysRemaining}
+              value={String(app.daysRemaining)}
+              classNames={classNames}
+            />
+          ) : null}
+          {app.nextBillingDateLabel != null ? (
+            <BillingDetailRow
+              label={labels.nextBillingDate}
+              value={app.nextBillingDateLabel}
+              classNames={classNames}
+            />
+          ) : null}
+        </div>
+      ) : null}
+    </article>
   );
 }
 
 export function AppsBillingSection({ viewModel, labels, classNames, workspace }: Props) {
   const { billingApps } = viewModel;
-  const workspaceLive = workspace?.hasLiveData ?? false;
-  const showBillingPlaceholder = !workspaceLive;
+  const hasBillingSource =
+    workspace?.snapshot?.appEntitlements != null || workspace?.snapshot?.appAccess != null;
+  const showBillingPlaceholder = !(workspace?.hasLiveData ?? false) || !hasBillingSource;
 
   return (
     <>
@@ -51,38 +115,15 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
           <p className={classNames.hint}>{labels.noAppAccessYet}</p>
         ) : (
           billingApps.map((app) => (
-            <div key={app.id} className={classNames.appBillingRow}>
-              <span className={classNames.appBillingName}>{app.name}</span>
-              <span className={classNames.appBillingPlan}>{app.planLabel}</span>
-              {app.isActive ? (
-                <AppActiveCheck
-                  className={classNames.appBillingActiveCheck}
-                  ariaLabel={labels.appActiveAriaLabel}
-                />
-              ) : (
-                <span className={classNames.appBillingActiveCheck} aria-hidden="true" />
-              )}
-              <button
-                type="button"
-                className={`${classNames.btn} ${classNames.btnSmall}`}
-                disabled
-              >
-                {app.actionLabel}
-              </button>
-            </div>
+            <BillingAppCard
+              key={app.id}
+              app={app}
+              labels={labels}
+              classNames={classNames}
+              onManage={workspace?.onManageAppSubscription}
+            />
           ))
         )}
-      </ZenformedSettingsGroup>
-
-      <ZenformedSettingsGroup title={labels.billingActions} classNames={classNames}>
-        <div className={classNames.actions}>
-          <button type="button" className={classNames.btn} disabled>
-            {labels.manageBilling}
-          </button>
-          <button type="button" className={classNames.btn} disabled>
-            {labels.viewInvoices}
-          </button>
-        </div>
       </ZenformedSettingsGroup>
     </>
   );

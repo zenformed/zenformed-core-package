@@ -70,6 +70,10 @@ export function pickOrganizationSettingsClassNames(
     'appBillingName',
     'appBillingPlan',
     'appBillingActiveCheck',
+    'appBillingCard',
+    'appBillingDetails',
+    'appBillingDetailRow',
+    'appBillingActions',
   ];
 
   const out: Record<string, string> = {};

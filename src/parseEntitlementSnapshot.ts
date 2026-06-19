@@ -62,6 +62,14 @@ export function parseSaaSEntitlementSnapshotJson(
     o.effectiveFrom === null ? null : readOptionalString(o.effectiveFrom);
   const effectiveTo =
     o.effectiveTo === null ? null : readOptionalString(o.effectiveTo);
+  const trialEnd =
+    o.trialEnd === undefined ? undefined : o.trialEnd === null ? null : readOptionalString(o.trialEnd);
+  const currentPeriodEnd =
+    o.currentPeriodEnd === undefined
+      ? undefined
+      : o.currentPeriodEnd === null
+        ? null
+        : readOptionalString(o.currentPeriodEnd);
 
   return {
     appSlug: appSlugRaw,
@@ -71,6 +79,8 @@ export function parseSaaSEntitlementSnapshotJson(
     entitlementStatus,
     effectiveFrom,
     effectiveTo,
+    ...(trialEnd !== undefined ? { trialEnd } : {}),
+    ...(currentPeriodEnd !== undefined ? { currentPeriodEnd } : {}),
     resolutionSource: src as SaaSEntitlementResolutionSource,
     ...(typeof offline === 'string' ? { offlineExpiresAt: offline } : {}),
     ...(planCodeOriginal !== '' ? { licenseTier: planCodeOriginal } : {}),

@@ -8,6 +8,8 @@ import type {
 } from './types';
 import type { OrganizationWorkspaceInviteDto, OrganizationWorkspaceSnapshot } from './organizationWorkspaceTypes';
 import { filterActiveWorkspaceMembers } from './organizationWorkspaceMemberUtils';
+import { mapEntitlementsRecordToBillingApps } from './billingAppEntitlements';
+import { isPlatformEntitlementStatusGrantingAccess } from '../platformAppMirrorResolution';
 
 function inviteStatusLabel(status: OrganizationWorkspaceInviteDto['status']): string {
   if (status === 'pending') return 'Pending';
@@ -27,21 +29,23 @@ function mapMemberRole(role: OrganizationSettingsMemberRole): OrganizationSettin
   return role;
 }
 
-function mapBillingApps(
+function mapLegacyBillingApps(
   appAccess: OrganizationWorkspaceSnapshot['appAccess']
 ): OrganizationSettingsAppAccess[] {
   if (appAccess == null) return [];
   const billingApps: OrganizationSettingsAppAccess[] = [];
   if (appAccess.entries.length > 0) {
     for (const entry of appAccess.entries) {
-      const active = entry.accessStatus === 'active';
+      const active = isPlatformEntitlementStatusGrantingAccess(entry.accessStatus);
       billingApps.push({
         id: `${entry.userId}-${entry.appSlug}`,
+        appSlug: entry.appSlug,
         name: `${entry.displayName} · ${entry.appName}`,
         planLabel: entry.planLabel ?? '—',
         statusLabel: active ? 'Active' : entry.accessStatus,
-        actionLabel: active ? 'Manage' : 'Buy',
+        actionLabel: active ? 'Manage Subscription' : 'Buy',
         isActive: active,
+        manageEnabled: active,
       });
     }
     return billingApps;
@@ -49,14 +53,23 @@ function mapBillingApps(
   for (const app of appAccess.orgApps) {
     billingApps.push({
       id: app.appSlug,
+      appSlug: app.appSlug,
       name: app.appName,
       planLabel: app.planLabel ?? '—',
       statusLabel: app.statusLabel,
-      actionLabel: app.isActive ? 'Manage' : 'Buy',
+      actionLabel: app.isActive ? 'Manage Subscription' : 'Buy',
       isActive: app.isActive,
+      manageEnabled: app.isActive,
     });
   }
   return billingApps;
+}
+
+function mapBillingApps(snapshot: OrganizationWorkspaceSnapshot): OrganizationSettingsAppAccess[] {
+  if (snapshot.appEntitlements != null) {
+    return mapEntitlementsRecordToBillingApps(snapshot.appEntitlements.entitlements);
+  }
+  return mapLegacyBillingApps(snapshot.appAccess);
 }
 
 export function workspaceSnapshotToViewModelOverrides(
@@ -101,12 +114,13 @@ export function workspaceSnapshotToViewModelOverrides(
     };
   }
 
-  const billingApps = mapBillingApps(snapshot.appAccess);
+  const billingApps = mapBillingApps(snapshot);
+  const hasBillingSource = snapshot.appEntitlements != null || snapshot.appAccess != null;
 
   return {
     ...(members != null ? { members } : {}),
     ...(pendingInvites != null ? { pendingInvites } : {}),
     ...(plan != null ? { plan } : {}),
-    ...(billingApps.length > 0 ? { billingApps, appAccess: billingApps } : {}),
+    ...(hasBillingSource ? { billingApps, appAccess: billingApps } : {}),
   };
 }

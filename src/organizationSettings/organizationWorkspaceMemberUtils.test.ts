@@ -30,6 +30,7 @@ const baseSnapshot = (): OrganizationWorkspaceSnapshot => ({
     appBreakdown: [],
   },
   appAccess: null,
+  appEntitlements: null,
 });
 
 describe('parseOrganizationWorkspaceMemberDto', () => {

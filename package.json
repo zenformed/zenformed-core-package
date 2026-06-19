@@ -1,6 +1,6 @@
 {
   "name": "@zenformed/core",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "private": false,
   "description": "Zenformed platform types, entitlement/capability helpers, and shared dashboard shell UI. Main entry is browser-safe; `@zenformed/core/server` exports the capability resolver (`node:crypto`). `@zenformed/core/dashboard-shell` is client-only React.",
   "type": "module",
@@ -51,7 +51,7 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/platformAppMirrorResolution.test.ts src/dashboardShell/accountMenuUtils.test.ts src/organizationSettings/organizationWorkspaceMemberUtils.test.ts"
+    "test": "node --import tsx --test src/platformAppMirrorResolution.test.ts src/dashboardShell/accountMenuUtils.test.ts src/organizationSettings/organizationWorkspaceMemberUtils.test.ts src/organizationSettings/billingAppEntitlements.test.ts"
   },
   "peerDependencies": {
     "react": "^18.3.1",

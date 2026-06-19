@@ -27,11 +27,17 @@ export type OrganizationSettingsPendingInvite = {
 
 export type OrganizationSettingsAppAccess = {
   readonly id: string;
+  readonly appSlug?: string;
   readonly name: string;
   readonly planLabel: string;
   readonly statusLabel: string;
   readonly actionLabel: string;
   readonly isActive: boolean;
+  readonly entitlementStatus?: string;
+  readonly trialEndsLabel?: string | null;
+  readonly daysRemaining?: number | null;
+  readonly nextBillingDateLabel?: string | null;
+  readonly manageEnabled?: boolean;
 };
 
 export type OrganizationSettingsPlan = {
@@ -148,6 +154,10 @@ export type OrganizationSettingsClassNames = {
   readonly appBillingName: string;
   readonly appBillingPlan: string;
   readonly appBillingActiveCheck: string;
+  readonly appBillingCard: string;
+  readonly appBillingDetails: string;
+  readonly appBillingDetailRow: string;
+  readonly appBillingActions: string;
 };
 
 export type OrganizationSettingsDrawerClassNames = {
@@ -210,6 +220,10 @@ export type OrganizationSettingsLabels = {
   readonly manageBilling: string;
   readonly viewInvoices: string;
   readonly manage: string;
+  readonly manageSubscription: string;
+  readonly trialEnds: string;
+  readonly daysRemaining: string;
+  readonly nextBillingDate: string;
   readonly appActiveAriaLabel: string;
   readonly buy: string;
   readonly upgrade: string;

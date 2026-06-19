@@ -31,6 +31,10 @@ export {
   useZenformedOrganizationWorkspace,
 } from './hooks';
 export { workspaceSnapshotToViewModelOverrides } from './organizationWorkspaceMappers';
+export {
+  formatPlanDisplayName,
+  mapEntitlementsRecordToBillingApps,
+} from './billingAppEntitlements';
 export type {
   OrganizationAssignmentIdentityDto,
   OrganizationAssignmentIdentitiesResponse,

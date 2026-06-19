@@ -95,6 +95,10 @@ export type OrganizationAssignmentIdentitiesResponse = {
   readonly identities: readonly OrganizationAssignmentIdentityDto[];
 };
 
+export type OrganizationWorkspaceAppEntitlementsDto = {
+  readonly entitlements: Readonly<Record<string, unknown>>;
+};
+
 export type OrganizationWorkspaceAppAccessEntryDto = {
   readonly userId: string;
   readonly displayName: string;
@@ -124,6 +128,7 @@ export type OrganizationWorkspaceSnapshot = {
   readonly invites: readonly OrganizationWorkspaceInviteDto[] | null;
   readonly seats: OrganizationWorkspaceSeatsDto | null;
   readonly appAccess: OrganizationWorkspaceAppAccessDto | null;
+  readonly appEntitlements: OrganizationWorkspaceAppEntitlementsDto | null;
 };
 
 export type OrganizationSettingsWorkspacePersistence = {
@@ -163,4 +168,6 @@ export type OrganizationSettingsWorkspacePersistence = {
     payload: OrganizationMemberProfileUpdatePayload
   ) => Promise<boolean>;
   readonly onRemoveMember?: (memberId: string) => Promise<boolean>;
+  /** Opens subscription management for an app (e.g. product pricing page). */
+  readonly onManageAppSubscription?: (appSlug: string) => void;
 };

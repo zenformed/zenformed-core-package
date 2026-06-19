@@ -7,6 +7,7 @@ import type {
   OrganizationMemberProfileUpdatePayload,
   OrganizationWorkspaceAppAccessDto,
   OrganizationWorkspaceAppAccessEntryDto,
+  OrganizationWorkspaceAppEntitlementsDto,
   OrganizationWorkspaceInviteDto,
   OrganizationWorkspaceMemberDto,
   OrganizationWorkspaceMembershipContextDto,
@@ -270,6 +271,15 @@ function parseAppAccessJson(json: unknown): OrganizationWorkspaceAppAccessDto | 
   return { organizationId: o.organizationId, entries, orgApps };
 }
 
+function parseAppEntitlementsJson(json: unknown): OrganizationWorkspaceAppEntitlementsDto | null {
+  if (json == null || typeof json !== 'object') return null;
+  const o = json as Record<string, unknown>;
+  if (o.entitlements == null || typeof o.entitlements !== 'object' || Array.isArray(o.entitlements)) {
+    return null;
+  }
+  return { entitlements: o.entitlements as Record<string, unknown> };
+}
+
 function parseMembershipContextJson(json: unknown): OrganizationWorkspaceMembershipContextDto | null {
   if (json == null || typeof json !== 'object') return null;
   const o = json as Record<string, unknown>;
@@ -309,7 +319,10 @@ export type OrganizationWorkspaceApiUrls = {
   readonly members: string;
   readonly invites: string;
   readonly seats: string;
-  readonly appAccess: string;
+  /** Legacy org app-access listing (per-member rows). Prefer `appEntitlements` for billing. */
+  readonly appAccess?: string;
+  /** Canonical ZenformedCore entitlement snapshots keyed by app slug. */
+  readonly appEntitlements?: string;
   readonly memberRole?: string;
 };
 
@@ -427,7 +440,8 @@ export function useZenformedOrganizationWorkspace({
       const fetchInvites = permissions.canViewTeamMembers;
       const fetchSeats =
         permissions.canViewTeamMembers || permissions.canViewAppsBilling;
-      const fetchAppAccess = permissions.canViewAppsBilling;
+      const fetchAppAccess = permissions.canViewAppsBilling && apiUrls.appAccess != null;
+      const fetchAppEntitlements = permissions.canViewAppsBilling && apiUrls.appEntitlements != null;
 
       if (fetchMembers) {
         fetches.push(fetchWorkspaceSlice(apiUrls.members, token, parseMembersJson));
@@ -439,7 +453,10 @@ export function useZenformedOrganizationWorkspace({
         fetches.push(fetchWorkspaceSlice(apiUrls.seats, token, parseSeatsJson));
       }
       if (fetchAppAccess) {
-        fetches.push(fetchWorkspaceSlice(apiUrls.appAccess, token, parseAppAccessJson));
+        fetches.push(fetchWorkspaceSlice(apiUrls.appAccess!, token, parseAppAccessJson));
+      }
+      if (fetchAppEntitlements) {
+        fetches.push(fetchWorkspaceSlice(apiUrls.appEntitlements!, token, parseAppEntitlementsJson));
       }
 
       const results = await Promise.all(fetches);
@@ -448,6 +465,7 @@ export function useZenformedOrganizationWorkspace({
       let invitesRes: SliceResult<OrganizationWorkspaceInviteDto[]> | null = null;
       let seatsRes: SliceResult<OrganizationWorkspaceSeatsDto> | null = null;
       let appAccessRes: SliceResult<OrganizationWorkspaceAppAccessDto> | null = null;
+      let appEntitlementsRes: SliceResult<OrganizationWorkspaceAppEntitlementsDto> | null = null;
       let idx = 0;
       if (fetchMembers) membersRes = results[idx++] as SliceResult<OrganizationWorkspaceMemberDto[]>;
       if (fetchInvites) invitesRes = results[idx++] as SliceResult<OrganizationWorkspaceInviteDto[]>;
@@ -455,12 +473,16 @@ export function useZenformedOrganizationWorkspace({
       if (fetchAppAccess) {
         appAccessRes = results[idx++] as SliceResult<OrganizationWorkspaceAppAccessDto>;
       }
+      if (fetchAppEntitlements) {
+        appEntitlementsRes = results[idx++] as SliceResult<OrganizationWorkspaceAppEntitlementsDto>;
+      }
 
       const failures: string[] = [];
       if (membersRes != null && !membersRes.ok) failures.push(membersRes.reason);
       if (invitesRes != null && !invitesRes.ok) failures.push(invitesRes.reason);
       if (seatsRes != null && !seatsRes.ok) failures.push(seatsRes.reason);
       if (appAccessRes != null && !appAccessRes.ok) failures.push(appAccessRes.reason);
+      if (appEntitlementsRes != null && !appEntitlementsRes.ok) failures.push(appEntitlementsRes.reason);
 
       if (failures.length > 0 && process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
@@ -473,6 +495,7 @@ export function useZenformedOrganizationWorkspace({
         invites: invitesRes?.ok ? invitesRes.data : fetchInvites ? [] : null,
         seats: seatsRes?.ok ? seatsRes.data : null,
         appAccess: appAccessRes?.ok ? appAccessRes.data : null,
+        appEntitlements: appEntitlementsRes?.ok ? appEntitlementsRes.data : null,
       });
       setHasLiveData(true);
     } catch (e) {
@@ -484,7 +507,15 @@ export function useZenformedOrganizationWorkspace({
         setIsLoading(false);
       }
     }
-  }, [apiUrls.appAccess, apiUrls.invites, apiUrls.members, apiUrls.membershipContext, apiUrls.seats, getAccessToken]);
+  }, [
+    apiUrls.appAccess,
+    apiUrls.appEntitlements,
+    apiUrls.invites,
+    apiUrls.members,
+    apiUrls.membershipContext,
+    apiUrls.seats,
+    getAccessToken,
+  ]);
 
   useEffect(() => {
     if (!enabled) return;

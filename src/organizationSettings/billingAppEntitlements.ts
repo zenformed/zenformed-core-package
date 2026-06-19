@@ -54,9 +54,6 @@ export function mapEntitlementSnapshotToBillingApp(
   if (!isPlatformEntitlementStatusGrantingAccess(snapshot.entitlementStatus)) {
     return null;
   }
-  if (!snapshot.subscriptionActive) {
-    return null;
-  }
 
   const appSlug = snapshot.appSlug.trim().toLowerCase();
   const planSlug =
@@ -87,14 +84,25 @@ export function mapEntitlementSnapshotToBillingApp(
     daysRemaining,
     nextBillingDateLabel,
     manageEnabled: true,
-  };}
+  };
+}
+
+function normalizeEntitlementEntry(raw: unknown): unknown {
+  if (raw == null || typeof raw !== 'object') return raw;
+  const o = raw as Record<string, unknown>;
+  if (o.entitlement != null && typeof o.entitlement === 'object') {
+    return o.entitlement;
+  }
+  return raw;
+}
 
 export function mapEntitlementsRecordToBillingApps(
   entitlements: Readonly<Record<string, unknown>>,
   now = new Date()
 ): OrganizationSettingsAppAccess[] {
   const billingApps: OrganizationSettingsAppAccess[] = [];
-  for (const [appKey, raw] of Object.entries(entitlements)) {
+  for (const [appKey, rawValue] of Object.entries(entitlements)) {
+    const raw = normalizeEntitlementEntry(rawValue);
     const snapshot = parseSaaSEntitlementSnapshotJson(raw, appKey);
     if (snapshot == null) continue;
     const billingApp = mapEntitlementSnapshotToBillingApp(snapshot, now);

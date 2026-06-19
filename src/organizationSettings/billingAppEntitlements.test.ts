@@ -47,6 +47,45 @@ test('mapEntitlementSnapshotToBillingApp renders trial billing fields', () => {
   assert.equal(billingApp.nextBillingDateLabel, '06/30/2026');
 });
 
+test('mapEntitlementsRecordToBillingApps accepts nested entitlement envelopes', () => {
+  const billingApps = mapEntitlementsRecordToBillingApps({
+    buildcore: {
+      appSlug: 'buildcore',
+      entitlement: {
+        appSlug: 'buildcore',
+        subscriptionActive: true,
+        planCodeOriginal: 'starter',
+        planSlugNormalized: 'starter',
+        entitlementStatus: 'trial',
+        effectiveFrom: null,
+        effectiveTo: null,
+        resolutionSource: 'platform_tables',
+        trialEnd: '2026-07-01T00:00:00.000Z',
+        currentPeriodEnd: '2026-07-01T00:00:00.000Z',
+      },
+    },
+  });
+
+  assert.equal(billingApps.length, 1);
+  assert.equal(billingApps[0]?.appSlug, 'buildcore');
+});
+
+test('mapEntitlementSnapshotToBillingApp allows trial status without subscriptionActive flag', () => {
+  const billingApp = mapEntitlementSnapshotToBillingApp({
+    appSlug: 'buildcore',
+    subscriptionActive: false,
+    planCodeOriginal: 'starter',
+    planSlugNormalized: 'starter',
+    entitlementStatus: 'trial',
+    effectiveFrom: null,
+    effectiveTo: null,
+    resolutionSource: 'platform_tables',
+  });
+
+  assert.ok(billingApp != null);
+  assert.equal(billingApp.planLabel, 'Starter Trial');
+});
+
 test('mapEntitlementsRecordToBillingApps skips inactive entitlements', () => {
   const billingApps = mapEntitlementsRecordToBillingApps({
     buildcore: {

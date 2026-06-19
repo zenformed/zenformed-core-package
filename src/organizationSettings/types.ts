@@ -46,6 +46,12 @@ export type OrganizationSettingsAppAccess = {
   readonly accessUntilLabel?: string | null;
   readonly accessDaysRemaining?: number | null;
   readonly cancellationScheduledLabel?: string | null;
+  readonly pendingPlanSlug?: string | null;
+  readonly pendingPlanLabel?: string | null;
+  readonly pendingPlanEffectiveAtLabel?: string | null;
+  readonly scheduledDowngradeLabel?: string | null;
+  readonly reactivateEnabled?: boolean;
+  readonly removeScheduledDowngradeEnabled?: boolean;
 };
 
 export type OrganizationSettingsPlan = {
@@ -254,6 +260,10 @@ export type OrganizationSettingsLabels = {
   readonly cancellationScheduled: string;
   readonly accessUntil: string;
   readonly cancelSubscriptionFailed: string;
+  readonly reactivateSubscription: string;
+  readonly reactivateSubscriptionFailed: string;
+  readonly removeScheduledDowngrade: string;
+  readonly removeScheduledDowngradeFailed: string;
   readonly trialEnds: string;
   readonly daysRemaining: string;
   readonly nextBillingDate: string;

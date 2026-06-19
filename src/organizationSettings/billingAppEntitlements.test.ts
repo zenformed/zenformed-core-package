@@ -27,7 +27,29 @@ test('mapEntitlementSnapshotToBillingApp exposes cancellation scheduled state', 
   assert.ok(billingApp);
   assert.equal(billingApp.cancelAtPeriodEnd, true);
   assert.equal(billingApp.cancelEnabled, false);
+  assert.equal(billingApp.reactivateEnabled, true);
   assert.equal(billingApp.cancellationScheduledLabel, 'Cancellation scheduled');
+});
+
+test('mapEntitlementSnapshotToBillingApp exposes scheduled downgrade state', () => {
+  const billingApp = mapEntitlementSnapshotToBillingApp({
+    appSlug: 'buildcore',
+    subscriptionActive: true,
+    planCodeOriginal: 'pro',
+    planSlugNormalized: 'pro',
+    entitlementStatus: 'active',
+    effectiveFrom: '2026-01-01T00:00:00.000Z',
+    effectiveTo: '2026-07-01T00:00:00.000Z',
+    currentPeriodEnd: '2026-07-01T00:00:00.000Z',
+    pendingPlanSlug: 'growth',
+    pendingPlanSlugNormalized: 'growth',
+    pendingPlanEffectiveAt: '2026-07-01T00:00:00.000Z',
+    resolutionSource: 'platform_tables',
+  });
+  assert.ok(billingApp);
+  assert.equal(billingApp.removeScheduledDowngradeEnabled, true);
+  assert.equal(billingApp.cancelEnabled, false);
+  assert.equal(billingApp.scheduledDowngradeLabel, 'Downgrade to Growth scheduled for 06/30/2026');
 });
 
 test('resolveAppEntitlementBadges returns separate plan and trial pills', () => {

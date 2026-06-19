@@ -97,6 +97,20 @@ export function mapEntitlementSnapshotToBillingApp(
   const accessUntilLabel = formatBillingDate(accessUntilIso);
   const daysRemaining = daysRemainingUntil(accessUntilIso, now);
   const cancelAtPeriodEnd = snapshot.cancelAtPeriodEnd === true;
+  const pendingPlanSlug =
+    snapshot.pendingPlanSlugNormalized?.trim().toLowerCase() ??
+    snapshot.pendingPlanSlug?.trim().toLowerCase() ??
+    '';
+  const hasScheduledDowngrade = pendingPlanSlug !== '';
+  const pendingPlanEffectiveAtLabel = formatBillingDate(snapshot.pendingPlanEffectiveAt);
+  const pendingPlanLabel =
+    hasScheduledDowngrade ? formatPlanDisplayName(appSlug, pendingPlanSlug) : null;
+  const scheduledDowngradeLabel =
+    hasScheduledDowngrade && pendingPlanEffectiveAtLabel != null
+      ? `Downgrade to ${pendingPlanLabel} scheduled for ${pendingPlanEffectiveAtLabel}`
+      : hasScheduledDowngrade
+        ? `Downgrade to ${pendingPlanLabel} scheduled`
+        : null;
 
   return {
     id: appSlug,
@@ -114,11 +128,17 @@ export function mapEntitlementSnapshotToBillingApp(
     daysRemaining,
     nextBillingDateLabel,
     manageEnabled: true,
-    cancelEnabled: !cancelAtPeriodEnd && snapshot.canCancel !== false,
+    cancelEnabled: !cancelAtPeriodEnd && !hasScheduledDowngrade && snapshot.canCancel !== false,
     cancelAtPeriodEnd,
     accessUntilLabel,
     accessDaysRemaining: daysRemaining,
     cancellationScheduledLabel: cancelAtPeriodEnd ? 'Cancellation scheduled' : null,
+    pendingPlanSlug: hasScheduledDowngrade ? pendingPlanSlug : null,
+    pendingPlanLabel,
+    pendingPlanEffectiveAtLabel,
+    scheduledDowngradeLabel,
+    reactivateEnabled: cancelAtPeriodEnd,
+    removeScheduledDowngradeEnabled: hasScheduledDowngrade,
   };
 }
 

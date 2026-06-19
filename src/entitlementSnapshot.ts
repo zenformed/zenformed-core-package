@@ -33,6 +33,11 @@ export interface SaaSEntitlementSnapshot {
   accessUntil?: string | null;
   /** Whether the subscription can be scheduled for cancellation. */
   canCancel?: boolean;
+  /** Scheduled downgrade target plan (current plan remains active until effective date). */
+  pendingPlanSlug?: string | null;
+  pendingPlanSlugNormalized?: string | null;
+  pendingBillingCycle?: string | null;
+  pendingPlanEffectiveAt?: string | null;
   resolutionSource: SaaSEntitlementResolutionSource;
   /** Present when values come from a signed offline authorization payload. */
   offlineExpiresAt?: string;

@@ -76,8 +76,12 @@ function BillingAppCard({
   iconBaseUrl,
   onManage,
   onCancel,
+  onReactivate,
+  onRemoveScheduledDowngrade,
   canceling,
-  canCancel,
+  reactivating,
+  removingScheduledDowngrade,
+  canManageBilling,
 }: {
   readonly app: OrganizationSettingsAppAccess;
   readonly labels: OrganizationSettingsLabels;
@@ -85,14 +89,27 @@ function BillingAppCard({
   readonly iconBaseUrl?: string | null;
   readonly onManage?: (appSlug: string) => void;
   readonly onCancel?: (app: OrganizationSettingsAppAccess) => void;
+  readonly onReactivate?: (appSlug: string) => void;
+  readonly onRemoveScheduledDowngrade?: (appSlug: string) => void;
   readonly canceling?: boolean;
-  readonly canCancel?: boolean;
+  readonly reactivating?: boolean;
+  readonly removingScheduledDowngrade?: boolean;
+  readonly canManageBilling?: boolean;
 }) {
   const isTrial = app.entitlementStatus?.trim().toLowerCase() === 'trial';
   const cancelScheduled = app.cancelAtPeriodEnd === true;
+  const hasScheduledDowngrade = app.removeScheduledDowngradeEnabled === true;
   const manageEnabled = app.manageEnabled === true && onManage != null;
   const cancelEnabled =
-    !cancelScheduled && app.cancelEnabled !== false && canCancel === true && onCancel != null;
+    !cancelScheduled &&
+    !hasScheduledDowngrade &&
+    app.cancelEnabled !== false &&
+    canManageBilling === true &&
+    onCancel != null;
+  const reactivateEnabled =
+    cancelScheduled && app.reactivateEnabled !== false && canManageBilling === true && onReactivate != null;
+  const removeScheduledDowngradeEnabled =
+    hasScheduledDowngrade && canManageBilling === true && onRemoveScheduledDowngrade != null;
   const appSlug = app.appSlug ?? app.id;
   const planBadgeText =
     app.planSlug != null && app.planSlug.trim() !== ''
@@ -113,6 +130,12 @@ function BillingAppCard({
           />
         </div>
       </div>
+
+      {hasScheduledDowngrade && app.scheduledDowngradeLabel != null ? (
+        <div className={classNames.appBillingDetails}>
+          <p className={classNames.hint}>{app.scheduledDowngradeLabel}</p>
+        </div>
+      ) : null}
 
       {cancelScheduled ? (
         <div className={classNames.appBillingDetails}>
@@ -162,6 +185,26 @@ function BillingAppCard({
         >
           {app.actionLabel || labels.manageSubscription}
         </button>
+        {reactivateEnabled ? (
+          <button
+            type="button"
+            className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
+            disabled={reactivating}
+            onClick={() => onReactivate?.(appSlug)}
+          >
+            {labels.reactivateSubscription}
+          </button>
+        ) : null}
+        {removeScheduledDowngradeEnabled ? (
+          <button
+            type="button"
+            className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
+            disabled={removingScheduledDowngrade}
+            onClick={() => onRemoveScheduledDowngrade?.(appSlug)}
+          >
+            {labels.removeScheduledDowngrade}
+          </button>
+        ) : null}
         {cancelEnabled ? (
           <button
             type="button"
@@ -183,8 +226,10 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
   const hasBillingSource =
     workspace?.snapshot?.appEntitlements != null || workspace?.snapshot?.appAccess != null;
   const showBillingPlaceholder = !(workspace?.hasLiveData ?? false) || !hasBillingSource;
-  const canCancelSubscriptions = workspace?.permissions?.canViewAppsBilling === true;
+  const canManageBilling = workspace?.permissions?.canViewAppsBilling === true;
   const cancelingAppSlug = workspace?.cancelingAppSlug ?? null;
+  const reactivatingAppSlug = workspace?.reactivatingAppSlug ?? null;
+  const removingScheduledChangeAppSlug = workspace?.removingScheduledChangeAppSlug ?? null;
 
   return (
     <>
@@ -195,6 +240,18 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
       {workspace?.cancelSubscriptionError ? (
         <p className={classNames.saveStatusError} role="alert">
           {workspace.cancelSubscriptionError}
+        </p>
+      ) : null}
+
+      {workspace?.reactivateSubscriptionError ? (
+        <p className={classNames.saveStatusError} role="alert">
+          {workspace.reactivateSubscriptionError}
+        </p>
+      ) : null}
+
+      {workspace?.removeScheduledChangeError ? (
+        <p className={classNames.saveStatusError} role="alert">
+          {workspace.removeScheduledChangeError}
         </p>
       ) : null}
 
@@ -211,8 +268,12 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
               iconBaseUrl={workspace?.appBillingIconBaseUrl}
               onManage={workspace?.onManageAppSubscription}
               onCancel={setCancelTarget}
+              onReactivate={workspace?.onReactivateAppSubscription}
+              onRemoveScheduledDowngrade={workspace?.onRemoveScheduledPlanChange}
               canceling={cancelingAppSlug === (app.appSlug ?? app.id)}
-              canCancel={canCancelSubscriptions}
+              reactivating={reactivatingAppSlug === (app.appSlug ?? app.id)}
+              removingScheduledDowngrade={removingScheduledChangeAppSlug === (app.appSlug ?? app.id)}
+              canManageBilling={canManageBilling}
             />
           ))
         )}

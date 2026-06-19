@@ -172,9 +172,19 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly onManageAppSubscription?: (appSlug: string) => void;
   /** Schedules subscription cancellation at period end for an app. */
   readonly onCancelAppSubscription?: (appSlug: string) => Promise<boolean>;
+  /** Undoes cancel-at-period-end before the subscription expires. */
+  readonly onReactivateAppSubscription?: (appSlug: string) => Promise<boolean>;
+  /** Removes a scheduled period-end downgrade without changing the current plan. */
+  readonly onRemoveScheduledPlanChange?: (appSlug: string) => Promise<boolean>;
   readonly cancelingAppSlug?: string | null;
+  readonly reactivatingAppSlug?: string | null;
+  readonly removingScheduledChangeAppSlug?: string | null;
   readonly cancelSubscriptionError?: string | null;
+  readonly reactivateSubscriptionError?: string | null;
+  readonly removeScheduledChangeError?: string | null;
   readonly onDismissCancelSubscriptionError?: () => void;
+  readonly onDismissReactivateSubscriptionError?: () => void;
+  readonly onDismissRemoveScheduledChangeError?: () => void;
   /** Optional origin for `/zenformed-app-icons/{slug}.png` when bundled icons are unavailable. */
   readonly appBillingIconBaseUrl?: string | null;
 };

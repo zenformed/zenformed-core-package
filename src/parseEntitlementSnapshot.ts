@@ -77,6 +77,30 @@ export function parseSaaSEntitlementSnapshotJson(
   const accessUntil =
     o.accessUntil === undefined ? undefined : o.accessUntil === null ? null : readOptionalString(o.accessUntil);
   const canCancel = typeof o.canCancel === 'boolean' ? o.canCancel : undefined;
+  const pendingPlanSlug =
+    o.pendingPlanSlug === undefined
+      ? undefined
+      : o.pendingPlanSlug === null
+        ? null
+        : readOptionalString(o.pendingPlanSlug);
+  const pendingPlanSlugNormalized =
+    o.pendingPlanSlugNormalized === undefined
+      ? undefined
+      : o.pendingPlanSlugNormalized === null
+        ? null
+        : readOptionalString(o.pendingPlanSlugNormalized);
+  const pendingBillingCycle =
+    o.pendingBillingCycle === undefined
+      ? undefined
+      : o.pendingBillingCycle === null
+        ? null
+        : readOptionalString(o.pendingBillingCycle);
+  const pendingPlanEffectiveAt =
+    o.pendingPlanEffectiveAt === undefined
+      ? undefined
+      : o.pendingPlanEffectiveAt === null
+        ? null
+        : readOptionalString(o.pendingPlanEffectiveAt);
 
   return {
     appSlug: appSlugRaw,
@@ -92,6 +116,10 @@ export function parseSaaSEntitlementSnapshotJson(
     ...(canceledAt !== undefined ? { canceledAt } : {}),
     ...(accessUntil !== undefined ? { accessUntil } : {}),
     ...(canCancel !== undefined ? { canCancel } : {}),
+    ...(pendingPlanSlug !== undefined ? { pendingPlanSlug } : {}),
+    ...(pendingPlanSlugNormalized !== undefined ? { pendingPlanSlugNormalized } : {}),
+    ...(pendingBillingCycle !== undefined ? { pendingBillingCycle } : {}),
+    ...(pendingPlanEffectiveAt !== undefined ? { pendingPlanEffectiveAt } : {}),
     resolutionSource: src as SaaSEntitlementResolutionSource,
     ...(typeof offline === 'string' ? { offlineExpiresAt: offline } : {}),
     ...(planCodeOriginal !== '' ? { licenseTier: planCodeOriginal } : {}),

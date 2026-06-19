@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
 import { AppEntitlementBadges } from '../components/AppEntitlementBadges';
+import { SubscriptionCancelConfirmDialog } from '../components/SubscriptionCancelConfirmDialog';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import { resolveBillingAppIconSrc } from '../billingAppIcons';
 import type {
@@ -73,15 +75,24 @@ function BillingAppCard({
   classNames,
   iconBaseUrl,
   onManage,
+  onCancel,
+  canceling,
+  canCancel,
 }: {
   readonly app: OrganizationSettingsAppAccess;
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
   readonly iconBaseUrl?: string | null;
   readonly onManage?: (appSlug: string) => void;
+  readonly onCancel?: (app: OrganizationSettingsAppAccess) => void;
+  readonly canceling?: boolean;
+  readonly canCancel?: boolean;
 }) {
   const isTrial = app.entitlementStatus?.trim().toLowerCase() === 'trial';
+  const cancelScheduled = app.cancelAtPeriodEnd === true;
   const manageEnabled = app.manageEnabled === true && onManage != null;
+  const cancelEnabled =
+    !cancelScheduled && app.cancelEnabled !== false && canCancel === true && onCancel != null;
   const appSlug = app.appSlug ?? app.id;
   const planBadgeText =
     app.planSlug != null && app.planSlug.trim() !== ''
@@ -103,7 +114,18 @@ function BillingAppCard({
         </div>
       </div>
 
-      {isTrial || app.nextBillingDateLabel != null ? (
+      {cancelScheduled ? (
+        <div className={classNames.appBillingDetails}>
+          <p className={classNames.hint}>{labels.cancellationScheduled}</p>
+          {app.accessUntilLabel != null ? (
+            <BillingDetailRow
+              label={labels.accessUntil}
+              value={app.accessUntilLabel}
+              classNames={classNames}
+            />
+          ) : null}
+        </div>
+      ) : isTrial || app.nextBillingDateLabel != null ? (
         <div className={classNames.appBillingDetails}>
           {isTrial && app.trialEndsLabel != null ? (
             <BillingDetailRow
@@ -112,10 +134,10 @@ function BillingAppCard({
               classNames={classNames}
             />
           ) : null}
-          {isTrial && app.daysRemaining != null ? (
+          {app.accessDaysRemaining != null || app.daysRemaining != null ? (
             <BillingDetailRow
               label={labels.daysRemaining}
-              value={String(app.daysRemaining)}
+              value={String(app.accessDaysRemaining ?? app.daysRemaining)}
               classNames={classNames}
             />
           ) : null}
@@ -140,6 +162,16 @@ function BillingAppCard({
         >
           {app.actionLabel || labels.manageSubscription}
         </button>
+        {cancelEnabled ? (
+          <button
+            type="button"
+            className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
+            disabled={canceling}
+            onClick={() => onCancel?.(app)}
+          >
+            {labels.cancelSubscription}
+          </button>
+        ) : null}
       </div>
     </article>
   );
@@ -147,14 +179,23 @@ function BillingAppCard({
 
 export function AppsBillingSection({ viewModel, labels, classNames, workspace }: Props) {
   const { billingApps } = viewModel;
+  const [cancelTarget, setCancelTarget] = useState<OrganizationSettingsAppAccess | null>(null);
   const hasBillingSource =
     workspace?.snapshot?.appEntitlements != null || workspace?.snapshot?.appAccess != null;
   const showBillingPlaceholder = !(workspace?.hasLiveData ?? false) || !hasBillingSource;
+  const canCancelSubscriptions = workspace?.permissions?.canViewAppsBilling === true;
+  const cancelingAppSlug = workspace?.cancelingAppSlug ?? null;
 
   return (
     <>
       {showBillingPlaceholder ? (
         <PlaceholderSectionNote message={labels.billingPlaceholderNote} classNames={classNames} />
+      ) : null}
+
+      {workspace?.cancelSubscriptionError ? (
+        <p className={classNames.saveStatusError} role="alert">
+          {workspace.cancelSubscriptionError}
+        </p>
       ) : null}
 
       <ZenformedSettingsGroup title={labels.apps} classNames={classNames}>
@@ -169,10 +210,29 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
               classNames={classNames}
               iconBaseUrl={workspace?.appBillingIconBaseUrl}
               onManage={workspace?.onManageAppSubscription}
+              onCancel={setCancelTarget}
+              canceling={cancelingAppSlug === (app.appSlug ?? app.id)}
+              canCancel={canCancelSubscriptions}
             />
           ))
         )}
       </ZenformedSettingsGroup>
+
+      <SubscriptionCancelConfirmDialog
+        app={cancelTarget}
+        labels={labels}
+        isSubmitting={cancelTarget != null && cancelingAppSlug === (cancelTarget.appSlug ?? cancelTarget.id)}
+        onClose={() => {
+          workspace?.onDismissCancelSubscriptionError?.();
+          setCancelTarget(null);
+        }}
+        onConfirm={() => {
+          if (cancelTarget == null || workspace?.onCancelAppSubscription == null) return;
+          void workspace.onCancelAppSubscription(cancelTarget.appSlug ?? cancelTarget.id).then((ok) => {
+            if (ok) setCancelTarget(null);
+          });
+        }}
+      />
     </>
   );
 }

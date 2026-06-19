@@ -25,6 +25,14 @@ export interface SaaSEntitlementSnapshot {
   trialEnd?: string | null;
   /** Stripe current period end / next billing date when available. */
   currentPeriodEnd?: string | null;
+  /** True when Stripe cancel_at_period_end is scheduled. */
+  cancelAtPeriodEnd?: boolean;
+  /** Stripe canceled_at when available. */
+  canceledAt?: string | null;
+  /** Access continues until this ISO timestamp (trial end or current period end). */
+  accessUntil?: string | null;
+  /** Whether the subscription can be scheduled for cancellation. */
+  canCancel?: boolean;
   resolutionSource: SaaSEntitlementResolutionSource;
   /** Present when values come from a signed offline authorization payload. */
   offlineExpiresAt?: string;
@@ -33,4 +41,4 @@ export interface SaaSEntitlementSnapshot {
    */
   licenseTier?: string;
 }
-
+

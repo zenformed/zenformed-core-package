@@ -41,6 +41,11 @@ export type OrganizationSettingsAppAccess = {
   readonly daysRemaining?: number | null;
   readonly nextBillingDateLabel?: string | null;
   readonly manageEnabled?: boolean;
+  readonly cancelEnabled?: boolean;
+  readonly cancelAtPeriodEnd?: boolean;
+  readonly accessUntilLabel?: string | null;
+  readonly accessDaysRemaining?: number | null;
+  readonly cancellationScheduledLabel?: string | null;
 };
 
 export type OrganizationSettingsPlan = {
@@ -238,6 +243,17 @@ export type OrganizationSettingsLabels = {
   readonly viewInvoices: string;
   readonly manage: string;
   readonly manageSubscription: string;
+  readonly cancelSubscription: string;
+  readonly cancelSubscriptionTitle: string;
+  readonly keepSubscription: string;
+  readonly cancelSubscriptionConfirm: string;
+  readonly cancelSubscriptionAcknowledge: string;
+  readonly cancelSubscriptionAccessUntil: string;
+  readonly cancelSubscriptionDaysRemaining: string;
+  readonly cancelSubscriptionAfterDate: string;
+  readonly cancellationScheduled: string;
+  readonly accessUntil: string;
+  readonly cancelSubscriptionFailed: string;
   readonly trialEnds: string;
   readonly daysRemaining: string;
   readonly nextBillingDate: string;

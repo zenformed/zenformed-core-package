@@ -170,6 +170,11 @@ export type OrganizationSettingsWorkspacePersistence = {
   readonly onRemoveMember?: (memberId: string) => Promise<boolean>;
   /** Opens subscription management for an app (e.g. product pricing page). */
   readonly onManageAppSubscription?: (appSlug: string) => void;
+  /** Schedules subscription cancellation at period end for an app. */
+  readonly onCancelAppSubscription?: (appSlug: string) => Promise<boolean>;
+  readonly cancelingAppSlug?: string | null;
+  readonly cancelSubscriptionError?: string | null;
+  readonly onDismissCancelSubscriptionError?: () => void;
   /** Optional origin for `/zenformed-app-icons/{slug}.png` when bundled icons are unavailable. */
   readonly appBillingIconBaseUrl?: string | null;
 };

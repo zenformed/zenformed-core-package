@@ -155,7 +155,7 @@ const ADMIN_ORGANIZATION_PERMISSIONS: OrganizationPermissions = {
   canManageMemberRoles: true,
   canRemoveMembers: true,
   canManageMemberProfiles: true,
-  canViewAppsBilling: false,
+  canViewAppsBilling: true,
   canEditAccountEmail: true,
 };
 

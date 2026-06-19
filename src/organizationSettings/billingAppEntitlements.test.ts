@@ -8,6 +8,28 @@ import {
   resolveAppEntitlementBadges,
 } from './billingAppEntitlements';
 
+test('mapEntitlementSnapshotToBillingApp exposes cancellation scheduled state', () => {
+  const billingApp = mapEntitlementSnapshotToBillingApp({
+    appSlug: 'buildcore',
+    subscriptionActive: true,
+    planCodeOriginal: 'starter',
+    planSlugNormalized: 'starter',
+    entitlementStatus: 'trial',
+    effectiveFrom: '2026-01-01T00:00:00.000Z',
+    effectiveTo: '2026-06-20T00:00:00.000Z',
+    trialEnd: '2026-06-20T00:00:00.000Z',
+    currentPeriodEnd: '2026-06-20T00:00:00.000Z',
+    cancelAtPeriodEnd: true,
+    accessUntil: '2026-06-20T00:00:00.000Z',
+    canCancel: false,
+    resolutionSource: 'platform_tables',
+  });
+  assert.ok(billingApp);
+  assert.equal(billingApp.cancelAtPeriodEnd, true);
+  assert.equal(billingApp.cancelEnabled, false);
+  assert.equal(billingApp.cancellationScheduledLabel, 'Cancellation scheduled');
+});
+
 test('resolveAppEntitlementBadges returns separate plan and trial pills', () => {
   const badges = resolveAppEntitlementBadges('buildcore', 'starter', 'trial');
   assert.equal(badges.planLabel, 'Starter');

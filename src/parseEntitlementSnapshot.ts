@@ -70,6 +70,13 @@ export function parseSaaSEntitlementSnapshotJson(
       : o.currentPeriodEnd === null
         ? null
         : readOptionalString(o.currentPeriodEnd);
+  const cancelAtPeriodEnd =
+    typeof o.cancelAtPeriodEnd === 'boolean' ? o.cancelAtPeriodEnd : undefined;
+  const canceledAt =
+    o.canceledAt === undefined ? undefined : o.canceledAt === null ? null : readOptionalString(o.canceledAt);
+  const accessUntil =
+    o.accessUntil === undefined ? undefined : o.accessUntil === null ? null : readOptionalString(o.accessUntil);
+  const canCancel = typeof o.canCancel === 'boolean' ? o.canCancel : undefined;
 
   return {
     appSlug: appSlugRaw,
@@ -81,6 +88,10 @@ export function parseSaaSEntitlementSnapshotJson(
     effectiveTo,
     ...(trialEnd !== undefined ? { trialEnd } : {}),
     ...(currentPeriodEnd !== undefined ? { currentPeriodEnd } : {}),
+    ...(cancelAtPeriodEnd !== undefined ? { cancelAtPeriodEnd } : {}),
+    ...(canceledAt !== undefined ? { canceledAt } : {}),
+    ...(accessUntil !== undefined ? { accessUntil } : {}),
+    ...(canCancel !== undefined ? { canCancel } : {}),
     resolutionSource: src as SaaSEntitlementResolutionSource,
     ...(typeof offline === 'string' ? { offlineExpiresAt: offline } : {}),
     ...(planCodeOriginal !== '' ? { licenseTier: planCodeOriginal } : {}),

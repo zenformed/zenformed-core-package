@@ -87,11 +87,16 @@ export function mapEntitlementSnapshotToBillingApp(
       : snapshot.planCodeOriginal.trim().toLowerCase();
   const status = snapshot.entitlementStatus.trim().toLowerCase();
   const isTrial = status === 'trial';
+  const accessUntilIso =
+    snapshot.accessUntil ??
+    (isTrial ? snapshot.trialEnd ?? snapshot.effectiveTo : snapshot.currentPeriodEnd ?? snapshot.effectiveTo);
   const trialEndIso = snapshot.trialEnd ?? (isTrial ? snapshot.effectiveTo : null);
   const nextBillingIso = snapshot.currentPeriodEnd ?? snapshot.effectiveTo;
   const trialEndsLabel = formatBillingDate(trialEndIso);
   const nextBillingDateLabel = formatBillingDate(nextBillingIso);
-  const daysRemaining = isTrial ? daysRemainingUntil(trialEndIso, now) : null;
+  const accessUntilLabel = formatBillingDate(accessUntilIso);
+  const daysRemaining = daysRemainingUntil(accessUntilIso, now);
+  const cancelAtPeriodEnd = snapshot.cancelAtPeriodEnd === true;
 
   return {
     id: appSlug,
@@ -109,6 +114,11 @@ export function mapEntitlementSnapshotToBillingApp(
     daysRemaining,
     nextBillingDateLabel,
     manageEnabled: true,
+    cancelEnabled: !cancelAtPeriodEnd && snapshot.canCancel !== false,
+    cancelAtPeriodEnd,
+    accessUntilLabel,
+    accessDaysRemaining: daysRemaining,
+    cancellationScheduledLabel: cancelAtPeriodEnd ? 'Cancellation scheduled' : null,
   };
 }
 

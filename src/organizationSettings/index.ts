@@ -4,6 +4,8 @@ export { resolveAppEntitlementBadges } from './billingAppEntitlements';
 export type { AppEntitlementBadgeViewModel } from './billingAppEntitlements';
 export { AppEntitlementBadges } from './components/AppEntitlementBadges';
 export type { AppEntitlementBadgesProps } from './components/AppEntitlementBadges';
+export { SubscriptionCancelConfirmDialog } from './components/SubscriptionCancelConfirmDialog';
+export type { SubscriptionCancelConfirmDialogProps } from './components/SubscriptionCancelConfirmDialog';
 export { OrganizationAvatarFallback } from './components/OrganizationAvatarFallback';
 export type { OrganizationAvatarFallbackProps } from './components/OrganizationAvatarFallback';
 export { ZenformedOrganizationSettingsOverlay } from './ZenformedOrganizationSettingsOverlay';

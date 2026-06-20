@@ -400,6 +400,8 @@ export function useZenformedOrganizationWorkspace({
     null
   );
   const fetchGenerationRef = useRef(0);
+  const getAccessTokenRef = useRef(getAccessToken);
+  getAccessTokenRef.current = getAccessToken;
 
   const clearCreatedInviteAcceptUrl = useCallback(() => {
     setCreatedInviteAcceptUrl(null);
@@ -411,7 +413,7 @@ export function useZenformedOrganizationWorkspace({
   }, []);
 
   const fetchAll = useCallback(async () => {
-    const token = getAccessToken()?.trim();
+    const token = getAccessTokenRef.current()?.trim();
     if (!token) {
       setLoadError('Not signed in');
       setHasLiveData(false);
@@ -514,7 +516,6 @@ export function useZenformedOrganizationWorkspace({
     apiUrls.members,
     apiUrls.membershipContext,
     apiUrls.seats,
-    getAccessToken,
   ]);
 
   useEffect(() => {

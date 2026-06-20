@@ -262,8 +262,16 @@ export type OrganizationSettingsLabels = {
   readonly cancelSubscriptionFailed: string;
   readonly reactivateSubscription: string;
   readonly reactivateSubscriptionFailed: string;
+  readonly reactivateSubscriptionTitle: string;
+  readonly reactivateSubscriptionBody1: string;
+  readonly reactivateSubscriptionBody2: string;
+  readonly reactivateSubscriptionSuccess: string;
   readonly removeScheduledDowngrade: string;
   readonly removeScheduledDowngradeFailed: string;
+  readonly removeScheduledDowngradeTitle: string;
+  readonly removeScheduledDowngradeBody1: string;
+  readonly removeScheduledDowngradeBody2: string;
+  readonly removeScheduledDowngradeSuccess: string;
   readonly trialEnds: string;
   readonly daysRemaining: string;
   readonly nextBillingDate: string;

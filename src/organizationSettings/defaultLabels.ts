@@ -65,8 +65,18 @@ export const DEFAULT_ORGANIZATION_SETTINGS_LABELS: OrganizationSettingsLabels = 
   cancelSubscriptionFailed: 'Could not cancel subscription. Try again.',
   reactivateSubscription: 'Reactivate Subscription',
   reactivateSubscriptionFailed: 'Could not reactivate subscription. Try again.',
+  reactivateSubscriptionTitle: 'Reactivate Subscription?',
+  reactivateSubscriptionBody1: 'Your subscription will continue renewing normally.',
+  reactivateSubscriptionBody2:
+    'You will keep access without interruption and your scheduled cancellation will be removed.',
+  reactivateSubscriptionSuccess: 'Subscription reactivated successfully.',
   removeScheduledDowngrade: 'Remove Scheduled Downgrade',
   removeScheduledDowngradeFailed: 'Could not remove scheduled downgrade. Try again.',
+  removeScheduledDowngradeTitle: 'Remove Scheduled Downgrade?',
+  removeScheduledDowngradeBody1:
+    'Your current plan will remain active and continue renewing normally.',
+  removeScheduledDowngradeBody2: 'No invoice, charge, refund, or credit will be created.',
+  removeScheduledDowngradeSuccess: 'Scheduled downgrade removed.',
   trialEnds: 'Trial Ends',
   daysRemaining: 'Days Remaining',
   nextBillingDate: 'Next Billing',

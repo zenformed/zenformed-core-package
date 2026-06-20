@@ -365,6 +365,70 @@
   margin-top: 1.25rem;
 }
 
+.billingActionError {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-error, #b91c1c);
+}
+
+.billingToastSuccess,
+.billingToastError {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10060;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(32rem, calc(100vw - 2rem));
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+}
+
+.billingToastSuccess {
+  color: #14532d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.billingToastError {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+:global([data-theme='dark']) .billingToastSuccess {
+  color: #bbf7d0;
+  background: #052e16;
+  border-color: #166534;
+}
+
+:global([data-theme='dark']) .billingToastError {
+  color: #fecaca;
+  background: #450a0a;
+  border-color: #991b1b;
+}
+
+.billingToastDismiss {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.billingToastDismiss:hover {
+  opacity: 1;
+}
+
 .appBillingScheduledNotice {
   margin: 0;
   font-size: 0.8125rem;

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { PlaceholderSectionNote } from '../components/PlaceholderSectionNote';
 import { AppEntitlementBadges } from '../components/AppEntitlementBadges';
+import { OrganizationSettingsBillingToast } from '../components/OrganizationSettingsBillingToast';
+import { SubscriptionBillingConfirmDialog } from '../components/SubscriptionBillingConfirmDialog';
 import { SubscriptionCancelConfirmDialog } from '../components/SubscriptionCancelConfirmDialog';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import { resolveBillingAppIconSrc } from '../billingAppIcons';
@@ -19,6 +21,11 @@ type Props = {
   readonly labels: OrganizationSettingsLabels;
   readonly classNames: OrganizationSettingsClassNames;
   readonly workspace?: OrganizationSettingsWorkspacePersistence | null;
+};
+
+type BillingToastState = {
+  readonly message: string;
+  readonly variant: 'success' | 'error';
 };
 
 function BillingDetailRow({
@@ -89,8 +96,8 @@ function BillingAppCard({
   readonly iconBaseUrl?: string | null;
   readonly onManage?: (appSlug: string) => void;
   readonly onCancel?: (app: OrganizationSettingsAppAccess) => void;
-  readonly onReactivate?: (appSlug: string) => void;
-  readonly onRemoveScheduledDowngrade?: (appSlug: string) => void;
+  readonly onReactivate?: (app: OrganizationSettingsAppAccess) => void;
+  readonly onRemoveScheduledDowngrade?: (app: OrganizationSettingsAppAccess) => void;
   readonly canceling?: boolean;
   readonly reactivating?: boolean;
   readonly removingScheduledDowngrade?: boolean;
@@ -190,7 +197,7 @@ function BillingAppCard({
             type="button"
             className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
             disabled={reactivating}
-            onClick={() => onReactivate?.(appSlug)}
+            onClick={() => onReactivate?.(app)}
           >
             {labels.reactivateSubscription}
           </button>
@@ -200,7 +207,7 @@ function BillingAppCard({
             type="button"
             className={`${classNames.btn} ${classNames.btnSmall} ${classNames.btnGhost}`}
             disabled={removingScheduledDowngrade}
-            onClick={() => onRemoveScheduledDowngrade?.(appSlug)}
+            onClick={() => onRemoveScheduledDowngrade?.(app)}
           >
             {labels.removeScheduledDowngrade}
           </button>
@@ -223,6 +230,14 @@ function BillingAppCard({
 export function AppsBillingSection({ viewModel, labels, classNames, workspace }: Props) {
   const { billingApps } = viewModel;
   const [cancelTarget, setCancelTarget] = useState<OrganizationSettingsAppAccess | null>(null);
+  const [reactivateTarget, setReactivateTarget] = useState<OrganizationSettingsAppAccess | null>(null);
+  const [removeScheduledDowngradeTarget, setRemoveScheduledDowngradeTarget] =
+    useState<OrganizationSettingsAppAccess | null>(null);
+  const [reactivateModalError, setReactivateModalError] = useState<string | null>(null);
+  const [removeScheduledDowngradeModalError, setRemoveScheduledDowngradeModalError] = useState<
+    string | null
+  >(null);
+  const [billingToast, setBillingToast] = useState<BillingToastState | null>(null);
   const hasBillingSource =
     workspace?.snapshot?.appEntitlements != null || workspace?.snapshot?.appAccess != null;
   const showBillingPlaceholder = !(workspace?.hasLiveData ?? false) || !hasBillingSource;
@@ -230,6 +245,22 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
   const cancelingAppSlug = workspace?.cancelingAppSlug ?? null;
   const reactivatingAppSlug = workspace?.reactivatingAppSlug ?? null;
   const removingScheduledChangeAppSlug = workspace?.removingScheduledChangeAppSlug ?? null;
+
+  const dismissBillingToast = useCallback(() => {
+    setBillingToast(null);
+  }, []);
+
+  const openReactivateTarget = useCallback((app: OrganizationSettingsAppAccess) => {
+    setReactivateModalError(null);
+    workspace?.onDismissReactivateSubscriptionError?.();
+    setReactivateTarget(app);
+  }, [workspace]);
+
+  const openRemoveScheduledDowngradeTarget = useCallback((app: OrganizationSettingsAppAccess) => {
+    setRemoveScheduledDowngradeModalError(null);
+    workspace?.onDismissRemoveScheduledChangeError?.();
+    setRemoveScheduledDowngradeTarget(app);
+  }, [workspace]);
 
   return (
     <>
@@ -240,18 +271,6 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
       {workspace?.cancelSubscriptionError ? (
         <p className={classNames.saveStatusError} role="alert">
           {workspace.cancelSubscriptionError}
-        </p>
-      ) : null}
-
-      {workspace?.reactivateSubscriptionError ? (
-        <p className={classNames.saveStatusError} role="alert">
-          {workspace.reactivateSubscriptionError}
-        </p>
-      ) : null}
-
-      {workspace?.removeScheduledChangeError ? (
-        <p className={classNames.saveStatusError} role="alert">
-          {workspace.removeScheduledChangeError}
         </p>
       ) : null}
 
@@ -268,8 +287,8 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
               iconBaseUrl={workspace?.appBillingIconBaseUrl}
               onManage={workspace?.onManageAppSubscription}
               onCancel={setCancelTarget}
-              onReactivate={workspace?.onReactivateAppSubscription}
-              onRemoveScheduledDowngrade={workspace?.onRemoveScheduledPlanChange}
+              onReactivate={openReactivateTarget}
+              onRemoveScheduledDowngrade={openRemoveScheduledDowngradeTarget}
               canceling={cancelingAppSlug === (app.appSlug ?? app.id)}
               reactivating={reactivatingAppSlug === (app.appSlug ?? app.id)}
               removingScheduledDowngrade={removingScheduledChangeAppSlug === (app.appSlug ?? app.id)}
@@ -293,6 +312,86 @@ export function AppsBillingSection({ viewModel, labels, classNames, workspace }:
             if (ok) setCancelTarget(null);
           });
         }}
+      />
+
+      <SubscriptionBillingConfirmDialog
+        open={reactivateTarget != null}
+        title={labels.reactivateSubscriptionTitle}
+        bodyParagraphs={[labels.reactivateSubscriptionBody1, labels.reactivateSubscriptionBody2]}
+        cancelLabel={labels.cancel}
+        confirmLabel={labels.reactivateSubscription}
+        isSubmitting={
+          reactivateTarget != null &&
+          reactivatingAppSlug === (reactivateTarget.appSlug ?? reactivateTarget.id)
+        }
+        errorMessage={reactivateModalError}
+        onClose={() => {
+          if (reactivatingAppSlug != null) return;
+          setReactivateModalError(null);
+          setReactivateTarget(null);
+        }}
+        onConfirm={() => {
+          if (reactivateTarget == null || workspace?.onReactivateAppSubscription == null) return;
+          const appSlug = reactivateTarget.appSlug ?? reactivateTarget.id;
+          void workspace.onReactivateAppSubscription(appSlug).then((ok) => {
+            if (ok) {
+              setReactivateTarget(null);
+              setReactivateModalError(null);
+              setBillingToast({
+                message: labels.reactivateSubscriptionSuccess,
+                variant: 'success',
+              });
+              return;
+            }
+            setReactivateModalError(labels.reactivateSubscriptionFailed);
+          });
+        }}
+      />
+
+      <SubscriptionBillingConfirmDialog
+        open={removeScheduledDowngradeTarget != null}
+        title={labels.removeScheduledDowngradeTitle}
+        bodyParagraphs={[labels.removeScheduledDowngradeBody1, labels.removeScheduledDowngradeBody2]}
+        cancelLabel={labels.cancel}
+        confirmLabel={labels.removeScheduledDowngrade}
+        isSubmitting={
+          removeScheduledDowngradeTarget != null &&
+          removingScheduledChangeAppSlug ===
+            (removeScheduledDowngradeTarget.appSlug ?? removeScheduledDowngradeTarget.id)
+        }
+        errorMessage={removeScheduledDowngradeModalError}
+        onClose={() => {
+          if (removingScheduledChangeAppSlug != null) return;
+          setRemoveScheduledDowngradeModalError(null);
+          setRemoveScheduledDowngradeTarget(null);
+        }}
+        onConfirm={() => {
+          if (
+            removeScheduledDowngradeTarget == null ||
+            workspace?.onRemoveScheduledPlanChange == null
+          ) {
+            return;
+          }
+          const appSlug = removeScheduledDowngradeTarget.appSlug ?? removeScheduledDowngradeTarget.id;
+          void workspace.onRemoveScheduledPlanChange(appSlug).then((ok) => {
+            if (ok) {
+              setRemoveScheduledDowngradeTarget(null);
+              setRemoveScheduledDowngradeModalError(null);
+              setBillingToast({
+                message: labels.removeScheduledDowngradeSuccess,
+                variant: 'success',
+              });
+              return;
+            }
+            setRemoveScheduledDowngradeModalError(labels.removeScheduledDowngradeFailed);
+          });
+        }}
+      />
+
+      <OrganizationSettingsBillingToast
+        message={billingToast?.message ?? null}
+        variant={billingToast?.variant ?? 'success'}
+        onDismiss={dismissBillingToast}
       />
     </>
   );

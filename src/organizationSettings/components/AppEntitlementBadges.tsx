@@ -60,8 +60,12 @@ export function AppEntitlementBadges({
         .filter(Boolean)
         .join(' ')}
     >
-      <span className={planBadgeClassName(planBadgeVariant)}>{planLabel}</span>
-      <span className={statusBadgeClassName(statusBadgeVariant)}>{statusLabel}</span>
+      {planLabel.trim() !== '' ? (
+        <span className={planBadgeClassName(planBadgeVariant)}>{planLabel}</span>
+      ) : null}
+      {statusLabel.trim() !== '' ? (
+        <span className={statusBadgeClassName(statusBadgeVariant)}>{statusLabel}</span>
+      ) : null}
     </div>
   );
 }

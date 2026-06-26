@@ -9,6 +9,7 @@ import type {
   ZenformedAppsLauncherLayoutOptions,
 } from './types';
 import type { ZenformedAppRegistryEntry } from './types';
+import { ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE } from '../dropdownSurfaceBorderStyle';
 
 export type ZenformedAppsLauncherProps = ZenformedAppsLauncherLayoutOptions & {
   readonly apps: readonly ZenformedAppRegistryEntry[];
@@ -52,6 +53,7 @@ export function ZenformedAppsLauncher({
       {accountMenuOpen ? (
         <div
           className={classNames.appsPopover}
+          style={ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}
           role="menu"
           aria-label={labels.popoverAriaLabel}
         >

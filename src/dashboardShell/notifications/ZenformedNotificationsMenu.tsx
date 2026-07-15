@@ -25,6 +25,8 @@ export function ZenformedNotificationsMenu({
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState();
 
+  // Controller mounts with the envelope control (not the open dropdown). Unread
+  // count fetch + 30s polling run independently of `accountMenuOpen`.
   const controller = useZenformedNotificationsController({
     organizationId,
     api,
@@ -36,7 +38,7 @@ export function ZenformedNotificationsMenu({
     if (!accountMenuOpen) return;
     void controller.refreshLatest();
     void controller.refreshUnreadCount();
-  }, [accountMenuOpen]); // eslint-disable-line react-hooks/exhaustive-deps -- refresh on open only
+  }, [accountMenuOpen]); // eslint-disable-line react-hooks/exhaustive-deps -- latest refresh on open only
 
   useEffect(() => {
     if (!accountMenuOpen) return;

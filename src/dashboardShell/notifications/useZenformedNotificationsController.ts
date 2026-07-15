@@ -74,6 +74,8 @@ export function useZenformedNotificationsController({
   const [actionError, setActionError] = useState<string | null>(null);
 
   const orgRef = useRef(organizationId);
+  const apiRef = useRef(api);
+  apiRef.current = api;
   const unreadInflight = useRef(false);
   const latestInflight = useRef(false);
   const pageInflight = useRef(false);
@@ -121,14 +123,15 @@ export function useZenformedNotificationsController({
 
   const refreshUnreadCount = useCallback(async () => {
     if (!enabled || !organizationId.trim()) return;
-    if (unreadInflight.current) return;
-    unreadInflight.current = true;
+    // Always restart — never early-return while inflight. Host re-renders that
+    // recreate an API object used to skip the mount fetch until dropdown open.
     unreadAbort.current?.abort();
     const ac = new AbortController();
     unreadAbort.current = ac;
+    unreadInflight.current = true;
     setUnreadLoading(true);
     try {
-      const count = await api.getUnreadCount({
+      const count = await apiRef.current.getUnreadCount({
         organizationId,
         signal: ac.signal,
       });
@@ -144,18 +147,18 @@ export function useZenformedNotificationsController({
         setUnreadLoading(false);
       }
     }
-  }, [api, enabled, organizationId]);
+    // Intentionally omit `api` — keep callback identity stable for mount/poll effects.
+  }, [enabled, organizationId]);
 
   const refreshLatest = useCallback(async () => {
     if (!enabled || !organizationId.trim()) return;
-    if (latestInflight.current) return;
-    latestInflight.current = true;
     latestAbort.current?.abort();
     const ac = new AbortController();
     latestAbort.current = ac;
+    latestInflight.current = true;
     setLatestLoading(true);
     try {
-      const items = await api.getLatest({
+      const items = await apiRef.current.getLatest({
         organizationId,
         limit: LATEST_LIMIT,
         signal: ac.signal,
@@ -172,18 +175,17 @@ export function useZenformedNotificationsController({
         setLatestLoading(false);
       }
     }
-  }, [api, enabled, organizationId]);
+  }, [enabled, organizationId]);
 
   const loadInitialPage = useCallback(async () => {
     if (!enabled || !organizationId.trim()) return;
-    if (pageInflight.current) return;
-    pageInflight.current = true;
     pageAbort.current?.abort();
     const ac = new AbortController();
     pageAbort.current = ac;
+    pageInflight.current = true;
     setPageLoading(true);
     try {
-      const result = await api.getPage({
+      const result = await apiRef.current.getPage({
         organizationId,
         limit: PAGE_LIMIT,
         cursor: null,
@@ -203,7 +205,7 @@ export function useZenformedNotificationsController({
         setPageLoading(false);
       }
     }
-  }, [api, enabled, organizationId]);
+  }, [enabled, organizationId]);
 
   const loadMore = useCallback(async () => {
     if (!enabled || !organizationId.trim() || !hasMore || !nextCursor) return;
@@ -211,7 +213,7 @@ export function useZenformedNotificationsController({
     loadMoreInflight.current = true;
     setLoadMoreLoading(true);
     try {
-      const result = await api.getPage({
+      const result = await apiRef.current.getPage({
         organizationId,
         limit: PAGE_LIMIT,
         cursor: nextCursor,
@@ -226,7 +228,7 @@ export function useZenformedNotificationsController({
       loadMoreInflight.current = false;
       setLoadMoreLoading(false);
     }
-  }, [api, enabled, hasMore, nextCursor, organizationId]);
+  }, [enabled, hasMore, nextCursor, organizationId]);
 
   const markRead = useCallback(
     async (notificationId: string) => {
@@ -252,7 +254,7 @@ export function useZenformedNotificationsController({
       }
 
       try {
-        await api.markRead({ organizationId, notificationId });
+        await apiRef.current.markRead({ organizationId, notificationId });
         void refreshUnreadCount();
       } catch (err) {
         setLatest(priorLatest);
@@ -266,7 +268,7 @@ export function useZenformedNotificationsController({
         setMarkingReadIds(new Set(markReadInflight.current));
       }
     },
-    [api, enabled, organizationId, refreshLatest, refreshUnreadCount]
+    [enabled, organizationId, refreshLatest, refreshUnreadCount]
   );
 
   const markAllRead = useCallback(async () => {
@@ -285,7 +287,7 @@ export function useZenformedNotificationsController({
     setUnreadCount(0);
 
     try {
-      await api.markAllRead({ organizationId });
+      await apiRef.current.markAllRead({ organizationId });
       void refreshUnreadCount();
     } catch (err) {
       setActionError(toUserFacingNotificationsError(err));
@@ -299,7 +301,6 @@ export function useZenformedNotificationsController({
       setMarkingAllRead(false);
     }
   }, [
-    api,
     enabled,
     loadInitialPage,
     markingAllRead,

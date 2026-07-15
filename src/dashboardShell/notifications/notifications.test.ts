@@ -24,6 +24,13 @@ import {
   formatUnreadBadgeLabel,
 } from './notificationStateHelpers';
 import { ZenformedNotificationsApiError } from './notificationErrors';
+import {
+  shouldFetchLatestOnDropdownOpen,
+  shouldFetchUnreadOnControllerMount,
+  shouldRefreshUnreadOnVisibilityState,
+  shouldRunUnreadPollTick,
+  UNREAD_POLL_API_IDENTITY_NOTE,
+} from './unreadCountPollLifecycle';
 import type { ZenformedNotification } from './types';
 
 const SAMPLE: ZenformedNotification = {
@@ -287,5 +294,37 @@ describe('relative time', () => {
       '2h ago'
     );
     assert.equal(formatNotificationRelativeTime('not-a-date', now), 'Unknown time');
+  });
+});
+
+describe('unread count poll lifecycle', () => {
+  it('fetches unread on controller mount without requiring dropdown open', () => {
+    assert.equal(shouldFetchUnreadOnControllerMount(true, 'org-1'), true);
+    assert.equal(shouldFetchUnreadOnControllerMount(true, '  '), false);
+    assert.equal(shouldFetchUnreadOnControllerMount(false, 'org-1'), false);
+    // Dropdown open is irrelevant to mount unread fetch
+    assert.equal(shouldFetchLatestOnDropdownOpen(false), false);
+    assert.equal(shouldFetchUnreadOnControllerMount(true, 'org-1'), true);
+  });
+
+  it('polls unread while dropdown is closed and skips latest background poll', () => {
+    assert.equal(shouldRunUnreadPollTick(false), true);
+    assert.equal(shouldFetchLatestOnDropdownOpen(false), false);
+    assert.equal(shouldFetchLatestOnDropdownOpen(true), true);
+  });
+
+  it('pauses poll ticks while hidden and refreshes on visibility restore', () => {
+    assert.equal(shouldRunUnreadPollTick(true), false);
+    assert.equal(shouldRefreshUnreadOnVisibilityState('hidden'), false);
+    assert.equal(shouldRefreshUnreadOnVisibilityState('visible'), true);
+  });
+
+  it('documents that unstable API identity must not reset unread poll callbacks', () => {
+    assert.match(UNREAD_POLL_API_IDENTITY_NOTE, /API adapter/i);
+  });
+
+  it('treats organization change as a fresh unread mount condition', () => {
+    assert.equal(shouldFetchUnreadOnControllerMount(true, 'org-a'), true);
+    assert.equal(shouldFetchUnreadOnControllerMount(true, 'org-b'), true);
   });
 });

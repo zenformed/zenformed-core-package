@@ -99,6 +99,13 @@ export type {
   UseZenformedNotificationsControllerOptions,
   UseZenformedNotificationsControllerResult,
 } from './notifications/useZenformedNotificationsController';
+export {
+  shouldFetchUnreadOnControllerMount,
+  shouldRunUnreadPollTick,
+  shouldRefreshUnreadOnVisibilityState,
+  shouldFetchLatestOnDropdownOpen,
+  UNREAD_POLL_API_IDENTITY_NOTE,
+} from './notifications/unreadCountPollLifecycle';
 export { ZenformedNotificationsApiError } from './notifications/notificationErrors';
 export {
   formatUnreadBadgeLabel,

@@ -86,6 +86,49 @@ export type {
   ZenformedAppIconPublicSrcOptions,
 } from './appsLauncher/zenformedAppIconCatalog';
 
+export { createZenformedNotificationsApi } from './notifications/createZenformedNotificationsApi';
+export type { CreateZenformedNotificationsApiOptions } from './notifications/createZenformedNotificationsApi';
+export { ZenformedNotificationsMenu } from './notifications/ZenformedNotificationsMenu';
+export type { ZenformedNotificationsMenuProps } from './notifications/ZenformedNotificationsMenu';
+export { ZenformedNotificationsPage } from './notifications/ZenformedNotificationsPage';
+export type { ZenformedNotificationsPageProps } from './notifications/ZenformedNotificationsPage';
+export { ZenformedNotificationItem } from './notifications/ZenformedNotificationItem';
+export type { ZenformedNotificationItemProps } from './notifications/ZenformedNotificationItem';
+export { useZenformedNotificationsController } from './notifications/useZenformedNotificationsController';
+export type {
+  UseZenformedNotificationsControllerOptions,
+  UseZenformedNotificationsControllerResult,
+} from './notifications/useZenformedNotificationsController';
+export { ZenformedNotificationsApiError } from './notifications/notificationErrors';
+export {
+  formatUnreadBadgeLabel,
+  formatNotificationsTriggerAriaLabel,
+  clampUnreadCount,
+  decrementUnreadCount,
+} from './notifications/notificationStateHelpers';
+export {
+  resolveNotificationAppIdentity,
+  resolveNotificationAppDisplayName,
+  stripRedundantAppNameBodyPrefix,
+} from './notifications/resolveNotificationAppIdentity';
+export type { ZenformedNotificationAppIdentity } from './notifications/resolveNotificationAppIdentity';
+export {
+  formatNotificationRelativeTime,
+  formatNotificationAbsoluteDateTime,
+} from './notifications/formatNotificationRelativeTime';
+export { isSafeNotificationDestinationUrl } from './notifications/destinationUrlSafety';
+export {
+  ZENFORMED_NOTIFICATION_FIXTURES,
+  ZENFORMED_NOTIFICATION_FIXTURE_LIST,
+} from './notifications/fixtures';
+export type {
+  ZenformedNotification,
+  ZenformedNotificationsApi,
+  ZenformedNotificationsPageResult,
+  ZenformedNotificationsUnreadResult,
+  ZenformedDashboardNotificationsConfig,
+} from './notifications/types';
+
 export {
   ZENFORMED_DEFAULT_AVATAR_SEEDS,
   zenformedDefaultAvatarSrc,

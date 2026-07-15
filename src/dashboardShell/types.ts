@@ -1,4 +1,5 @@
 import type { ChangeEvent, ReactNode, RefObject } from 'react';
+import type { ZenformedDashboardNotificationsConfig } from './notifications/types';
 
 /** Optional CSS module class map override for shared shell components. */
 export type CSSModuleClasses = Record<string, string>;
@@ -139,6 +140,11 @@ export type ZenformedDashboardHeaderProps = {
   centerSlot?: ReactNode;
   /** Override default empty `headerLeft` (ForgeCore uses aria-hidden placeholder). */
   leftSlot?: ReactNode;
+  /**
+   * Opt-in platform notifications envelope (before account avatar).
+   * Omit to leave the header unchanged for existing consumers.
+   */
+  notifications?: ZenformedDashboardNotificationsConfig | null;
   settingsIcon?: ReactNode;
   signOutIcon?: ReactNode;
   profilePhotoCameraIcon?: ReactNode;

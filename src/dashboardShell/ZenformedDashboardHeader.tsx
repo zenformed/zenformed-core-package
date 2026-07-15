@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import { ZenformedAccountMenu } from './ZenformedAccountMenu';
 import { useAccountMenuState } from './useAccountMenuState';
 import { useZenformedShellUserDisplay } from './useZenformedShellUserDisplay';
+import { ZenformedNotificationsMenu } from './notifications/ZenformedNotificationsMenu';
 import type { ZenformedDashboardHeaderProps } from './types';
 
 export function ZenformedDashboardHeader({
@@ -21,6 +22,7 @@ export function ZenformedDashboardHeader({
   profilePhotoChangeEnabled = false,
   centerSlot,
   leftSlot,
+  notifications,
   settingsIcon,
   signOutIcon,
   profilePhotoCameraIcon,
@@ -51,6 +53,15 @@ export function ZenformedDashboardHeader({
       {user ? (
         <div className={classNames.headerRight} data-zenformed-header-right>
           {themeToggle}
+          {notifications && notifications.organizationId.trim() ? (
+            <ZenformedNotificationsMenu
+              organizationId={notifications.organizationId}
+              api={notifications.api}
+              notificationsPageHref={notifications.notificationsPageHref}
+              onNavigate={notifications.onNavigate}
+              unreadPollIntervalMs={notifications.unreadPollIntervalMs}
+            />
+          ) : null}
           <ZenformedAccountMenu
             classNames={classNames}
             user={user}

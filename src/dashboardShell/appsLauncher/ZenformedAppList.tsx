@@ -231,6 +231,21 @@ function AppSidebarListRow({
     </>
   );
 
+  // Current app row closes the overlay (acts as the transformed trigger with check).
+  if (isCurrent) {
+    return (
+      <button
+        type="button"
+        className={rowClass}
+        role="menuitem"
+        aria-current="true"
+        onClick={() => onNavigate?.()}
+      >
+        {body}
+      </button>
+    );
+  }
+
   if (isLaunchableApp(app)) {
     return (
       <button
@@ -238,7 +253,6 @@ function AppSidebarListRow({
         className={rowClass}
         role="menuitem"
         disabled={isLaunching}
-        aria-current={isCurrent ? 'true' : undefined}
         onClick={() => {
           onNavigate?.();
           void launchApp(app.launchTarget!, '/dashboard');
@@ -255,7 +269,6 @@ function AppSidebarListRow({
         href={app.href}
         className={rowClass}
         role="menuitem"
-        aria-current={isCurrent ? 'true' : undefined}
         onClick={() => onNavigate?.()}
       >
         {body}
@@ -301,11 +314,14 @@ function LauncherPopoverContent({
       : null;
 
   if (popoverLayout === 'sidebarList') {
+    const current = currentAppId != null ? apps.find((app) => app.id === currentAppId) : null;
+    const rest = currentAppId != null ? apps.filter((app) => app.id !== currentAppId) : apps;
+    const ordered = current != null ? [current, ...rest] : apps;
     return (
       <div className={classNames.appsPopoverList}>
         {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
         <div className={classNames.appsPopoverSidebarList} role="none">
-          {apps.map((app) => (
+          {ordered.map((app) => (
             <AppSidebarListRow
               key={app.id}
               app={app}

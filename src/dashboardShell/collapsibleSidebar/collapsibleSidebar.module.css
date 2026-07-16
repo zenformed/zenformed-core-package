@@ -77,6 +77,9 @@
   flex-direction: column;
   gap: 0.35rem;
   padding: 0.65rem 0 0.5rem;
+  position: relative;
+  z-index: 320;
+  overflow: visible;
 }
 
 .appsSwitcherSlot {
@@ -99,7 +102,8 @@
 
 .railExpanded .appsSwitcherSlot {
   justify-content: stretch;
-  padding: 0 var(--zenformed-sidebar-pad-x);
+  /* No horizontal inset — overlay menus are full rail width; trigger owns its own padding. */
+  padding: 0;
 }
 
 .railExpanded .appsSwitcherSlot > * {
@@ -129,7 +133,8 @@
   width: 100%;
   max-width: 100%;
   justify-content: flex-start;
-  padding: 0.4rem 0.35rem;
+  padding: 0.45rem calc(var(--zenformed-sidebar-pad-x) + 0.35rem);
+  border-radius: 0;
 }
 
 .appsSwitcherSlot :global([data-zenformed-sidebar-apps-trigger]:hover) {
@@ -210,6 +215,15 @@
 
 .railExpanded .appChevrons {
   display: inline-flex;
+}
+
+.appTriggerCheck {
+  color: var(--color-primary, #6366f1);
+}
+
+.appTriggerCheck svg {
+  width: 0.875rem;
+  height: 0.875rem;
 }
 
 .appIcon {
@@ -492,7 +506,8 @@
 
 .railExpanded .other {
   align-items: stretch;
-  padding: 0.35rem var(--zenformed-sidebar-pad-x) 0.45rem;
+  /* Match Menu/Team: no extra horizontal pad on the section (labels/rows own alignment). */
+  padding: 0.35rem 0 0.45rem;
 }
 
 .otherLabel {
@@ -518,10 +533,12 @@
 }
 
 .railExpanded .actionRow {
-  width: 100%;
+  width: auto;
+  margin-left: var(--zenformed-sidebar-pad-x);
+  margin-right: var(--zenformed-sidebar-pad-x);
   justify-content: flex-start;
   gap: var(--zenformed-sidebar-expanded-gap);
-  padding: 0;
+  padding: 0 0.5rem;
 }
 
 .actionRow:hover {
@@ -578,7 +595,7 @@ button.actionRow:focus-visible {
 .accountSlot {
   overflow: visible;
   position: relative;
-  cursor: default;
+  cursor: pointer;
   z-index: 320;
 }
 
@@ -587,27 +604,136 @@ button.actionRow:focus-visible {
 }
 
 .accountSlot .actionIcon :global([class*='accountMenuTriggerAvatar']),
-.accountSlot .actionIcon :global([class*='accountMenuTriggerImg']) {
+.accountSlot .actionIcon :global([class*='accountMenuTriggerImg']),
+.accountSlot .otherAccountAvatar {
   width: 2rem !important;
   height: 2rem !important;
   font-size: 0.75rem !important;
 }
 
-/* Host account dropdown: open upward, inset from expanded rail width */
+/* Sidebar account: trigger only in the row; open state replaces the whole OTHER section. */
 .accountSlot :global([class*='accountMenuWrap']) {
   position: static;
+  display: contents;
 }
 
 .accountSlot :global([class*='accountMenuDropdown']) {
-  top: auto !important;
-  bottom: calc(100% + 0.35rem) !important;
-  left: 0.25rem !important;
-  right: auto !important;
-  margin-top: 0 !important;
-  width: calc(var(--zenformed-sidebar-expanded-width) - 1rem) !important;
-  min-width: 0 !important;
-  max-width: calc(100vw - 1rem);
-  z-index: 330 !important;
+  display: none !important;
+}
+
+/* Full-rail panel that replaces OTHER while the account menu is open */
+.otherAccountPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.55rem 0 0.45rem;
+  box-sizing: border-box;
+  background: var(--color-surface, #ffffff);
+  border-radius: 0;
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.otherAccountHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.35rem calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
+  box-sizing: border-box;
+}
+
+.otherAccountAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.45rem;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.otherAccountAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.otherAccountIdentity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.otherAccountName {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--color-text, #0f172a);
+}
+
+.otherAccountEmail {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-text-muted, #64748b);
+}
+
+.otherAccountDivider {
+  width: 100%;
+  height: 1px;
+  margin: 0.15rem 0;
+  background: var(--color-border, #e2e8f0);
+}
+
+.otherAccountSignOut {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.55rem;
+  width: auto;
+  margin: 0 var(--zenformed-sidebar-pad-x);
+  padding: 0.55rem 0.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--color-text, #0f172a);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 550;
+  cursor: pointer;
+  text-align: left;
+}
+
+.otherAccountSignOut:hover {
+  background: var(--theme-surface-hover, rgba(148, 163, 184, 0.12));
+}
+
+.otherAccountSignOut:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 1px;
 }
 
 .main {
@@ -737,8 +863,21 @@ button.actionRow:focus-visible {
 .railMobileOpen .other,
 .railMobileOpen .appsSwitcherSlot {
   align-items: stretch;
+}
+
+.railMobileOpen .navList {
   padding-left: var(--zenformed-sidebar-pad-x);
   padding-right: var(--zenformed-sidebar-pad-x);
+}
+
+.railMobileOpen .other {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.railMobileOpen .appsSwitcherSlot {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .railMobileOpen .appsSwitcherSlot > * {
@@ -760,7 +899,16 @@ button.actionRow:focus-visible {
 }
 
 .railMobileOpen .actionRow {
+  width: auto;
+  margin-left: var(--zenformed-sidebar-pad-x);
+  margin-right: var(--zenformed-sidebar-pad-x);
   gap: var(--zenformed-sidebar-expanded-gap);
+  padding: 0 0.5rem;
+}
+
+.railMobileOpen .appsSwitcherSlot :global([data-zenformed-sidebar-apps-trigger]) {
+  padding: 0.45rem calc(var(--zenformed-sidebar-pad-x) + 0.35rem);
+  border-radius: 0;
 }
 
 .railMobileOpen .navLabel {

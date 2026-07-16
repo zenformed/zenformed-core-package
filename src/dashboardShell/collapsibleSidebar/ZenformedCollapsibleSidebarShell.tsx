@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
-import { ZenformedAccountMenu } from '../ZenformedAccountMenu';
+import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { useZenformedMobileShellLayout } from '../useZenformedMobileShellLayout';
 import { ZenformedNotificationsMenu } from '../notifications/ZenformedNotificationsMenu';
@@ -46,12 +46,21 @@ function RailChrome({
     onAccountOpenChange?.(accountMenu.accountMenuOpen);
   }, [accountMenu.accountMenuOpen, onAccountOpenChange]);
 
+  const openAccountPanel = useCallback(() => {
+    accountMenu.setAccountMenuOpen(true);
+  }, [accountMenu.setAccountMenuOpen]);
+
   const org = organizationName?.trim() || null;
   const otherLabel = resolveSidebarSectionLabelText({
     label: otherSectionLabel,
     collapsedLabel: otherSectionCollapsedLabel,
     expanded: showLabels,
   });
+
+  const accountName = account?.userDisplayName?.trim() || account?.user.email?.trim() || '';
+  const accountEmail = (account?.userEmail ?? account?.user.email)?.trim() || '';
+  const showAccountEmail =
+    Boolean(accountEmail) && accountEmail.toLowerCase() !== accountName.toLowerCase();
 
   return (
     <div
@@ -78,102 +87,161 @@ function RailChrome({
         />
       </div>
 
-      <div className={styles.other}>
-        {otherLabel ? (
-          <div
-            className={`${styles.sectionLabel} ${styles.otherLabel} ${
-              showLabels ? '' : styles.sectionLabelCollapsed
-            }`}
-            role="presentation"
-          >
-            <span>{otherLabel}</span>
+      <div className={styles.other} ref={account ? accountMenu.accountMenuRef : undefined}>
+        {account && accountMenu.accountMenuOpen ? (
+          <div className={styles.otherAccountPanel} role="menu" aria-label="Account">
+            <div className={styles.otherAccountHeader}>
+              {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
+              ) : (
+                <span
+                  className={styles.otherAccountAvatar}
+                  style={{
+                    backgroundColor: account.avatarLoading
+                      ? 'var(--color-muted, #f1f5f9)'
+                      : userCircleColor(account.user.email),
+                  }}
+                  aria-hidden
+                >
+                  {!account.avatarLoading
+                    ? getUserInitials(account.user, accountName)
+                    : null}
+                </span>
+              )}
+              <div className={styles.otherAccountIdentity}>
+                <span className={styles.otherAccountName} title={accountName}>
+                  {accountName}
+                </span>
+                {showAccountEmail ? (
+                  <span className={styles.otherAccountEmail} title={accountEmail}>
+                    {accountEmail}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div className={styles.otherAccountDivider} aria-hidden />
+            <button
+              type="button"
+              className={styles.otherAccountSignOut}
+              onClick={() => {
+                accountMenu.closeAccountMenu();
+                account.onRequestSignOutConfirm();
+              }}
+            >
+              {account.signOutIcon}
+              {account.labels.signOutButtonLabel}
+            </button>
           </div>
-        ) : null}
+        ) : (
+          <>
+            {otherLabel ? (
+              <div
+                className={`${styles.sectionLabel} ${styles.otherLabel} ${
+                  showLabels ? '' : styles.sectionLabelCollapsed
+                }`}
+                role="presentation"
+              >
+                <span>{otherLabel}</span>
+              </div>
+            ) : null}
 
-        {notifications && notifications.organizationId.trim() ? (
-          <ZenformedSidebarActionRow
-            showLabel={showLabels}
-            label={notificationsLabel}
-            icon={
-              <ZenformedNotificationsMenu
-                {...notifications}
-                onOpenChange={onNotificationsOpenChange}
+            {notifications && notifications.organizationId.trim() ? (
+              <ZenformedSidebarActionRow
+                showLabel={showLabels}
+                label={notificationsLabel}
+                icon={
+                  <ZenformedNotificationsMenu
+                    {...notifications}
+                    onOpenChange={onNotificationsOpenChange}
+                  />
+                }
+                className={styles.notificationsSlot}
               />
-            }
-            className={styles.notificationsSlot}
-          />
-        ) : null}
+            ) : null}
 
-        <ZenformedSidebarActionRow
-          showLabel={showLabels}
-          label={themeLabel}
-          icon={<span className={styles.themeControlWrap}>{themeControl}</span>}
-        />
+            <ZenformedSidebarActionRow
+              showLabel={showLabels}
+              label={themeLabel}
+              icon={<span className={styles.themeControlWrap}>{themeControl}</span>}
+            />
 
-        {settings ? (
-          <ZenformedSidebarActionRow
-            asButton
-            showLabel={showLabels}
-            label={settings.label}
-            title={settings.title ?? settings.label}
-            icon={settings.icon}
-            onClick={() => {
-              settings.onSelect();
-              onNavigate?.();
-            }}
-          />
-        ) : null}
-
-        {account ? (
-          <div className={`${styles.actionRow} ${styles.accountSlot}`}>
-            <span className={styles.actionIcon}>
-              <ZenformedAccountMenu
-                classNames={account.classNames}
-                user={account.user}
-                userDisplayName={account.userDisplayName}
-                avatarUrl={account.avatarUrl}
-                avatarLoading={account.avatarLoading ?? false}
-                organizationRoleLabel={account.organizationRoleLabel}
-                labels={account.labels}
-                onOpenSettings={() => {
-                  account.onOpenSettings();
+            {settings ? (
+              <ZenformedSidebarActionRow
+                asButton
+                showLabel={showLabels}
+                label={settings.label}
+                title={settings.title ?? settings.label}
+                icon={settings.icon}
+                onClick={() => {
+                  settings.onSelect();
                   onNavigate?.();
                 }}
-                onRequestSignOutConfirm={account.onRequestSignOutConfirm}
-                onRequestProfilePhotoModal={account.onRequestProfilePhotoModal}
-                profilePhotoChangeEnabled={account.profilePhotoChangeEnabled}
-                showSettingsButton={account.showSettingsButton ?? false}
-                variant="sidebar"
-                settingsIcon={account.settingsIcon}
-                signOutIcon={account.signOutIcon}
-                profilePhotoCameraIcon={account.profilePhotoCameraIcon}
-                accountMenuOpen={accountMenu.accountMenuOpen}
-                setAccountMenuOpen={accountMenu.setAccountMenuOpen}
-                accountMenuRef={accountMenu.accountMenuRef}
-                closeAccountMenu={accountMenu.closeAccountMenu}
               />
-            </span>
-            {showLabels ? (
-              <span className={styles.accountText}>
-                <span className={styles.accountName} title={account.userDisplayName}>
-                  {account.userDisplayName}
-                </span>
-                {(() => {
-                  const email = (account.userEmail ?? account.user.email)?.trim() || '';
-                  if (!email) return null;
-                  if (email.toLowerCase() === account.userDisplayName.trim().toLowerCase()) {
-                    return null;
-                  }
-                  return (
-                    <span className={styles.accountEmail} title={email}>
-                      {email}
-                    </span>
-                  );
-                })()}
-              </span>
             ) : null}
-          </div>
-        ) : null}
+
+            {account ? (
+              <div
+                className={`${styles.actionRow} ${styles.accountSlot}`}
+                onClick={openAccountPanel}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openAccountPanel();
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={account.labels.menuTriggerAriaLabel}
+                aria-expanded={false}
+                aria-haspopup="menu"
+              >
+                <span className={styles.actionIcon} aria-hidden>
+                  {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={account.avatarUrl}
+                      alt=""
+                      className={styles.otherAccountAvatar}
+                    />
+                  ) : (
+                    <span
+                      className={styles.otherAccountAvatar}
+                      style={{
+                        backgroundColor: account.avatarLoading
+                          ? 'var(--color-muted, #f1f5f9)'
+                          : userCircleColor(account.user.email),
+                      }}
+                    >
+                      {!account.avatarLoading
+                        ? getUserInitials(account.user, account.userDisplayName)
+                        : null}
+                    </span>
+                  )}
+                </span>
+                {showLabels ? (
+                  <span className={styles.accountText}>
+                    <span className={styles.accountName} title={account.userDisplayName}>
+                      {account.userDisplayName}
+                    </span>
+                    {(() => {
+                      const email = (account.userEmail ?? account.user.email)?.trim() || '';
+                      if (!email) return null;
+                      if (email.toLowerCase() === account.userDisplayName.trim().toLowerCase()) {
+                        return null;
+                      }
+                      return (
+                        <span className={styles.accountEmail} title={email}>
+                          {email}
+                        </span>
+                      );
+                    })()}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
     </div>
   );

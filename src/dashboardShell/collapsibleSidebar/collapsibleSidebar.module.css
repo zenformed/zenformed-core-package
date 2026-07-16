@@ -879,16 +879,16 @@ button.actionRow:focus-visible {
   margin: 0;
   padding: 0;
   border: none;
-  border-radius: 0.45rem;
-  background: var(--color-surface, #ffffff);
+  border-radius: 0;
+  background: transparent;
   color: var(--color-text-muted, #64748b);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+  box-shadow: none;
   cursor: pointer;
 }
 
 .mobileMenuBtn:hover {
   color: var(--color-text, #0f172a);
-  background: var(--theme-surface-hover, rgba(148, 163, 184, 0.16));
+  background: transparent;
 }
 
 .mobileMenuBtn:focus-visible {

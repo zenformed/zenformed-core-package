@@ -92,7 +92,7 @@ function RailChrome({
         {settings ? (
           <button
             type="button"
-            className={styles.navItem}
+            className={`${styles.otherRow} ${styles.otherRowButton}`}
             onClick={() => {
               settings.onSelect();
               onNavigate?.();
@@ -100,10 +100,10 @@ function RailChrome({
             aria-label={settings.label}
             title={settings.title ?? settings.label}
           >
-            <span className={styles.navIcon} aria-hidden>
+            <span className={styles.otherIconSlot} aria-hidden>
               {settings.icon}
             </span>
-            <span className={styles.navLabel}>{settings.label}</span>
+            {showLabels ? <span className={styles.otherRowLabel}>{settings.label}</span> : null}
           </button>
         ) : null}
 
@@ -124,6 +124,7 @@ function RailChrome({
               onRequestSignOutConfirm={account.onRequestSignOutConfirm}
               onRequestProfilePhotoModal={account.onRequestProfilePhotoModal}
               profilePhotoChangeEnabled={account.profilePhotoChangeEnabled}
+              showSettingsButton={account.showSettingsButton ?? false}
               settingsIcon={account.settingsIcon}
               signOutIcon={account.signOutIcon}
               profilePhotoCameraIcon={account.profilePhotoCameraIcon}

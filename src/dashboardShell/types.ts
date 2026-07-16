@@ -100,6 +100,8 @@ export type ZenformedAccountMenuProps = {
   onRequestProfilePhotoModal: () => void;
   /** When false, account menu shows initials only and hides change-photo control. Default false. */
   profilePhotoChangeEnabled?: boolean;
+  /** When false, hide the Settings row (e.g. sidebar hosts that already expose Settings). Default true. */
+  showSettingsButton?: boolean;
   settingsIcon?: ReactNode;
   signOutIcon?: ReactNode;
   profilePhotoCameraIcon?: ReactNode;

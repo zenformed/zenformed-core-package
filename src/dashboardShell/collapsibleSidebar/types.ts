@@ -59,6 +59,8 @@ export type ZenformedSidebarAccountConfig = {
   readonly onRequestSignOutConfirm: () => void;
   readonly onRequestProfilePhotoModal: () => void;
   readonly profilePhotoChangeEnabled?: boolean;
+  /** Sidebar default: false (Settings is a separate OTHER row). */
+  readonly showSettingsButton?: boolean;
   readonly settingsIcon?: ReactNode;
   readonly signOutIcon?: ReactNode;
   readonly profilePhotoCameraIcon?: ReactNode;

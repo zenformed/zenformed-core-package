@@ -22,6 +22,7 @@ export function ZenformedAccountMenu({
   onRequestSignOutConfirm,
   onRequestProfilePhotoModal,
   profilePhotoChangeEnabled = false,
+  showSettingsButton = true,
   settingsIcon,
   signOutIcon,
   profilePhotoCameraIcon,
@@ -108,19 +109,21 @@ export function ZenformedAccountMenu({
           {userDisplayName ? (
             <div className={classNames.accountMenuShopName}>{userDisplayName}</div>
           ) : null}
-          <button
-            type="button"
-            className={classNames.accountMenuBtn}
-            onClick={() => {
-              closeAccountMenu();
-              onOpenSettings();
-            }}
-          >
-            {settingsIcon ?? (
-              <ZenformedAccountMenuSettingsIcon className={classNames.accountMenuBtnIcon} />
-            )}
-            {labels.settingsButtonLabel}
-          </button>
+          {showSettingsButton ? (
+            <button
+              type="button"
+              className={classNames.accountMenuBtn}
+              onClick={() => {
+                closeAccountMenu();
+                onOpenSettings();
+              }}
+            >
+              {settingsIcon ?? (
+                <ZenformedAccountMenuSettingsIcon className={classNames.accountMenuBtnIcon} />
+              )}
+              {labels.settingsButtonLabel}
+            </button>
+          ) : null}
           <button
             type="button"
             className={classNames.accountMenuBtn}

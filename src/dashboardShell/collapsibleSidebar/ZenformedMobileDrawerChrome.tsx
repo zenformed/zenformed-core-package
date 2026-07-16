@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, type ReactElement } from 'react';
 import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { ZenformedNotificationsMenu } from '../notifications/ZenformedNotificationsMenu';
 import { ZenformedSidebarActionRow } from './ZenformedSidebarActionRow';
@@ -54,6 +54,18 @@ export function ZenformedMobileDrawerChrome({
     [onNavigate]
   );
 
+  const themeRowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const btn = themeRowRef.current?.querySelector('button');
+    if (!btn) return;
+    btn.tabIndex = -1;
+    btn.setAttribute('aria-hidden', 'true');
+  }, [themeControl]);
+
+  const onThemeRowActivate = useCallback(() => {
+    themeRowRef.current?.querySelector('button')?.click();
+  }, []);
+
   return (
     <div
       className={styles.mobileDrawerInner}
@@ -102,12 +114,9 @@ export function ZenformedMobileDrawerChrome({
         <div className={styles.mobileAppsSlot}>{appsSwitcher}</div>
 
         {org ? (
-          <>
-            <p className={styles.mobileOrgName} title={org}>
-              {org}
-            </p>
-            <div className={styles.mobileOrgSeparator} aria-hidden />
-          </>
+          <p className={styles.mobileOrgName} title={org}>
+            {org}
+          </p>
         ) : null}
       </div>
 
@@ -139,8 +148,23 @@ export function ZenformedMobileDrawerChrome({
             </div>
           ) : null}
 
-          <div className={`${styles.actionRow} ${styles.mobileHitRow} ${styles.mobileThemeRow}`}>
-            <span className={styles.themeControlWrap}>{themeControl}</span>
+          <div
+            ref={themeRowRef}
+            className={`${styles.actionRow} ${styles.mobileThemeRow}`}
+            role="button"
+            tabIndex={0}
+            aria-label={themeLabel}
+            onClick={onThemeRowActivate}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onThemeRowActivate();
+              }
+            }}
+          >
+            <span className={styles.actionIcon} aria-hidden>
+              <span className={styles.themeControlWrap}>{themeControl}</span>
+            </span>
             <span className={styles.actionLabel} title={themeLabel}>
               {themeLabel}
             </span>

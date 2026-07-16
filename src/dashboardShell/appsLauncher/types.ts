@@ -42,9 +42,13 @@ export type ZenformedAppsLauncherClassNames = {
   appsTileMeta: string;
   appsPopoverRow: string;
   appsPopoverRowDisabled: string;
+  appsPopoverRowCurrent: string;
+  appsPopoverRowCheck: string;
+  appsPopoverRowText: string;
   appsPopoverRowName: string;
   appsPopoverRowDescription: string;
   appsPopoverRowMeta: string;
+  appsPopoverSidebarList: string;
   appCardGrid: string;
   appCard: string;
   appCardDisabled: string;
@@ -80,4 +84,11 @@ export type ZenformedAppsLauncherLayoutOptions = {
   readonly showAccountSection?: boolean;
   /** Overrides the account tile label (e.g. "Zenformed Home"). */
   readonly accountHomeLabel?: string;
+  /**
+   * Popover inner layout.
+   * `sidebarList` = horizontal rows: icon + name / tier (collapsible sidebar).
+   */
+  readonly popoverLayout?: 'tiles' | 'sidebarList';
+  /** Marks the current app row (checkmark / aria-current) in `sidebarList` layout. */
+  readonly currentAppId?: string | null;
 };

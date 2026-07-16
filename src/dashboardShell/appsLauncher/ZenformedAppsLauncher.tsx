@@ -43,6 +43,8 @@ export function ZenformedAppsLauncher({
   accountAppId,
   showAccountSection,
   accountHomeLabel,
+  popoverLayout,
+  currentAppId,
   renderTrigger,
   onOpenChange,
 }: ZenformedAppsLauncherProps): ReactElement {
@@ -89,6 +91,8 @@ export function ZenformedAppsLauncher({
             classNames={classNames}
             labels={labels}
             variant="popover"
+            popoverLayout={popoverLayout}
+            currentAppId={currentAppId}
             onNavigate={closeAccountMenu}
             launchApp={launchApp}
             launchingAppId={launchingAppId}

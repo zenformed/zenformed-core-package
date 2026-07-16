@@ -23,6 +23,7 @@ export function ZenformedAccountMenu({
   onRequestProfilePhotoModal,
   profilePhotoChangeEnabled = false,
   showSettingsButton = true,
+  variant = 'default',
   settingsIcon,
   signOutIcon,
   profilePhotoCameraIcon,
@@ -32,9 +33,51 @@ export function ZenformedAccountMenu({
   closeAccountMenu,
 }: ZenformedAccountMenuProps): ReactElement {
   const displayAvatarUrl = profilePhotoChangeEnabled ? avatarUrl : null;
+  const email = user.email?.trim() || '';
+  const nameLine = userDisplayName.trim() || email;
+  const showEmailUnderName = Boolean(email) && email.toLowerCase() !== nameLine.toLowerCase();
+  const isSidebar = variant === 'sidebar';
+
+  const avatarNode = displayAvatarUrl ? (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img src={displayAvatarUrl} alt="" className={classNames.accountMenuTriggerImg} />
+  ) : (
+    <div
+      className={classNames.accountMenuTriggerAvatar}
+      style={{
+        backgroundColor: avatarLoading
+          ? 'var(--color-muted, #f1f5f9)'
+          : userCircleColor(user.email),
+      }}
+      aria-hidden
+    >
+      {!avatarLoading ? getUserInitials(user, nameLine) : null}
+    </div>
+  );
+
+  const dropdownAvatar = displayAvatarUrl ? (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img src={displayAvatarUrl} alt="" className={classNames.accountMenuPhotoImg} aria-hidden />
+  ) : (
+    <div
+      className={classNames.accountMenuAvatar}
+      style={{
+        backgroundColor: avatarLoading
+          ? 'var(--color-muted, #f1f5f9)'
+          : userCircleColor(user.email),
+      }}
+      aria-hidden
+    >
+      {!avatarLoading ? getUserInitials(user, nameLine) : null}
+    </div>
+  );
 
   return (
-    <div className={classNames.accountMenuWrap} ref={accountMenuRef}>
+    <div
+      className={classNames.accountMenuWrap}
+      ref={accountMenuRef}
+      data-zenformed-account-menu-variant={variant}
+    >
       <button
         type="button"
         className={classNames.accountMenuTrigger}
@@ -43,72 +86,64 @@ export function ZenformedAccountMenu({
         aria-expanded={accountMenuOpen}
         aria-haspopup="true"
       >
-        {displayAvatarUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={displayAvatarUrl} alt="" className={classNames.accountMenuTriggerImg} />
-        ) : (
-          <div
-            className={classNames.accountMenuTriggerAvatar}
-            style={{
-              backgroundColor: avatarLoading
-                ? 'var(--color-muted, #f1f5f9)'
-                : userCircleColor(user.email),
-            }}
-            aria-hidden
-          >
-            {!avatarLoading ? getUserInitials(user, userDisplayName) : null}
-          </div>
-        )}
+        {avatarNode}
       </button>
-      {accountMenuOpen && (
+      {accountMenuOpen ? (
         <div className={classNames.accountMenuDropdown} role="menu">
-          {organizationRoleLabel ? (
-            <div className={classNames.badgeRow}>
-              <span
-                className={classNames.adminBadge}
-                aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
-              >
-                {organizationRoleLabel}
-              </span>
-            </div>
-          ) : null}
-          <div className={classNames.accountMenuPhotoWrap}>
-            <div className={classNames.accountMenuPhotoCircle}>
-              {displayAvatarUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img src={displayAvatarUrl} alt="" className={classNames.accountMenuPhotoImg} aria-hidden />
-              ) : (
-                <div
-                  className={classNames.accountMenuAvatar}
-                  style={{
-                    backgroundColor: avatarLoading
-                      ? 'var(--color-muted, #f1f5f9)'
-                      : userCircleColor(user.email),
-                  }}
-                  aria-hidden
-                >
-                  {!avatarLoading ? getUserInitials(user, userDisplayName) : null}
+          {isSidebar ? (
+            <>
+              <div className={classNames.accountMenuSidebarHeader}>
+                <div className={classNames.accountMenuPhotoWrap}>
+                  <div className={classNames.accountMenuPhotoCircle}>{dropdownAvatar}</div>
                 </div>
-              )}
-            </div>
-            {profilePhotoChangeEnabled ? (
-              <button
-                type="button"
-                className={classNames.accountMenuPhotoCameraBtn}
-                onClick={() => {
-                  closeAccountMenu();
-                  onRequestProfilePhotoModal();
-                }}
-                title={labels.profilePhotoChangeTitle}
-                aria-label={labels.profilePhotoChangeAriaLabel}
-              >
-                {profilePhotoCameraIcon ?? <ZenformedAccountMenuCameraIcon />}
-              </button>
-            ) : null}
-          </div>
-          {userDisplayName ? (
-            <div className={classNames.accountMenuShopName}>{userDisplayName}</div>
-          ) : null}
+                <div className={classNames.accountMenuSidebarIdentity}>
+                  <div className={classNames.accountMenuShopName}>{nameLine}</div>
+                  {showEmailUnderName ? (
+                    <div className={classNames.accountMenuEmail}>{email}</div>
+                  ) : null}
+                </div>
+              </div>
+              <div className={classNames.accountMenuSidebarDivider} aria-hidden />
+            </>
+          ) : (
+            <>
+              {organizationRoleLabel ? (
+                <div className={classNames.badgeRow}>
+                  <span
+                    className={classNames.adminBadge}
+                    aria-label={`${labels.roleAriaLabelPrefix ?? 'Role:'} ${organizationRoleLabel}`}
+                  >
+                    {organizationRoleLabel}
+                  </span>
+                </div>
+              ) : null}
+              <div className={classNames.accountMenuPhotoWrap}>
+                <div className={classNames.accountMenuPhotoCircle}>
+                  {dropdownAvatar}
+                </div>
+                {profilePhotoChangeEnabled ? (
+                  <button
+                    type="button"
+                    className={classNames.accountMenuPhotoCameraBtn}
+                    onClick={() => {
+                      closeAccountMenu();
+                      onRequestProfilePhotoModal();
+                    }}
+                    title={labels.profilePhotoChangeTitle}
+                    aria-label={labels.profilePhotoChangeAriaLabel}
+                  >
+                    {profilePhotoCameraIcon ?? <ZenformedAccountMenuCameraIcon />}
+                  </button>
+                ) : null}
+              </div>
+              {nameLine ? (
+                <div className={classNames.accountMenuShopName}>{nameLine}</div>
+              ) : null}
+              {showEmailUnderName ? (
+                <div className={classNames.accountMenuEmail}>{email}</div>
+              ) : null}
+            </>
+          )}
           {showSettingsButton ? (
             <button
               type="button"
@@ -132,11 +167,13 @@ export function ZenformedAccountMenu({
               onRequestSignOutConfirm();
             }}
           >
-            {signOutIcon ?? <ZenformedAccountMenuSignOutIcon className={classNames.accountMenuBtnIcon} />}
+            {signOutIcon ?? (
+              <ZenformedAccountMenuSignOutIcon className={classNames.accountMenuBtnIcon} />
+            )}
             {labels.signOutButtonLabel}
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

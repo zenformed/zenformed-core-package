@@ -184,6 +184,92 @@ function AppPopoverTile({
   );
 }
 
+function resolveAppTierLabel(app: ZenformedAppRegistryEntry): string {
+  if (app.entitlementBadges?.planLabel?.trim()) {
+    return app.entitlementBadges.planLabel.trim();
+  }
+  if (app.status === 'coming_soon') return 'Coming soon';
+  return 'Available';
+}
+
+function AppSidebarListRow({
+  app,
+  classNames,
+  onNavigate,
+  launchApp,
+  launchingAppId,
+  currentAppId,
+}: AppActionProps & { currentAppId?: string | null }): ReactElement {
+  const isLaunching = launchingAppId === app.id;
+  const disabled = isDisabledApp(app);
+  const isCurrent = currentAppId != null && app.id === currentAppId;
+  const tier = resolveAppTierLabel(app);
+  const rowClass = [
+    classNames.appsPopoverRow,
+    disabled ? classNames.appsPopoverRowDisabled : '',
+    isCurrent ? classNames.appsPopoverRowCurrent : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const body = (
+    <>
+      <AppIcon app={app} classNames={classNames} variant="popover" />
+      <span className={classNames.appsPopoverRowText}>
+        <span className={classNames.appsPopoverRowName}>
+          {isLaunching ? 'Opening…' : app.name}
+        </span>
+        <span className={classNames.appsPopoverRowMeta}>{tier}</span>
+      </span>
+      {isCurrent ? (
+        <span className={classNames.appsPopoverRowCheck} aria-hidden>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            <path d="M5.6 10.4 2.3 7.1l1.05-1.05L5.6 8.3l5.05-5.05L11.7 4.3 5.6 10.4Z" />
+          </svg>
+        </span>
+      ) : null}
+    </>
+  );
+
+  if (isLaunchableApp(app)) {
+    return (
+      <button
+        type="button"
+        className={rowClass}
+        role="menuitem"
+        disabled={isLaunching}
+        aria-current={isCurrent ? 'true' : undefined}
+        onClick={() => {
+          onNavigate?.();
+          void launchApp(app.launchTarget!, '/dashboard');
+        }}
+      >
+        {body}
+      </button>
+    );
+  }
+
+  if (isHrefApp(app)) {
+    return (
+      <a
+        href={app.href}
+        className={rowClass}
+        role="menuitem"
+        aria-current={isCurrent ? 'true' : undefined}
+        onClick={() => onNavigate?.()}
+      >
+        {body}
+      </a>
+    );
+  }
+
+  return (
+    <div className={rowClass} role="menuitem" aria-disabled="true">
+      {body}
+    </div>
+  );
+}
+
 function resolveAppsSectionTitle(labels: ZenformedAppsLauncherLabels): string {
   return labels.appsSectionTitle ?? labels.sectionTitle ?? 'Apps';
 }
@@ -203,6 +289,8 @@ function LauncherPopoverContent({
   accountAppId,
   showAccountSection,
   accountHomeLabel,
+  popoverLayout = 'tiles',
+  currentAppId,
 }: Omit<ZenformedAppListProps, 'variant'>): ReactElement {
   const { launcherApps, accountApp } = partitionLauncherApps(apps, accountAppId);
   const accountLabel =
@@ -211,6 +299,27 @@ function LauncherPopoverContent({
     showAccountSection !== false && accountApp != null
       ? { ...accountApp, name: accountLabel }
       : null;
+
+  if (popoverLayout === 'sidebarList') {
+    return (
+      <div className={classNames.appsPopoverList}>
+        {launchError ? <p className={classNames.appsLaunchError}>{launchError}</p> : null}
+        <div className={classNames.appsPopoverSidebarList} role="none">
+          {apps.map((app) => (
+            <AppSidebarListRow
+              key={app.id}
+              app={app}
+              classNames={classNames}
+              onNavigate={onNavigate}
+              launchApp={launchApp}
+              launchingAppId={launchingAppId}
+              currentAppId={currentAppId}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={classNames.appsPopoverList}>
@@ -261,6 +370,8 @@ export function ZenformedAppList({
   classNames,
   labels,
   variant,
+  popoverLayout,
+  currentAppId,
   onNavigate,
   launchApp,
   launchingAppId,
@@ -275,6 +386,8 @@ export function ZenformedAppList({
         apps={apps}
         classNames={classNames}
         labels={labels}
+        popoverLayout={popoverLayout}
+        currentAppId={currentAppId}
         onNavigate={onNavigate}
         launchApp={launchApp}
         launchingAppId={launchingAppId}

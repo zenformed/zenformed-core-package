@@ -69,6 +69,9 @@ export type ZenformedDashboardHeaderClassNames = {
   accountMenuAvatar: string;
   accountMenuPhotoCameraBtn: string;
   accountMenuShopName: string;
+  accountMenuSidebarHeader: string;
+  accountMenuSidebarIdentity: string;
+  accountMenuSidebarDivider: string;
   accountMenuBtn: string;
   accountMenuBtnIcon: string;
 };
@@ -102,6 +105,11 @@ export type ZenformedAccountMenuProps = {
   profilePhotoChangeEnabled?: boolean;
   /** When false, hide the Settings row (e.g. sidebar hosts that already expose Settings). Default true. */
   showSettingsButton?: boolean;
+  /**
+   * `sidebar` = horizontal avatar + name/email header, menu opens upward (host CSS).
+   * Default `default` keeps the legacy centered header account dropdown.
+   */
+  variant?: 'default' | 'sidebar';
   settingsIcon?: ReactNode;
   signOutIcon?: ReactNode;
   profilePhotoCameraIcon?: ReactNode;

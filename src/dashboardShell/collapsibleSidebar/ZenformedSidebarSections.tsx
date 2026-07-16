@@ -135,10 +135,14 @@ function CustomSection({
           </div>
         )
       ) : null}
-      {/* Team list (and other custom bodies) stay mounted so collapsed avatars remain visible. */}
-      {!collapsible || open ? (
-        <div className={styles.customSectionBody}>{section.content}</div>
-      ) : null}
+      {/* Keep custom bodies mounted (hidden when accordion closed) so hosts do not refetch on toggle. */}
+      <div
+        className={styles.customSectionBody}
+        hidden={collapsible && !open}
+        aria-hidden={collapsible && !open ? true : undefined}
+      >
+        {section.content}
+      </div>
     </div>
   );
 }

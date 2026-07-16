@@ -143,6 +143,7 @@ function RailChrome({
                 onRequestProfilePhotoModal={account.onRequestProfilePhotoModal}
                 profilePhotoChangeEnabled={account.profilePhotoChangeEnabled}
                 showSettingsButton={account.showSettingsButton ?? false}
+                variant="sidebar"
                 settingsIcon={account.settingsIcon}
                 signOutIcon={account.signOutIcon}
                 profilePhotoCameraIcon={account.profilePhotoCameraIcon}

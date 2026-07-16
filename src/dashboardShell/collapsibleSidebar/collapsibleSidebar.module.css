@@ -44,8 +44,22 @@
   display: flex;
   flex-direction: column;
   overflow: visible;
-  background: var(--color-surface, #ffffff);
-  border-right: 1px solid var(--color-border, #e2e8f0);
+  /*
+   * Host sets --theme-nav-sidebar-* (BuildCore light: #102741).
+   * Remap text/border/hover for rail chrome; menus reset to card surface.
+   * Fallbacks are literals (no self-reference cycles).
+   */
+  --zenformed-sidebar-fg: var(--theme-nav-sidebar-text, #0f172a);
+  --zenformed-sidebar-fg-muted: var(--theme-nav-sidebar-text-muted, #64748b);
+  --zenformed-sidebar-edge: var(--theme-nav-sidebar-border, #e2e8f0);
+  --zenformed-sidebar-row-hover: var(--theme-nav-sidebar-hover, rgba(148, 163, 184, 0.12));
+  --color-text: var(--zenformed-sidebar-fg);
+  --color-text-muted: var(--zenformed-sidebar-fg-muted);
+  --color-border: var(--zenformed-sidebar-edge);
+  --theme-surface-hover: var(--zenformed-sidebar-row-hover);
+  background: var(--theme-nav-sidebar-bg, var(--color-surface, #ffffff));
+  border-right: 1px solid var(--zenformed-sidebar-edge);
+  color: var(--zenformed-sidebar-fg);
   transition: width 0.2s ease, box-shadow 0.2s ease;
   z-index: 101;
 }
@@ -61,7 +75,7 @@
   right: 0;
   bottom: 0;
   width: 1px;
-  background: var(--color-border, #e2e8f0);
+  background: var(--zenformed-sidebar-edge);
   pointer-events: none;
   z-index: 10000;
 }
@@ -418,7 +432,10 @@
 }
 
 .navItemActive {
-  background: color-mix(in srgb, var(--color-primary, #2563eb) 12%, transparent);
+  background: var(
+    --theme-nav-sidebar-active,
+    color-mix(in srgb, var(--color-primary, #2563eb) 12%, transparent)
+  );
   color: var(--color-primary, #2563eb);
 }
 
@@ -519,8 +536,8 @@
   align-items: center;
   gap: 0.1rem;
   padding: 0.35rem 0 0.45rem;
-  border-top: 1px solid var(--color-border, #e2e8f0);
-  background: var(--color-surface, #ffffff);
+  border-top: 1px solid var(--zenformed-sidebar-edge, var(--color-border, #e2e8f0));
+  background: transparent;
   overflow: visible;
   position: relative;
   z-index: auto;
@@ -569,7 +586,7 @@
 }
 
 .actionRow:hover {
-  background: var(--theme-surface-hover, rgba(148, 163, 184, 0.12));
+  background: var(--zenformed-sidebar-row-hover, var(--theme-surface-hover, rgba(148, 163, 184, 0.12)));
 }
 
 button.actionRow {
@@ -699,8 +716,13 @@ button.actionRow:focus-visible {
   margin: 0;
   padding: 0.65rem 0 0.55rem;
   box-sizing: border-box;
-  background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-border, #e2e8f0);
+  /* Menu stays on card surface (not navy rail) */
+  --color-text: var(--theme-nav-sidebar-menu-text, #1e293b);
+  --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #64748b);
+  --color-border: var(--theme-border-card, #e2e8f0);
+  background: var(--theme-nav-sidebar-menu-bg, var(--theme-surface-card, #ffffff));
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   box-shadow: none;
   overflow: hidden;
@@ -833,8 +855,9 @@ button.actionRow:focus-visible {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
-  background: var(--color-surface, #ffffff);
+  border-bottom: 1px solid var(--theme-nav-sidebar-border, var(--color-border, #e2e8f0));
+  background: var(--theme-nav-sidebar-bg, var(--color-surface, #ffffff));
+  color: var(--theme-nav-sidebar-text, var(--color-text, #0f172a));
 }
 
 .mobileMenuBtn {

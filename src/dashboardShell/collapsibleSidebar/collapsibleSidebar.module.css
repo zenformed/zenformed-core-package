@@ -716,11 +716,12 @@ button.actionRow:focus-visible {
   margin: 0;
   padding: 0.65rem 0 0.55rem;
   box-sizing: border-box;
-  /* Menu stays on card surface (not navy rail) */
-  --color-text: var(--theme-nav-sidebar-menu-text, #1e293b);
-  --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #64748b);
-  --color-border: var(--theme-border-card, #e2e8f0);
-  background: var(--theme-nav-sidebar-menu-bg, var(--theme-surface-card, #ffffff));
+  /* Menu overlays match navy rail (slightly lifted) */
+  --color-text: var(--theme-nav-sidebar-menu-text, #f1f5f9);
+  --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #94a3b8);
+  --color-border: var(--theme-nav-sidebar-menu-border, rgba(255, 255, 255, 0.14));
+  --theme-surface-hover: var(--theme-nav-sidebar-menu-hover, rgba(255, 255, 255, 0.08));
+  background: var(--theme-nav-sidebar-menu-bg, var(--theme-nav-sidebar-bg, #102741));
   color: var(--color-text);
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;

@@ -203,7 +203,6 @@ function AppSidebarListRow({
   const isLaunching = launchingAppId === app.id;
   const disabled = isDisabledApp(app);
   const isCurrent = currentAppId != null && app.id === currentAppId;
-  const tier = resolveAppTierLabel(app);
   const rowClass = [
     classNames.appsPopoverRow,
     disabled ? classNames.appsPopoverRowDisabled : '',
@@ -212,6 +211,12 @@ function AppSidebarListRow({
     .filter(Boolean)
     .join(' ');
 
+  const meta = app.entitlementBadges ? (
+    <AppEntitlementBadges {...app.entitlementBadges} compact />
+  ) : (
+    <span className={classNames.appsPopoverRowMeta}>{resolveAppTierLabel(app)}</span>
+  );
+
   const body = (
     <>
       <AppIcon app={app} classNames={classNames} variant="popover" />
@@ -219,7 +224,7 @@ function AppSidebarListRow({
         <span className={classNames.appsPopoverRowName}>
           {isLaunching ? 'Opening…' : app.name}
         </span>
-        <span className={classNames.appsPopoverRowMeta}>{tier}</span>
+        {meta}
       </span>
       {isCurrent ? (
         <span className={classNames.appsPopoverRowCheck} aria-hidden>

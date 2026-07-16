@@ -1,6 +1,7 @@
 import buildcoreIcon from '../../../assets/app-icons/buildcore.png';
 import forgecoreIcon from '../../../assets/app-icons/forgecore.png';
 import formcoreIcon from '../../../assets/app-icons/formcore.png';
+import analyticscoreIcon from '../../../assets/app-icons/analyticscore.png';
 import platformIcon from '../../../assets/app-icons/platform.png';
 import type { ZenformedAppRegistryEntry } from './types';
 
@@ -21,13 +22,12 @@ export const ZENFORMED_ECOSYSTEM_APP_ICON_IDS = [
 
 export type ZenformedEcosystemAppIconId = (typeof ZENFORMED_ECOSYSTEM_APP_ICON_IDS)[number];
 
-type ZenformedBundledAppIconId = Exclude<ZenformedEcosystemAppIconId, 'analyticscore'>;
-
-const BUNDLED_ICON_SRC: Record<ZenformedBundledAppIconId, string> = {
+const BUNDLED_ICON_SRC: Record<ZenformedEcosystemAppIconId, string> = {
   platform: toBundledImageUrl(platformIcon),
   buildcore: toBundledImageUrl(buildcoreIcon),
   forgecore: toBundledImageUrl(forgecoreIcon),
   formcore: toBundledImageUrl(formcoreIcon),
+  analyticscore: toBundledImageUrl(analyticscoreIcon),
 };
 
 export type ZenformedAppIconPublicSrcOptions = {
@@ -42,8 +42,7 @@ export type ZenformedAppIconPublicSrcOptions = {
 /** Bundled icon URL resolved by Next/webpack when `transpilePackages` includes `@zenformed/core`. */
 export function zenformedAppIconSrc(id: string): string | undefined {
   if (!isZenformedEcosystemAppIconId(id)) return undefined;
-  if (!(id in BUNDLED_ICON_SRC)) return undefined;
-  return BUNDLED_ICON_SRC[id as keyof typeof BUNDLED_ICON_SRC];
+  return BUNDLED_ICON_SRC[id];
 }
 
 export function isZenformedEcosystemAppIconId(id: string): id is ZenformedEcosystemAppIconId {

@@ -64,4 +64,10 @@
 
 .appBillingBadgesCompact {
   margin-top: 0;
+  gap: 0.3rem;
+}
+
+/* Sidebar app-switcher rows: keep pills on one line under the app name */
+:global([data-zenformed-collapsible-sidebar-shell]) .appBillingBadgesCompact {
+  flex-wrap: nowrap;
 }

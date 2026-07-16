@@ -135,8 +135,8 @@ function CustomSection({
           </div>
         )
       ) : null}
-      {/* Custom bodies (e.g. team list) only when expanded — keep collapsed rail icon-only. */}
-      {expanded && (!collapsible || open) ? (
+      {/* Team list (and other custom bodies) stay mounted so collapsed avatars remain visible. */}
+      {!collapsible || open ? (
         <div className={styles.customSectionBody}>{section.content}</div>
       ) : null}
     </div>

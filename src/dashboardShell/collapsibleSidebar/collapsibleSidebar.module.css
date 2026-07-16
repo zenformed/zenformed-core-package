@@ -44,6 +44,19 @@
   z-index: 101;
 }
 
+/* Keep a continuous right edge over the full rail height (including pinned OTHER). */
+.rail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border, #e2e8f0);
+  pointer-events: none;
+  z-index: 5;
+}
+
 .railExpanded {
   width: var(--zenformed-sidebar-expanded-width);
   box-shadow: 8px 0 24px rgba(15, 23, 42, 0.12);
@@ -71,6 +84,8 @@
   width: 100%;
   justify-content: center;
   padding: 0;
+  position: relative;
+  z-index: 320;
 }
 
 .appsSwitcherSlot > * {
@@ -414,6 +429,10 @@
 .customSectionBody {
   display: block;
   min-width: 0;
+  padding: 0;
+}
+
+.railExpanded .customSectionBody {
   padding: 0 var(--zenformed-sidebar-pad-x);
 }
 
@@ -465,6 +484,8 @@
   border-top: 1px solid var(--color-border, #e2e8f0);
   background: var(--color-surface, #ffffff);
   overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
 .railExpanded .other {
@@ -556,6 +577,7 @@ button.actionRow:focus-visible {
   overflow: visible;
   position: relative;
   cursor: default;
+  z-index: 320;
 }
 
 .accountSlot:hover {
@@ -567,6 +589,23 @@ button.actionRow:focus-visible {
   width: 2rem !important;
   height: 2rem !important;
   font-size: 0.75rem !important;
+}
+
+/* Host account dropdown: open upward, inset from expanded rail width */
+.accountSlot :global([class*='accountMenuWrap']) {
+  position: static;
+}
+
+.accountSlot :global([class*='accountMenuDropdown']) {
+  top: auto !important;
+  bottom: calc(100% + 0.35rem) !important;
+  left: 0.25rem !important;
+  right: auto !important;
+  margin-top: 0 !important;
+  width: calc(var(--zenformed-sidebar-expanded-width) - 1rem) !important;
+  min-width: 0 !important;
+  max-width: calc(100vw - 1rem);
+  z-index: 330 !important;
 }
 
 .main {

@@ -33,6 +33,7 @@ export function ZenformedMobileDrawerChrome({
     account,
     notificationsLabel = 'Notifications',
     otherSectionLabel = 'Other',
+    otherLeading,
   } = props;
 
   const org = organizationName?.trim() || null;
@@ -133,6 +134,10 @@ export function ZenformedMobileDrawerChrome({
               <span>{otherLabel}</span>
             </div>
           ) : null}
+
+          {typeof otherLeading === 'function'
+            ? otherLeading({ showLabel: true })
+            : otherLeading}
 
           {notifications && notifications.organizationId.trim() ? (
             <div className={`${styles.actionRow} ${styles.notificationsSlot} ${styles.mobileHitRow}`}>

@@ -36,6 +36,8 @@ export { ZenformedSidebarAppChevrons } from './collapsibleSidebar/ZenformedSideb
 export { ZenformedSidebarAppsTriggerChrome } from './collapsibleSidebar/ZenformedSidebarAppsTriggerChrome';
 export { ZenformedSidebarActionRow } from './collapsibleSidebar/ZenformedSidebarActionRow';
 export { useZenformedSidebarExpandState } from './collapsibleSidebar/useZenformedSidebarExpandState';
+export { useMobileDrawerClose } from './collapsibleSidebar/mobileDrawerCloseContext';
+export { useBodyScrollLock } from './useBodyScrollLock';
 export {
   resolveMobileDrawerWidthCss,
   resolveSidebarSectionLabelText,

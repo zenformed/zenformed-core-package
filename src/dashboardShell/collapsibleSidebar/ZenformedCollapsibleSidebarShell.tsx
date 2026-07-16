@@ -8,6 +8,7 @@ import {
   useState,
   type CSSProperties,
   type ReactElement,
+  type ReactNode,
 } from 'react';
 import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { useAccountMenuState } from '../useAccountMenuState';
@@ -29,6 +30,15 @@ import {
   type ZenformedCollapsibleSidebarShellProps,
 } from './types';
 import styles from './collapsibleSidebar.module.css';
+
+function resolveOtherLeading(
+  otherLeading: ZenformedCollapsibleSidebarShellProps['otherLeading'],
+  showLabel: boolean
+): ReactNode {
+  if (otherLeading == null) return null;
+  if (typeof otherLeading === 'function') return otherLeading({ showLabel });
+  return otherLeading;
+}
 
 function DesktopRailChrome({
   props,
@@ -55,6 +65,7 @@ function DesktopRailChrome({
     notificationsLabel = 'Notifications',
     otherSectionLabel = 'Other',
     otherSectionCollapsedLabel,
+    otherLeading,
   } = props;
 
   const accountMenu = useAccountMenuState();
@@ -119,6 +130,8 @@ function DesktopRailChrome({
             <span>{otherLabel}</span>
           </div>
         ) : null}
+
+        {otherLeading ? resolveOtherLeading(otherLeading, showLabels) : null}
 
         {notifications && notifications.organizationId.trim() ? (
           <ZenformedSidebarActionRow

@@ -94,6 +94,13 @@ export type ZenformedCollapsibleSidebarShellProps = {
   readonly organizationName?: string | null;
   readonly sections?: readonly ZenformedSidebarSection[];
   readonly notifications?: ZenformedDashboardNotificationsConfig | null;
+  /**
+   * Optional host content at the top of OTHER (before Notifications).
+   * Pass a node, or a render function that receives `{ showLabel }` for collapsed-rail layout.
+   */
+  readonly otherLeading?:
+    | ReactNode
+    | ((state: { readonly showLabel: boolean }) => ReactNode);
   /** Host theme control (reuse existing ThemeToggle). */
   readonly themeControl: ReactNode;
   readonly themeLabel?: string;

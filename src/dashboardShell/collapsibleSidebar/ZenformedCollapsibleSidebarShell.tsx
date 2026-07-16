@@ -67,27 +67,32 @@ function RailChrome({
       className={styles.railInner}
       data-zenformed-sidebar-expanded={showLabels ? 'true' : 'false'}
     >
-      <div className={styles.topBlock}>
-        <div className={styles.appsSwitcherSlot}>{appsSwitcher}</div>
-        {org ? (
-          <>
-            <p className={styles.orgName} title={org}>
-              {org}
-            </p>
-            <div className={styles.orgSeparator} aria-hidden />
-          </>
-        ) : null}
+      <div className={styles.railTop}>
+        <div className={styles.topBlock}>
+          <div className={styles.appsSwitcherSlot}>{appsSwitcher}</div>
+          {org ? (
+            <>
+              <p className={styles.orgName} title={org}>
+                {org}
+              </p>
+              <div className={styles.orgSeparator} aria-hidden />
+            </>
+          ) : null}
+        </div>
+
+        <div className={styles.scrollRegion}>
+          <ZenformedSidebarSections
+            sections={sections}
+            expanded={showLabels}
+            onNavigate={onNavigate}
+          />
+        </div>
       </div>
 
-      <div className={styles.scrollRegion}>
-        <ZenformedSidebarSections
-          sections={sections}
-          expanded={showLabels}
-          onNavigate={onNavigate}
-        />
-      </div>
-
-      <div className={styles.other} ref={account ? accountMenu.accountMenuRef : undefined}>
+      <div
+        className={`${styles.other} ${styles.railBottom}`}
+        ref={account ? accountMenu.accountMenuRef : undefined}
+      >
         {otherLabel ? (
           <div
             className={`${styles.sectionLabel} ${styles.otherLabel} ${

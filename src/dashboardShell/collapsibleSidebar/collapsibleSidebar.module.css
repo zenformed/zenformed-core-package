@@ -10,7 +10,13 @@
   --zenformed-sidebar-row-height: 2.5rem;
   --zenformed-sidebar-section-label-height: 1rem;
   --zenformed-sidebar-pad-x: 0.75rem;
-  --zenformed-sidebar-expanded-gap: 0.65rem;
+  /* Shared expanded-row contract — every icon row uses these */
+  --zenformed-sidebar-row-pad-x: 0.5rem;
+  --zenformed-sidebar-row-gap: 0.65rem;
+  --zenformed-sidebar-icon-size: 1.25rem;
+  --zenformed-sidebar-label-inset: calc(
+    var(--zenformed-sidebar-pad-x) + var(--zenformed-sidebar-row-pad-x)
+  );
 
   display: flex;
   flex-direction: row;
@@ -85,6 +91,15 @@
   overflow: visible;
 }
 
+/* Top = apps + org + MENU/TEAM scroll. Bottom = OTHER. */
+.railTop {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .appsSwitcherSlot {
   display: flex;
   width: 100%;
@@ -136,8 +151,9 @@
   width: 100%;
   max-width: 100%;
   justify-content: flex-start;
-  /* Same left edge as navItem icons: pad-x + 0.5rem */
-  padding: 0.45rem calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
+  gap: var(--zenformed-sidebar-row-gap);
+  /* Same left edge as every row icon */
+  padding: 0.45rem var(--zenformed-sidebar-label-inset);
   border-radius: 0;
 }
 
@@ -303,7 +319,8 @@
   justify-content: flex-start;
   gap: 0.35rem;
   margin: 0.15rem 0 0.4rem;
-  padding: 0 calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
+  /* Same left edge as every row icon */
+  padding: 0 var(--zenformed-sidebar-label-inset);
   border: none;
   background: transparent;
   color: var(--color-text-muted, #64748b);
@@ -391,8 +408,8 @@
 .railExpanded .navItem {
   width: 100%;
   justify-content: flex-start;
-  gap: 0.65rem;
-  padding: 0.45rem 0.5rem;
+  gap: var(--zenformed-sidebar-row-gap);
+  padding: 0.45rem var(--zenformed-sidebar-row-pad-x);
 }
 
 .navItem:hover:not(:disabled) {
@@ -417,16 +434,16 @@
 
 .navIcon {
   display: inline-flex;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: var(--zenformed-sidebar-icon-size);
+  height: var(--zenformed-sidebar-icon-size);
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
 }
 
 .navIcon :global(svg) {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: var(--zenformed-sidebar-icon-size);
+  height: var(--zenformed-sidebar-icon-size);
 }
 
 .navLabel {
@@ -493,11 +510,9 @@
   color: var(--color-text-muted, #64748b);
 }
 
-/* Shared OTHER / action-row contract — same horizontal math as Menu/Team:
- * sectionLabel: pad-x + 0.5rem
- * rows: pad-x (outer) + 0.5rem (row) + 1.25rem icon
- */
-.other {
+/* Bottom = OTHER (notifications / theme / settings / account) */
+.other,
+.railBottom {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -508,11 +523,11 @@
   background: var(--color-surface, #ffffff);
   overflow: visible;
   position: relative;
-  /* Keep auto so this block cannot paint over the rail's right border */
   z-index: auto;
 }
 
-.railExpanded .other {
+.railExpanded .other,
+.railExpanded .railBottom {
   align-items: stretch;
   padding: 0.35rem 0 0.45rem;
 }
@@ -521,6 +536,10 @@
   margin-bottom: 0.25rem;
 }
 
+/*
+ * Shared row: MENU navItem and OTHER actionRow use the same expanded math.
+ * pad-x (list/margin) + row-pad-x + icon-size + row-gap + label
+ */
 .actionRow {
   display: flex;
   align-items: center;
@@ -539,14 +558,13 @@
   cursor: default;
 }
 
-/* Match .navList + .navItem exactly */
 .railExpanded .actionRow {
   width: auto;
   margin-left: var(--zenformed-sidebar-pad-x);
   margin-right: var(--zenformed-sidebar-pad-x);
   justify-content: flex-start;
-  gap: 0.65rem;
-  padding: 0.45rem 0.5rem;
+  gap: var(--zenformed-sidebar-row-gap);
+  padding: 0.45rem var(--zenformed-sidebar-row-pad-x);
   box-sizing: border-box;
 }
 
@@ -571,23 +589,53 @@ button.actionRow:focus-visible {
   height: var(--zenformed-sidebar-row-height);
   flex-shrink: 0;
   color: var(--color-text-muted, #64748b);
+  overflow: visible;
 }
 
-/* Match .navIcon when expanded so OTHER icons line up with MENU icons */
-.railExpanded .actionIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  justify-content: flex-start;
+.railExpanded .actionIcon,
+.railMobileOpen .actionIcon {
+  width: var(--zenformed-sidebar-icon-size);
+  height: var(--zenformed-sidebar-icon-size);
+  justify-content: center;
+}
+
+/* Nested controls (notifications / theme) are 2.5rem header buttons — shrink to the icon slot */
+.actionIcon :global([data-zenformed-notifications-menu]),
+.themeControlWrap {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.actionIcon :global([data-zenformed-notifications-menu] button),
+.themeControlWrap :global(button) {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .actionIcon :global(svg) {
   width: 1.5rem;
   height: 1.5rem;
+  flex-shrink: 0;
 }
 
-.railExpanded .actionIcon :global(svg) {
-  width: 1.25rem;
-  height: 1.25rem;
+.railExpanded .actionIcon :global(svg),
+.railMobileOpen .actionIcon :global(svg) {
+  width: var(--zenformed-sidebar-icon-size) !important;
+  height: var(--zenformed-sidebar-icon-size) !important;
 }
 
 .actionLabel {
@@ -605,14 +653,6 @@ button.actionRow:focus-visible {
   display: inline-flex;
 }
 
-.themeControlWrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-}
-
 .accountSlot {
   overflow: visible;
   position: relative;
@@ -624,18 +664,17 @@ button.actionRow:focus-visible {
   background: var(--theme-surface-hover, rgba(148, 163, 184, 0.12));
 }
 
-/* Same icon column as Settings / Notifications — left edges line up */
 .railExpanded .accountSlot .actionIcon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: var(--zenformed-sidebar-icon-size);
+  height: var(--zenformed-sidebar-icon-size);
   overflow: visible;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .accountSlot .otherAccountAvatar {
-  width: 1.5rem !important;
-  height: 1.5rem !important;
-  font-size: 0.625rem !important;
+  width: var(--zenformed-sidebar-icon-size) !important;
+  height: var(--zenformed-sidebar-icon-size) !important;
+  font-size: 0.55rem !important;
   border-radius: 999px;
 }
 
@@ -672,7 +711,7 @@ button.actionRow:focus-visible {
   align-items: center;
   gap: 0.65rem;
   width: 100%;
-  padding: 0.25rem calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
+  padding: 0.25rem var(--zenformed-sidebar-label-inset);
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -902,6 +941,7 @@ button.actionRow:focus-visible {
 
 .railMobileOpen .navList,
 .railMobileOpen .other,
+.railMobileOpen .railBottom,
 .railMobileOpen .appsSwitcherSlot {
   align-items: stretch;
 }
@@ -911,7 +951,8 @@ button.actionRow:focus-visible {
   padding-right: var(--zenformed-sidebar-pad-x);
 }
 
-.railMobileOpen .other {
+.railMobileOpen .other,
+.railMobileOpen .railBottom {
   padding-left: 0;
   padding-right: 0;
 }
@@ -935,30 +976,21 @@ button.actionRow:focus-visible {
 }
 
 .railMobileOpen .navItem {
-  gap: 0.65rem;
-  padding: 0.45rem 0.5rem;
+  gap: var(--zenformed-sidebar-row-gap);
+  padding: 0.45rem var(--zenformed-sidebar-row-pad-x);
 }
 
 .railMobileOpen .actionRow {
   width: auto;
   margin-left: var(--zenformed-sidebar-pad-x);
   margin-right: var(--zenformed-sidebar-pad-x);
-  gap: 0.65rem;
-  padding: 0.45rem 0.5rem;
-}
-
-.railMobileOpen .actionIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.railMobileOpen .actionIcon :global(svg) {
-  width: 1.25rem;
-  height: 1.25rem;
+  gap: var(--zenformed-sidebar-row-gap);
+  padding: 0.45rem var(--zenformed-sidebar-row-pad-x);
 }
 
 .railMobileOpen .appsSwitcherSlot :global([data-zenformed-sidebar-apps-trigger]) {
-  padding: 0.45rem calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
+  gap: var(--zenformed-sidebar-row-gap);
+  padding: 0.45rem var(--zenformed-sidebar-label-inset);
   border-radius: 0;
 }
 
@@ -972,7 +1004,7 @@ button.actionRow:focus-visible {
 .railMobileOpen .sectionLabel {
   justify-content: flex-start;
   width: 100%;
-  padding: 0 calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
+  padding: 0 var(--zenformed-sidebar-label-inset);
   font-size: 0.65rem;
   pointer-events: auto;
 }

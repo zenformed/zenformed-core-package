@@ -39,10 +39,25 @@
   flex-direction: column;
   overflow: visible;
   background: var(--color-surface, #ffffff);
-  /* Single continuous right edge for the full sidebar height */
   border-right: 1px solid var(--color-border, #e2e8f0);
   transition: width 0.2s ease, box-shadow 0.2s ease;
   z-index: 101;
+}
+
+/*
+ * Paint the right edge above all rail children (OTHER used to cover border-right).
+ * pointer-events: none so it never blocks clicks.
+ */
+.rail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border, #e2e8f0);
+  pointer-events: none;
+  z-index: 10000;
 }
 
 .railExpanded {
@@ -625,7 +640,7 @@ button.actionRow:focus-visible {
 }
 
 /*
- * Account overlay: absolute over OTHER — does not change layout height.
+ * Account / user menu overlay.
  * Slight inset + rounded corners; same border color as the side nav.
  */
 .otherAccountPanel {
@@ -636,7 +651,7 @@ button.actionRow:focus-visible {
   z-index: 500;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: auto;
   height: 20vh;
   min-height: 0;
@@ -659,6 +674,7 @@ button.actionRow:focus-visible {
   width: 100%;
   padding: 0.25rem calc(var(--zenformed-sidebar-pad-x) + 0.5rem);
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .otherAccountAvatar {
@@ -724,11 +740,12 @@ button.actionRow:focus-visible {
 }
 
 .otherAccountDivider {
-  width: 100%;
+  width: 90%;
   height: 1px;
-  margin: 0.15rem 0;
+  margin: 0.45rem auto 0;
   background: var(--color-border, #e2e8f0);
   flex-shrink: 0;
+  align-self: center;
 }
 
 .otherAccountSignOut {
@@ -737,7 +754,7 @@ button.actionRow:focus-visible {
   justify-content: flex-start;
   gap: 0.55rem;
   width: auto;
-  margin: 0 var(--zenformed-sidebar-pad-x);
+  margin: auto var(--zenformed-sidebar-pad-x) 0;
   padding: 0.55rem 0.5rem;
   border: none;
   border-radius: 0.5rem;
@@ -748,6 +765,7 @@ button.actionRow:focus-visible {
   font-weight: 550;
   cursor: pointer;
   text-align: left;
+  flex-shrink: 0;
 }
 
 .otherAccountSignOut:hover {

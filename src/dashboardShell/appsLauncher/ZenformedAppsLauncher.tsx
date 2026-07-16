@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactElement, ReactNode } from 'react';
+import { useEffect } from 'react';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { ZenformedAppList } from './ZenformedAppList';
 import type {
@@ -19,6 +20,16 @@ export type ZenformedAppsLauncherProps = ZenformedAppsLauncherLayoutOptions & {
   readonly launchingAppId: string | null;
   readonly launchError?: string | null;
   readonly appsIcon: ReactNode;
+  /**
+   * Optional custom trigger (e.g. collapsible sidebar app switcher chrome).
+   * Receives open state and the same click handler as the default trigger.
+   */
+  readonly renderTrigger?: (state: {
+    readonly open: boolean;
+    readonly onClick: () => void;
+    readonly ariaLabel: string;
+  }) => ReactNode;
+  readonly onOpenChange?: (open: boolean) => void;
 };
 
 export function ZenformedAppsLauncher({
@@ -32,24 +43,40 @@ export function ZenformedAppsLauncher({
   accountAppId,
   showAccountSection,
   accountHomeLabel,
+  renderTrigger,
+  onOpenChange,
 }: ZenformedAppsLauncherProps): ReactElement {
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState();
 
+  useEffect(() => {
+    onOpenChange?.(accountMenuOpen);
+  }, [accountMenuOpen, onOpenChange]);
+
+  const onTriggerClick = () => setAccountMenuOpen((open) => !open);
+
   return (
     <div className={classNames.appsLauncherWrap} ref={accountMenuRef}>
-      <button
-        type="button"
-        className={classNames.appsLauncherTrigger}
-        onClick={() => setAccountMenuOpen((open) => !open)}
-        aria-label={labels.triggerAriaLabel}
-        aria-expanded={accountMenuOpen}
-        aria-haspopup="menu"
-      >
-        <span className={classNames.appsLauncherIcon} aria-hidden>
-          {appsIcon}
-        </span>
-      </button>
+      {renderTrigger ? (
+        renderTrigger({
+          open: accountMenuOpen,
+          onClick: onTriggerClick,
+          ariaLabel: labels.triggerAriaLabel,
+        })
+      ) : (
+        <button
+          type="button"
+          className={classNames.appsLauncherTrigger}
+          onClick={onTriggerClick}
+          aria-label={labels.triggerAriaLabel}
+          aria-expanded={accountMenuOpen}
+          aria-haspopup="menu"
+        >
+          <span className={classNames.appsLauncherIcon} aria-hidden>
+            {appsIcon}
+          </span>
+        </button>
+      )}
       {accountMenuOpen ? (
         <div
           className={classNames.appsPopover}

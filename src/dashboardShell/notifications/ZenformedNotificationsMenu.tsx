@@ -13,7 +13,11 @@ import type { ZenformedDashboardNotificationsConfig } from './types';
 import { useZenformedNotificationsController } from './useZenformedNotificationsController';
 import styles from './notifications.module.css';
 
-export type ZenformedNotificationsMenuProps = ZenformedDashboardNotificationsConfig;
+export type ZenformedNotificationsMenuProps = ZenformedDashboardNotificationsConfig & {
+  /** When set, show this label beside the envelope (sidebar expanded). */
+  readonly sidebarLabel?: string;
+  readonly onOpenChange?: (open: boolean) => void;
+};
 
 export function ZenformedNotificationsMenu({
   organizationId,
@@ -21,6 +25,8 @@ export function ZenformedNotificationsMenu({
   notificationsPageHref,
   onNavigate,
   unreadPollIntervalMs,
+  sidebarLabel,
+  onOpenChange,
 }: ZenformedNotificationsMenuProps): ReactElement {
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState();
@@ -33,6 +39,10 @@ export function ZenformedNotificationsMenu({
     enabled: Boolean(organizationId.trim()),
     unreadPollIntervalMs,
   });
+
+  useEffect(() => {
+    onOpenChange?.(accountMenuOpen);
+  }, [accountMenuOpen, onOpenChange]);
 
   useEffect(() => {
     if (!accountMenuOpen) return;
@@ -70,7 +80,7 @@ export function ZenformedNotificationsMenu({
     <div className={styles.wrap} ref={accountMenuRef} data-zenformed-notifications-menu>
       <button
         type="button"
-        className={styles.trigger}
+        className={sidebarLabel ? `${styles.trigger} ${styles.triggerWithLabel}` : styles.trigger}
         onClick={() => setAccountMenuOpen((open) => !open)}
         aria-label={triggerLabel}
         aria-expanded={accountMenuOpen}
@@ -79,6 +89,7 @@ export function ZenformedNotificationsMenu({
         <span className={styles.triggerIcon}>
           <ZenformedNotificationsEnvelopeIcon />
         </span>
+        {sidebarLabel ? <span className={styles.triggerLabelText}>{sidebarLabel}</span> : null}
         {badge ? (
           <span className={styles.badge} aria-hidden>
             {badge}
@@ -88,7 +99,7 @@ export function ZenformedNotificationsMenu({
 
       {accountMenuOpen ? (
         <div
-          className={styles.popover}
+          className={sidebarLabel ? `${styles.popover} ${styles.popoverFromSidebar}` : styles.popover}
           style={ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}
           role="dialog"
           aria-label="Notifications"

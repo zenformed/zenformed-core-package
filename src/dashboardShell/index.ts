@@ -31,6 +31,27 @@ export {
   ZenformedAccountMenuSignOutIcon,
 } from './ZenformedAccountMenuIcons';
 
+export { ZenformedCollapsibleSidebarShell } from './collapsibleSidebar/ZenformedCollapsibleSidebarShell';
+export { ZenformedSidebarAppChevrons } from './collapsibleSidebar/ZenformedSidebarSections';
+export { useZenformedSidebarExpandState } from './collapsibleSidebar/useZenformedSidebarExpandState';
+export {
+  shouldOverlayExpandedSidebar,
+  shouldReserveCollapsedSidebarWidth,
+  ZENFORMED_SIDEBAR_COLLAPSED_WIDTH_REM,
+  ZENFORMED_SIDEBAR_EXPANDED_WIDTH_REM,
+  ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS,
+  ZENFORMED_SIDEBAR_HOVER_OPEN_DELAY_MS,
+} from './collapsibleSidebar/types';
+export type {
+  ZenformedCollapsibleSidebarShellProps,
+  ZenformedSidebarAccountConfig,
+  ZenformedSidebarCustomSection,
+  ZenformedSidebarNavItem,
+  ZenformedSidebarNavSection,
+  ZenformedSidebarSection,
+  ZenformedSidebarSettingsConfig,
+} from './collapsibleSidebar/types';
+
 export { ZenformedConfirmSnackbar } from './ZenformedConfirmSnackbar';
 export { pickConfirmSnackbarClassNames } from './pickConfirmSnackbarClassNames';
 export { ZenformedSettingsDrawer } from './ZenformedSettingsDrawer';

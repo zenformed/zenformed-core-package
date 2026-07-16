@@ -710,9 +710,9 @@ button.actionRow:focus-visible {
   flex-direction: column;
   justify-content: flex-start;
   width: auto;
-  height: 20vh;
+  height: auto;
   min-height: 0;
-  max-height: none;
+  max-height: min(70vh, 28rem);
   margin: 0;
   padding: 0.65rem 0 0.55rem;
   box-sizing: border-box;
@@ -726,7 +726,8 @@ button.actionRow:focus-visible {
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   box-shadow: none;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .otherAccountHeader {

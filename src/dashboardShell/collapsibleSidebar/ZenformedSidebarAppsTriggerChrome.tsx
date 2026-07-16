@@ -3,6 +3,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import styles from './collapsibleSidebar.module.css';
 import { ZenformedSidebarAppChevrons } from './ZenformedSidebarSections';
+import { AppEntitlementBadges } from '../../organizationSettings/components/AppEntitlementBadges';
+import type { AppEntitlementBadgesProps } from '../../organizationSettings/components/AppEntitlementBadges';
 
 function CheckIcon(): ReactElement {
   return (
@@ -19,6 +21,11 @@ export type ZenformedSidebarAppsTriggerChromeProps = {
   readonly appName: string;
   /** Optional plan/tier line under the app name (host-resolved). */
   readonly appTier?: string | null;
+  /**
+   * Optional entitlement badges (tier + status pills) shown under the app name.
+   * When provided, these take precedence over the plain `appTier` text.
+   */
+  readonly appBadges?: AppEntitlementBadgesProps | null;
   /** When the switcher overlay is open, show a check instead of chevrons. */
   readonly open?: boolean;
 };
@@ -32,6 +39,7 @@ export function ZenformedSidebarAppsTriggerChrome({
   appIcon,
   appName,
   appTier,
+  appBadges,
   open = false,
 }: ZenformedSidebarAppsTriggerChromeProps): ReactElement {
   const name = appName.trim();
@@ -44,7 +52,9 @@ export function ZenformedSidebarAppsTriggerChrome({
           <span className={styles.appTriggerName} title={name}>
             {name}
           </span>
-          {tier ? (
+          {appBadges ? (
+            <AppEntitlementBadges {...appBadges} compact />
+          ) : tier ? (
             <span className={styles.appTriggerTier} title={tier}>
               {tier}
             </span>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import { createPortal } from 'react-dom';
 import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { useZenformedMobileShellLayout } from '../useZenformedMobileShellLayout';
@@ -14,15 +15,19 @@ import {
 import { resolveSidebarSectionLabelText, type ZenformedCollapsibleSidebarShellProps } from './types';
 import styles from './collapsibleSidebar.module.css';
 
+const ACCOUNT_MOBILE_MODAL_SELECTOR = '[data-zenformed-sidebar-mobile-modal="account"]';
+
 function RailChrome({
   props,
   showLabels,
+  isMobile,
   onNavigate,
   onNotificationsOpenChange,
   onAccountOpenChange,
 }: {
   props: ZenformedCollapsibleSidebarShellProps;
   showLabels: boolean;
+  isMobile: boolean;
   onNavigate?: () => void;
   onNotificationsOpenChange?: (open: boolean) => void;
   onAccountOpenChange?: (open: boolean) => void;
@@ -41,7 +46,9 @@ function RailChrome({
     otherSectionCollapsedLabel,
   } = props;
 
-  const accountMenu = useAccountMenuState();
+  const accountMenu = useAccountMenuState(
+    isMobile ? { containSelector: ACCOUNT_MOBILE_MODAL_SELECTOR } : undefined
+  );
   useEffect(() => {
     onAccountOpenChange?.(accountMenu.accountMenuOpen);
   }, [accountMenu.accountMenuOpen, onAccountOpenChange]);
@@ -61,6 +68,81 @@ function RailChrome({
   const accountEmail = (account?.userEmail ?? account?.user.email)?.trim() || '';
   const showAccountEmail =
     Boolean(accountEmail) && accountEmail.toLowerCase() !== accountName.toLowerCase();
+
+  const accountPanelBody = account ? (
+    <>
+      <div className={styles.otherAccountHeader}>
+        {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
+        ) : (
+          <span
+            className={styles.otherAccountAvatar}
+            style={{
+              backgroundColor: account.avatarLoading
+                ? 'var(--color-muted, #f1f5f9)'
+                : userCircleColor(account.user.email),
+            }}
+            aria-hidden
+          >
+            {!account.avatarLoading ? getUserInitials(account.user, accountName) : null}
+          </span>
+        )}
+        <div className={styles.otherAccountIdentity}>
+          <span className={styles.otherAccountName} title={accountName}>
+            {accountName}
+          </span>
+          {showAccountEmail ? (
+            <span className={styles.otherAccountEmail} title={accountEmail}>
+              {accountEmail}
+            </span>
+          ) : null}
+        </div>
+      </div>
+      <div className={styles.otherAccountDivider} aria-hidden />
+      <button
+        type="button"
+        className={styles.otherAccountSignOut}
+        onClick={() => {
+          accountMenu.closeAccountMenu();
+          account.onRequestSignOutConfirm();
+        }}
+      >
+        {account.signOutIcon}
+        {account.labels.signOutButtonLabel}
+      </button>
+    </>
+  ) : null;
+
+  const accountPanelDesktop =
+    account && accountMenu.accountMenuOpen && !isMobile ? (
+      <div className={styles.otherAccountPanel} role="menu" aria-label="Account">
+        {accountPanelBody}
+      </div>
+    ) : null;
+
+  const accountPanelMobile =
+    typeof document !== 'undefined' && account && accountMenu.accountMenuOpen && isMobile
+      ? createPortal(
+          <div data-zenformed-sidebar-mobile-modal="account" role="presentation">
+            <button
+              type="button"
+              data-zenformed-sidebar-mobile-modal-backdrop=""
+              aria-label="Close account menu"
+              onClick={accountMenu.closeAccountMenu}
+            />
+            <div
+              className={styles.otherAccountPanel}
+              data-zenformed-sidebar-mobile-modal-panel=""
+              role="menu"
+              aria-label="Account"
+            >
+              {accountPanelBody}
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
 
   return (
     <div
@@ -199,52 +281,8 @@ function RailChrome({
           </div>
         ) : null}
 
-        {account && accountMenu.accountMenuOpen ? (
-          <div className={styles.otherAccountPanel} role="menu" aria-label="Account">
-            <div className={styles.otherAccountHeader}>
-              {account.profilePhotoChangeEnabled && account.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
-              ) : (
-                <span
-                  className={styles.otherAccountAvatar}
-                  style={{
-                    backgroundColor: account.avatarLoading
-                      ? 'var(--color-muted, #f1f5f9)'
-                      : userCircleColor(account.user.email),
-                  }}
-                  aria-hidden
-                >
-                  {!account.avatarLoading
-                    ? getUserInitials(account.user, accountName)
-                    : null}
-                </span>
-              )}
-              <div className={styles.otherAccountIdentity}>
-                <span className={styles.otherAccountName} title={accountName}>
-                  {accountName}
-                </span>
-                {showAccountEmail ? (
-                  <span className={styles.otherAccountEmail} title={accountEmail}>
-                    {accountEmail}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-            <div className={styles.otherAccountDivider} aria-hidden />
-            <button
-              type="button"
-              className={styles.otherAccountSignOut}
-              onClick={() => {
-                accountMenu.closeAccountMenu();
-                account.onRequestSignOutConfirm();
-              }}
-            >
-              {account.signOutIcon}
-              {account.labels.signOutButtonLabel}
-            </button>
-          </div>
-        ) : null}
+        {accountPanelDesktop}
+        {accountPanelMobile}
       </div>
     </div>
   );
@@ -327,6 +365,7 @@ export function ZenformedCollapsibleSidebarShell(
           <RailChrome
             props={props}
             showLabels={showLabels}
+            isMobile={isMobile}
             onNavigate={isMobile ? closeDrawer : undefined}
             onNotificationsOpenChange={setNotificationsOpen}
             onAccountOpenChange={setAccountOpen}

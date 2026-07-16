@@ -1,6 +1,6 @@
 {
   "name": "@zenformed/core",
-  "version": "0.0.69",
+  "version": "0.0.70",
   "private": false,
   "description": "Zenformed platform types, entitlement/capability helpers, and shared dashboard shell UI. Main entry is browser-safe; `@zenformed/core/server` exports the capability resolver (`node:crypto`). `@zenformed/core/dashboard-shell` is client-only React.",
   "type": "module",
@@ -61,14 +61,14 @@
     "pack:local": "npm pack --pack-destination ."
   },
   "peerDependencies": {
+    "@supabase/supabase-js": "^2.45.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-easy-crop": "^5.0.0",
-    "@supabase/supabase-js": "^2.45.0"
+    "react-easy-crop": "^5.0.0"
   },
-  "dependencies": {},
   "devDependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "@types/node": "^22.20.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "react": "^18.3.1",

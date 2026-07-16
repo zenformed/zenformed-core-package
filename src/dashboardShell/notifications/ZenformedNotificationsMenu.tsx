@@ -3,6 +3,7 @@
 import { useEffect, type ReactElement } from 'react';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE } from '../dropdownSurfaceBorderStyle';
+import { useZenformedSidebarPresentation } from '../collapsibleSidebar/sidebarPresentationContext';
 import { ZenformedNotificationItem } from './ZenformedNotificationItem';
 import { ZenformedNotificationsEnvelopeIcon } from './notificationIcons';
 import {
@@ -65,6 +66,8 @@ export function ZenformedNotificationsMenu({
   const triggerLabel = formatNotificationsTriggerAriaLabel(controller.unreadCount);
   const showMarkAll =
     controller.unreadCount > 0 || controller.markingAllRead;
+  const presentation = useZenformedSidebarPresentation();
+  const navigateOnOpen = presentation === 'mobile';
 
   const onViewAll = () => {
     closeAccountMenu();
@@ -76,15 +79,23 @@ export function ZenformedNotificationsMenu({
     void controller.refreshUnreadCount();
   };
 
+  const onTriggerClick = () => {
+    if (navigateOnOpen) {
+      onNavigate(notificationsPageHref);
+      return;
+    }
+    setAccountMenuOpen((open) => !open);
+  };
+
   return (
     <div className={styles.wrap} ref={accountMenuRef} data-zenformed-notifications-menu>
       <button
         type="button"
         className={sidebarLabel ? `${styles.trigger} ${styles.triggerWithLabel}` : styles.trigger}
-        onClick={() => setAccountMenuOpen((open) => !open)}
+        onClick={onTriggerClick}
         aria-label={triggerLabel}
-        aria-expanded={accountMenuOpen}
-        aria-haspopup="dialog"
+        aria-expanded={navigateOnOpen ? undefined : accountMenuOpen}
+        aria-haspopup={navigateOnOpen ? undefined : 'dialog'}
       >
         <span className={styles.triggerIcon}>
           <ZenformedNotificationsEnvelopeIcon />
@@ -97,7 +108,7 @@ export function ZenformedNotificationsMenu({
         ) : null}
       </button>
 
-      {accountMenuOpen ? (
+      {!navigateOnOpen && accountMenuOpen ? (
         <div
           className={sidebarLabel ? `${styles.popover} ${styles.popoverFromSidebar}` : styles.popover}
           style={ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}

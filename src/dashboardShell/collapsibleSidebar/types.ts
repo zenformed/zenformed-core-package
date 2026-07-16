@@ -153,3 +153,30 @@ export function resolveSidebarSectionLabelText(input: {
 export function shouldShowSidebarAppName(expanded: boolean): boolean {
   return expanded;
 }
+
+/** Mobile drawer width contract: ~90vw with a sensible max. */
+export const ZENFORMED_MOBILE_DRAWER_WIDTH_CSS = 'min(90vw, 24rem)';
+
+export function resolveMobileDrawerWidthCss(): string {
+  return ZENFORMED_MOBILE_DRAWER_WIDTH_CSS;
+}
+
+/** Mobile uses the Facebook-style drawer; desktop keeps the hover rail. */
+export function shouldUseMobileDrawerPresentation(isMobile: boolean): boolean {
+  return isMobile;
+}
+
+/** On mobile, notifications navigate to the page instead of a dropdown. */
+export function shouldOpenNotificationsAsPage(isMobile: boolean): boolean {
+  return isMobile;
+}
+
+/** On mobile, the apps switcher expands inline inside the drawer. */
+export function shouldUseInlineAppsSwitcher(isMobile: boolean): boolean {
+  return isMobile;
+}
+
+/** Mobile user bar must not open the desktop account popover. */
+export function shouldOpenAccountPopoverOnUserBar(isMobile: boolean): boolean {
+  return !isMobile;
+}

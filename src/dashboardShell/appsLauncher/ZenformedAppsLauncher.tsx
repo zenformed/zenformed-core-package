@@ -3,6 +3,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useAccountMenuState } from '../useAccountMenuState';
+import { useZenformedSidebarPresentation } from '../collapsibleSidebar/sidebarPresentationContext';
+import { useMobileDrawerClose } from '../collapsibleSidebar/mobileDrawerCloseContext';
 import { ZenformedAppList } from './ZenformedAppList';
 import type {
   ZenformedAppsLauncherClassNames,
@@ -48,6 +50,10 @@ export function ZenformedAppsLauncher({
   renderTrigger,
   onOpenChange,
 }: ZenformedAppsLauncherProps): ReactElement {
+  const presentation = useZenformedSidebarPresentation();
+  const closeMobileDrawer = useMobileDrawerClose();
+  const inlineInDrawer = presentation === 'mobile' && popoverLayout === 'sidebarList';
+
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState();
 
@@ -56,13 +62,38 @@ export function ZenformedAppsLauncher({
   }, [accountMenuOpen, onOpenChange]);
 
   const onTriggerClick = () => setAccountMenuOpen((open) => !open);
-  const isSidebarOverlay = popoverLayout === 'sidebarList';
+  const isSidebarOverlay = popoverLayout === 'sidebarList' && !inlineInDrawer;
+
+  const onListNavigate = () => {
+    closeAccountMenu();
+    closeMobileDrawer?.();
+  };
+
+  const list = accountMenuOpen ? (
+    <ZenformedAppList
+      apps={apps}
+      classNames={classNames}
+      labels={labels}
+      variant="popover"
+      popoverLayout={popoverLayout}
+      currentAppId={currentAppId}
+      onNavigate={onListNavigate}
+      launchApp={launchApp}
+      launchingAppId={launchingAppId}
+      launchError={launchError}
+      accountAppId={accountAppId}
+      showAccountSection={showAccountSection}
+      accountHomeLabel={accountHomeLabel}
+    />
+  ) : null;
 
   return (
     <div
       className={classNames.appsLauncherWrap}
       ref={accountMenuRef}
       data-zenformed-apps-overlay={isSidebarOverlay && accountMenuOpen ? 'true' : undefined}
+      data-zenformed-apps-inline={inlineInDrawer ? 'true' : undefined}
+      data-zenformed-apps-inline-open={inlineInDrawer && accountMenuOpen ? 'true' : undefined}
     >
       {renderTrigger ? (
         renderTrigger({
@@ -77,35 +108,31 @@ export function ZenformedAppsLauncher({
           onClick={onTriggerClick}
           aria-label={labels.triggerAriaLabel}
           aria-expanded={accountMenuOpen}
-          aria-haspopup="menu"
+          aria-haspopup={inlineInDrawer ? 'true' : 'menu'}
         >
           <span className={classNames.appsLauncherIcon} aria-hidden>
             {appsIcon}
           </span>
         </button>
       )}
-      {accountMenuOpen ? (
+      {inlineInDrawer && accountMenuOpen ? (
+        <div
+          className={classNames.appsPopover}
+          data-zenformed-apps-inline-panel=""
+          role="menu"
+          aria-label={labels.popoverAriaLabel}
+        >
+          {list}
+        </div>
+      ) : null}
+      {!inlineInDrawer && accountMenuOpen ? (
         <div
           className={classNames.appsPopover}
           style={isSidebarOverlay ? undefined : ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}
           role="menu"
           aria-label={labels.popoverAriaLabel}
         >
-          <ZenformedAppList
-            apps={apps}
-            classNames={classNames}
-            labels={labels}
-            variant="popover"
-            popoverLayout={popoverLayout}
-            currentAppId={currentAppId}
-            onNavigate={closeAccountMenu}
-            launchApp={launchApp}
-            launchingAppId={launchingAppId}
-            launchError={launchError}
-            accountAppId={accountAppId}
-            showAccountSection={showAccountSection}
-            accountHomeLabel={accountHomeLabel}
-          />
+          {list}
         </div>
       ) : null}
     </div>

@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2019",
+    "lib": ["ES2019", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "types": ["node"],
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
@@ -10,5 +12,6 @@
     "verbatimModuleSyntax": false,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "src/global.d.ts"]
+  "include": ["src/**/*", "src/global.d.ts"],
+  "exclude": ["src/**/*.test.ts"]
 }

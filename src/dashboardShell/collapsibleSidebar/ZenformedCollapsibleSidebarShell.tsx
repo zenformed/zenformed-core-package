@@ -1,8 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react';
 import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { useAccountMenuState } from '../useAccountMenuState';
+import { useBodyScrollLock } from '../useBodyScrollLock';
 import { useZenformedMobileShellLayout } from '../useZenformedMobileShellLayout';
 import { ZenformedNotificationsMenu } from '../notifications/ZenformedNotificationsMenu';
 import { useZenformedSidebarExpandState } from './useZenformedSidebarExpandState';
@@ -11,10 +20,17 @@ import {
   ZenformedSidebarMenuGlyph,
   ZenformedSidebarSections,
 } from './ZenformedSidebarSections';
-import { resolveSidebarSectionLabelText, type ZenformedCollapsibleSidebarShellProps } from './types';
+import { ZenformedMobileDrawerChrome } from './ZenformedMobileDrawerChrome';
+import { ZenformedSidebarPresentationProvider } from './sidebarPresentationContext';
+import { MobileDrawerCloseProvider } from './mobileDrawerCloseContext';
+import {
+  resolveMobileDrawerWidthCss,
+  resolveSidebarSectionLabelText,
+  type ZenformedCollapsibleSidebarShellProps,
+} from './types';
 import styles from './collapsibleSidebar.module.css';
 
-function RailChrome({
+function DesktopRailChrome({
   props,
   showLabels,
   onNavigate,
@@ -252,9 +268,8 @@ function RailChrome({
 
 /**
  * Package-owned collapsible sidebar shell.
- * Collapsed gutter is permanently reserved; expanded rail overlays content (no reflow).
- * A single rail instance is used for desktop and mobile so notifications keep one poller.
- * Legacy `ZenformedDashboardHeader` remains exported for unmigrated hosts.
+ * Desktop: hover-expand rail. Mobile: Facebook-style drawer (~90vw).
+ * Only one chrome tree mounts at a time so notifications keep a single poller.
  */
 export function ZenformedCollapsibleSidebarShell(
   props: ZenformedCollapsibleSidebarShellProps
@@ -271,6 +286,9 @@ export function ZenformedCollapsibleSidebarShell(
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
+  const drawerWasOpenRef = useRef(false);
 
   const forceExpanded =
     holdExpanded || notificationsOpen || accountOpen || (isMobile && drawerOpen);
@@ -280,6 +298,9 @@ export function ZenformedCollapsibleSidebarShell(
   });
 
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+  const openDrawer = useCallback(() => setDrawerOpen(true), []);
+
+  useBodyScrollLock(isMobile && drawerOpen);
 
   useEffect(() => {
     if (!isMobile) setDrawerOpen(false);
@@ -294,62 +315,117 @@ export function ZenformedCollapsibleSidebarShell(
     return () => document.removeEventListener('keydown', onKey);
   }, [drawerOpen]);
 
+  useEffect(() => {
+    if (!isMobile) return;
+    if (drawerOpen) {
+      drawerWasOpenRef.current = true;
+      const root = drawerRef.current;
+      root?.removeAttribute('inert');
+      const focusable = root?.querySelector<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      focusable?.focus();
+      return;
+    }
+    drawerRef.current?.setAttribute('inert', '');
+    if (drawerWasOpenRef.current) {
+      drawerWasOpenRef.current = false;
+      menuButtonRef.current?.focus();
+    }
+  }, [drawerOpen, isMobile]);
+
+  useEffect(() => {
+    if (isMobile) return;
+    drawerRef.current?.removeAttribute('inert');
+  }, [isMobile]);
+
   const showLabels = isMobile ? drawerOpen : expand.expanded;
 
   const railClass = useMemo(() => {
     const parts = [styles.rail];
+    if (isMobile) {
+      parts.push(styles.mobileDrawer);
+      if (drawerOpen) parts.push(styles.mobileDrawerOpen);
+      else parts.push(styles.mobileDrawerClosed);
+      return parts.join(' ');
+    }
     if (showLabels) parts.push(styles.railExpanded);
-    if (isMobile && drawerOpen) parts.push(styles.railMobileOpen);
-    if (isMobile && !drawerOpen) parts.push(styles.railMobileClosed);
     return parts.join(' ');
   }, [drawerOpen, isMobile, showLabels]);
 
-  return (
-    <div className={styles.shell} data-zenformed-collapsible-sidebar-shell>
-      <div className={`${styles.gutter} ${isMobile ? styles.gutterMobile : ''}`}>
-        {isMobile && drawerOpen ? (
-          <button
-            type="button"
-            className={styles.backdrop}
-            aria-label="Close navigation"
-            onClick={closeDrawer}
-          />
-        ) : null}
-        <aside
-          className={railClass}
-          aria-label={sidebarAriaLabel}
-          data-expanded={showLabels ? 'true' : 'false'}
-          onPointerEnter={expand.onRailPointerEnter}
-          onPointerLeave={expand.onRailPointerLeave}
-          onFocusCapture={expand.onRailFocusCapture}
-          onBlurCapture={expand.onRailBlurCapture}
-        >
-          <RailChrome
-            props={props}
-            showLabels={showLabels}
-            onNavigate={isMobile ? closeDrawer : undefined}
-            onNotificationsOpenChange={setNotificationsOpen}
-            onAccountOpenChange={setAccountOpen}
-          />
-        </aside>
-      </div>
+  const presentation = isMobile ? 'mobile' : 'desktop';
 
-      <div className={styles.main}>
-        <div className={styles.mobileBar}>
-          <button
-            type="button"
-            className={styles.mobileMenuBtn}
-            aria-label={mobileMenuAriaLabel}
-            aria-expanded={drawerOpen}
-            onClick={() => setDrawerOpen(true)}
+  return (
+    <ZenformedSidebarPresentationProvider value={presentation}>
+      <MobileDrawerCloseProvider value={isMobile ? closeDrawer : null}>
+      <div className={styles.shell} data-zenformed-collapsible-sidebar-shell>
+        <div className={`${styles.gutter} ${isMobile ? styles.gutterMobile : ''}`}>
+          {isMobile && drawerOpen ? (
+            <button
+              type="button"
+              className={styles.backdrop}
+              aria-label="Close navigation"
+              onClick={closeDrawer}
+            />
+          ) : null}
+          <aside
+            id={isMobile ? 'zenformed-mobile-drawer' : undefined}
+            ref={drawerRef}
+            className={railClass}
+            aria-label={sidebarAriaLabel}
+            aria-hidden={isMobile ? !drawerOpen : undefined}
+            data-expanded={showLabels ? 'true' : 'false'}
+            data-zenformed-mobile-drawer={isMobile ? 'true' : undefined}
+            style={
+              isMobile
+                ? ({
+                    ['--zenformed-mobile-drawer-width' as string]: resolveMobileDrawerWidthCss(),
+                  } as CSSProperties)
+                : undefined
+            }
+            onPointerEnter={isMobile ? undefined : expand.onRailPointerEnter}
+            onPointerLeave={isMobile ? undefined : expand.onRailPointerLeave}
+            onFocusCapture={isMobile ? undefined : expand.onRailFocusCapture}
+            onBlurCapture={isMobile ? undefined : expand.onRailBlurCapture}
           >
-            <ZenformedSidebarMenuGlyph />
-          </button>
-          <p className={styles.mobileTitle}>{appName}</p>
+            {isMobile ? (
+              <ZenformedMobileDrawerChrome
+                props={props}
+                onNavigate={closeDrawer}
+                onNotificationsOpenChange={setNotificationsOpen}
+              />
+            ) : (
+              <DesktopRailChrome
+                props={props}
+                showLabels={showLabels}
+                onNotificationsOpenChange={setNotificationsOpen}
+                onAccountOpenChange={setAccountOpen}
+              />
+            )}
+          </aside>
         </div>
-        <div className={styles.mainBody}>{children}</div>
+
+        <div className={styles.main}>
+          {isMobile ? (
+            <div className={styles.mobileBar}>
+              <button
+                ref={menuButtonRef}
+                type="button"
+                className={styles.mobileMenuBtn}
+                aria-label={mobileMenuAriaLabel}
+                aria-expanded={drawerOpen}
+                aria-controls="zenformed-mobile-drawer"
+                onClick={() => (drawerOpen ? closeDrawer() : openDrawer())}
+              >
+                <ZenformedSidebarMenuGlyph />
+              </button>
+            </div>
+          ) : null}
+          <div className={styles.mainBody}>{children}</div>
+        </div>
       </div>
-    </div>
+      </MobileDrawerCloseProvider>
+    </ZenformedSidebarPresentationProvider>
   );
 }
 

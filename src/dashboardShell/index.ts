@@ -37,10 +37,16 @@ export { ZenformedSidebarAppsTriggerChrome } from './collapsibleSidebar/Zenforme
 export { ZenformedSidebarActionRow } from './collapsibleSidebar/ZenformedSidebarActionRow';
 export { useZenformedSidebarExpandState } from './collapsibleSidebar/useZenformedSidebarExpandState';
 export {
+  resolveMobileDrawerWidthCss,
   resolveSidebarSectionLabelText,
+  shouldOpenAccountPopoverOnUserBar,
+  shouldOpenNotificationsAsPage,
   shouldOverlayExpandedSidebar,
   shouldReserveCollapsedSidebarWidth,
   shouldShowSidebarAppName,
+  shouldUseInlineAppsSwitcher,
+  shouldUseMobileDrawerPresentation,
+  ZENFORMED_MOBILE_DRAWER_WIDTH_CSS,
   ZENFORMED_SIDEBAR_COLLAPSED_LABEL_SAFE_MAX_CHARS,
   ZENFORMED_SIDEBAR_COLLAPSED_WIDTH_REM,
   ZENFORMED_SIDEBAR_EXPANDED_WIDTH_REM,

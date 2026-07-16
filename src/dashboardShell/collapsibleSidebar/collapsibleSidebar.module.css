@@ -577,7 +577,7 @@
   border: none;
   border-radius: 0.5rem;
   background: transparent;
-  color: inherit;
+  color: var(--color-text-muted, #64748b);
   font: inherit;
   text-align: left;
   cursor: default;
@@ -671,7 +671,7 @@ button.actionRow:focus-visible {
   text-overflow: ellipsis;
   font-size: 0.875rem;
   font-weight: 550;
-  color: var(--color-text, #0f172a);
+  color: var(--color-text-muted, #64748b);
 }
 
 .notificationsSlot .actionIcon :global([data-zenformed-notifications-menu]) {
@@ -1262,7 +1262,7 @@ button.actionRow:focus-visible {
   border: none;
   border-radius: 0.5rem;
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-text-muted, #64748b);
   font: inherit;
   font-size: 0.9375rem;
   font-weight: 550;

@@ -57,8 +57,6 @@ export function ZenformedAppsLauncher({
 
   const onTriggerClick = () => setAccountMenuOpen((open) => !open);
   const isSidebarOverlay = popoverLayout === 'sidebarList';
-  /** Sidebar overlay replaces the trigger with the full app list (current app first + check). */
-  const hideTriggerWhileOpen = isSidebarOverlay && accountMenuOpen;
 
   return (
     <div
@@ -66,7 +64,7 @@ export function ZenformedAppsLauncher({
       ref={accountMenuRef}
       data-zenformed-apps-overlay={isSidebarOverlay && accountMenuOpen ? 'true' : undefined}
     >
-      {hideTriggerWhileOpen ? null : renderTrigger ? (
+      {renderTrigger ? (
         renderTrigger({
           open: accountMenuOpen,
           onClick: onTriggerClick,

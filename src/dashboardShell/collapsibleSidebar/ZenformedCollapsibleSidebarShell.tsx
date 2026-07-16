@@ -88,6 +88,112 @@ function RailChrome({
       </div>
 
       <div className={styles.other} ref={account ? accountMenu.accountMenuRef : undefined}>
+        {otherLabel ? (
+          <div
+            className={`${styles.sectionLabel} ${styles.otherLabel} ${
+              showLabels ? '' : styles.sectionLabelCollapsed
+            }`}
+            role="presentation"
+          >
+            <span>{otherLabel}</span>
+          </div>
+        ) : null}
+
+        {notifications && notifications.organizationId.trim() ? (
+          <ZenformedSidebarActionRow
+            showLabel={showLabels}
+            label={notificationsLabel}
+            icon={
+              <ZenformedNotificationsMenu
+                {...notifications}
+                onOpenChange={onNotificationsOpenChange}
+              />
+            }
+            className={styles.notificationsSlot}
+          />
+        ) : null}
+
+        <ZenformedSidebarActionRow
+          showLabel={showLabels}
+          label={themeLabel}
+          icon={<span className={styles.themeControlWrap}>{themeControl}</span>}
+        />
+
+        {settings ? (
+          <ZenformedSidebarActionRow
+            asButton
+            showLabel={showLabels}
+            label={settings.label}
+            title={settings.title ?? settings.label}
+            icon={settings.icon}
+            onClick={() => {
+              settings.onSelect();
+              onNavigate?.();
+            }}
+          />
+        ) : null}
+
+        {account ? (
+          <div
+            className={`${styles.actionRow} ${styles.accountSlot}`}
+            onClick={openAccountPanel}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openAccountPanel();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={account.labels.menuTriggerAriaLabel}
+            aria-expanded={accountMenu.accountMenuOpen}
+            aria-haspopup="menu"
+          >
+            <span className={styles.actionIcon} aria-hidden>
+              {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={account.avatarUrl}
+                  alt=""
+                  className={styles.otherAccountAvatar}
+                />
+              ) : (
+                <span
+                  className={styles.otherAccountAvatar}
+                  style={{
+                    backgroundColor: account.avatarLoading
+                      ? 'var(--color-muted, #f1f5f9)'
+                      : userCircleColor(account.user.email),
+                  }}
+                >
+                  {!account.avatarLoading
+                    ? getUserInitials(account.user, account.userDisplayName)
+                    : null}
+                </span>
+              )}
+            </span>
+            {showLabels ? (
+              <span className={styles.accountText}>
+                <span className={styles.accountName} title={account.userDisplayName}>
+                  {account.userDisplayName}
+                </span>
+                {(() => {
+                  const email = (account.userEmail ?? account.user.email)?.trim() || '';
+                  if (!email) return null;
+                  if (email.toLowerCase() === account.userDisplayName.trim().toLowerCase()) {
+                    return null;
+                  }
+                  return (
+                    <span className={styles.accountEmail} title={email}>
+                      {email}
+                    </span>
+                  );
+                })()}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
         {account && accountMenu.accountMenuOpen ? (
           <div className={styles.otherAccountPanel} role="menu" aria-label="Account">
             <div className={styles.otherAccountHeader}>
@@ -133,115 +239,7 @@ function RailChrome({
               {account.labels.signOutButtonLabel}
             </button>
           </div>
-        ) : (
-          <>
-            {otherLabel ? (
-              <div
-                className={`${styles.sectionLabel} ${styles.otherLabel} ${
-                  showLabels ? '' : styles.sectionLabelCollapsed
-                }`}
-                role="presentation"
-              >
-                <span>{otherLabel}</span>
-              </div>
-            ) : null}
-
-            {notifications && notifications.organizationId.trim() ? (
-              <ZenformedSidebarActionRow
-                showLabel={showLabels}
-                label={notificationsLabel}
-                icon={
-                  <ZenformedNotificationsMenu
-                    {...notifications}
-                    onOpenChange={onNotificationsOpenChange}
-                  />
-                }
-                className={styles.notificationsSlot}
-              />
-            ) : null}
-
-            <ZenformedSidebarActionRow
-              showLabel={showLabels}
-              label={themeLabel}
-              icon={<span className={styles.themeControlWrap}>{themeControl}</span>}
-            />
-
-            {settings ? (
-              <ZenformedSidebarActionRow
-                asButton
-                showLabel={showLabels}
-                label={settings.label}
-                title={settings.title ?? settings.label}
-                icon={settings.icon}
-                onClick={() => {
-                  settings.onSelect();
-                  onNavigate?.();
-                }}
-              />
-            ) : null}
-
-            {account ? (
-              <div
-                className={`${styles.actionRow} ${styles.accountSlot}`}
-                onClick={openAccountPanel}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    openAccountPanel();
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                aria-label={account.labels.menuTriggerAriaLabel}
-                aria-expanded={false}
-                aria-haspopup="menu"
-              >
-                <span className={styles.actionIcon} aria-hidden>
-                  {account.profilePhotoChangeEnabled && account.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={account.avatarUrl}
-                      alt=""
-                      className={styles.otherAccountAvatar}
-                    />
-                  ) : (
-                    <span
-                      className={styles.otherAccountAvatar}
-                      style={{
-                        backgroundColor: account.avatarLoading
-                          ? 'var(--color-muted, #f1f5f9)'
-                          : userCircleColor(account.user.email),
-                      }}
-                    >
-                      {!account.avatarLoading
-                        ? getUserInitials(account.user, account.userDisplayName)
-                        : null}
-                    </span>
-                  )}
-                </span>
-                {showLabels ? (
-                  <span className={styles.accountText}>
-                    <span className={styles.accountName} title={account.userDisplayName}>
-                      {account.userDisplayName}
-                    </span>
-                    {(() => {
-                      const email = (account.userEmail ?? account.user.email)?.trim() || '';
-                      if (!email) return null;
-                      if (email.toLowerCase() === account.userDisplayName.trim().toLowerCase()) {
-                        return null;
-                      }
-                      return (
-                        <span className={styles.accountEmail} title={email}>
-                          {email}
-                        </span>
-                      );
-                    })()}
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
-          </>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import type {
 } from './types';
 import type { ZenformedAppRegistryEntry } from './types';
 import { ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE } from '../dropdownSurfaceBorderStyle';
+import mobileModalStyles from '../sidebarMobileModal.module.css';
 
 const APPS_MOBILE_MODAL_SELECTOR = '[data-zenformed-sidebar-mobile-modal="apps"]';
 
@@ -100,16 +101,19 @@ export function ZenformedAppsLauncher({
   const mobileModal =
     typeof document !== 'undefined' && accountMenuOpen && useMobileModal
       ? createPortal(
-          <div data-zenformed-sidebar-mobile-modal="apps" role="presentation">
+          <div
+            className={mobileModalStyles.root}
+            data-zenformed-sidebar-mobile-modal="apps"
+            role="presentation"
+          >
             <button
               type="button"
-              data-zenformed-sidebar-mobile-modal-backdrop=""
+              className={mobileModalStyles.backdrop}
               aria-label="Close apps menu"
               onClick={closeAccountMenu}
             />
             <div
-              className={classNames.appsPopover}
-              data-zenformed-sidebar-mobile-modal-panel=""
+              className={`${classNames.appsPopover} ${mobileModalStyles.panel}`}
               role="menu"
               aria-label={labels.popoverAriaLabel}
             >

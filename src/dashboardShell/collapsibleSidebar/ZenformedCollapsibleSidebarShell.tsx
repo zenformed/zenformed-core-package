@@ -14,6 +14,7 @@ import {
 } from './ZenformedSidebarSections';
 import { resolveSidebarSectionLabelText, type ZenformedCollapsibleSidebarShellProps } from './types';
 import styles from './collapsibleSidebar.module.css';
+import mobileModalStyles from '../sidebarMobileModal.module.css';
 
 const ACCOUNT_MOBILE_MODAL_SELECTOR = '[data-zenformed-sidebar-mobile-modal="account"]';
 
@@ -124,16 +125,19 @@ function RailChrome({
   const accountPanelMobile =
     typeof document !== 'undefined' && account && accountMenu.accountMenuOpen && isMobile
       ? createPortal(
-          <div data-zenformed-sidebar-mobile-modal="account" role="presentation">
+          <div
+            className={mobileModalStyles.root}
+            data-zenformed-sidebar-mobile-modal="account"
+            role="presentation"
+          >
             <button
               type="button"
-              data-zenformed-sidebar-mobile-modal-backdrop=""
+              className={mobileModalStyles.backdrop}
               aria-label="Close account menu"
               onClick={accountMenu.closeAccountMenu}
             />
             <div
-              className={styles.otherAccountPanel}
-              data-zenformed-sidebar-mobile-modal-panel=""
+              className={`${styles.otherAccountPanel} ${mobileModalStyles.panel}`}
               role="menu"
               aria-label="Account"
             >

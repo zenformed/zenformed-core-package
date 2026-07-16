@@ -729,44 +729,6 @@ button.actionRow:focus-visible {
   overflow: hidden;
 }
 
-/* Mobile: centered modal (portaled to document.body) */
-:global([data-zenformed-sidebar-mobile-modal='account']),
-:global([data-zenformed-sidebar-mobile-modal='apps']) {
-  position: fixed;
-  inset: 0;
-  z-index: 20000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-:global([data-zenformed-sidebar-mobile-modal-backdrop]) {
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: rgba(15, 23, 42, 0.55);
-  cursor: pointer;
-}
-
-:global([data-zenformed-sidebar-mobile-modal='account'] [data-zenformed-sidebar-mobile-modal-panel]) {
-  position: relative;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  z-index: 1;
-  width: min(92vw, 28rem);
-  height: min(80vh, 40rem);
-  max-height: 80vh;
-  margin: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-}
-
 .otherAccountHeader {
   display: flex;
   flex-direction: row;

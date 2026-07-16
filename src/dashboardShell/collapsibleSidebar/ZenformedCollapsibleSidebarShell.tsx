@@ -6,11 +6,12 @@ import { useAccountMenuState } from '../useAccountMenuState';
 import { useZenformedMobileShellLayout } from '../useZenformedMobileShellLayout';
 import { ZenformedNotificationsMenu } from '../notifications/ZenformedNotificationsMenu';
 import { useZenformedSidebarExpandState } from './useZenformedSidebarExpandState';
+import { ZenformedSidebarActionRow } from './ZenformedSidebarActionRow';
 import {
   ZenformedSidebarMenuGlyph,
   ZenformedSidebarSections,
 } from './ZenformedSidebarSections';
-import type { ZenformedCollapsibleSidebarShellProps } from './types';
+import { resolveSidebarSectionLabelText, type ZenformedCollapsibleSidebarShellProps } from './types';
 import styles from './collapsibleSidebar.module.css';
 
 function RailChrome({
@@ -37,6 +38,7 @@ function RailChrome({
     account,
     notificationsLabel = 'Notifications',
     otherSectionLabel = 'Other',
+    otherSectionCollapsedLabel,
   } = props;
 
   const accountMenu = useAccountMenuState();
@@ -45,6 +47,11 @@ function RailChrome({
   }, [accountMenu.accountMenuOpen, onAccountOpenChange]);
 
   const org = organizationName?.trim() || null;
+  const otherLabel = resolveSidebarSectionLabelText({
+    label: otherSectionLabel,
+    collapsedLabel: otherSectionCollapsedLabel,
+    expanded: showLabels,
+  });
 
   return (
     <div
@@ -72,70 +79,96 @@ function RailChrome({
       </div>
 
       <div className={styles.other}>
-        <div className={styles.otherLabel}>{otherSectionLabel}</div>
-
-        {notifications && notifications.organizationId.trim() ? (
-          <div className={`${styles.otherRow} ${styles.notificationsSlot}`}>
-            <ZenformedNotificationsMenu
-              {...notifications}
-              sidebarLabel={showLabels ? notificationsLabel : undefined}
-              onOpenChange={onNotificationsOpenChange}
-            />
+        {otherLabel ? (
+          <div
+            className={`${styles.sectionLabel} ${styles.otherLabel} ${
+              showLabels ? '' : styles.sectionLabelCollapsed
+            }`}
+            role="presentation"
+          >
+            <span>{otherLabel}</span>
           </div>
         ) : null}
 
-        <div className={styles.otherRow}>
-          <div className={styles.themeSlot}>{themeControl}</div>
-          {showLabels ? <span className={styles.otherRowLabel}>{themeLabel}</span> : null}
-        </div>
+        {notifications && notifications.organizationId.trim() ? (
+          <ZenformedSidebarActionRow
+            showLabel={showLabels}
+            label={notificationsLabel}
+            icon={
+              <ZenformedNotificationsMenu
+                {...notifications}
+                onOpenChange={onNotificationsOpenChange}
+              />
+            }
+            className={styles.notificationsSlot}
+          />
+        ) : null}
+
+        <ZenformedSidebarActionRow
+          showLabel={showLabels}
+          label={themeLabel}
+          icon={<span className={styles.themeControlWrap}>{themeControl}</span>}
+        />
 
         {settings ? (
-          <button
-            type="button"
-            className={`${styles.otherRow} ${styles.otherRowButton}`}
+          <ZenformedSidebarActionRow
+            asButton
+            showLabel={showLabels}
+            label={settings.label}
+            title={settings.title ?? settings.label}
+            icon={settings.icon}
             onClick={() => {
               settings.onSelect();
               onNavigate?.();
             }}
-            aria-label={settings.label}
-            title={settings.title ?? settings.label}
-          >
-            <span className={styles.otherIconSlot} aria-hidden>
-              {settings.icon}
-            </span>
-            {showLabels ? <span className={styles.otherRowLabel}>{settings.label}</span> : null}
-          </button>
+          />
         ) : null}
 
         {account ? (
-          <div className={styles.accountSlot}>
-            <ZenformedAccountMenu
-              classNames={account.classNames}
-              user={account.user}
-              userDisplayName={account.userDisplayName}
-              avatarUrl={account.avatarUrl}
-              avatarLoading={account.avatarLoading ?? false}
-              organizationRoleLabel={account.organizationRoleLabel}
-              labels={account.labels}
-              onOpenSettings={() => {
-                account.onOpenSettings();
-                onNavigate?.();
-              }}
-              onRequestSignOutConfirm={account.onRequestSignOutConfirm}
-              onRequestProfilePhotoModal={account.onRequestProfilePhotoModal}
-              profilePhotoChangeEnabled={account.profilePhotoChangeEnabled}
-              showSettingsButton={account.showSettingsButton ?? false}
-              settingsIcon={account.settingsIcon}
-              signOutIcon={account.signOutIcon}
-              profilePhotoCameraIcon={account.profilePhotoCameraIcon}
-              accountMenuOpen={accountMenu.accountMenuOpen}
-              setAccountMenuOpen={accountMenu.setAccountMenuOpen}
-              accountMenuRef={accountMenu.accountMenuRef}
-              closeAccountMenu={accountMenu.closeAccountMenu}
-            />
+          <div className={`${styles.actionRow} ${styles.accountSlot}`}>
+            <span className={styles.actionIcon}>
+              <ZenformedAccountMenu
+                classNames={account.classNames}
+                user={account.user}
+                userDisplayName={account.userDisplayName}
+                avatarUrl={account.avatarUrl}
+                avatarLoading={account.avatarLoading ?? false}
+                organizationRoleLabel={account.organizationRoleLabel}
+                labels={account.labels}
+                onOpenSettings={() => {
+                  account.onOpenSettings();
+                  onNavigate?.();
+                }}
+                onRequestSignOutConfirm={account.onRequestSignOutConfirm}
+                onRequestProfilePhotoModal={account.onRequestProfilePhotoModal}
+                profilePhotoChangeEnabled={account.profilePhotoChangeEnabled}
+                showSettingsButton={account.showSettingsButton ?? false}
+                settingsIcon={account.settingsIcon}
+                signOutIcon={account.signOutIcon}
+                profilePhotoCameraIcon={account.profilePhotoCameraIcon}
+                accountMenuOpen={accountMenu.accountMenuOpen}
+                setAccountMenuOpen={accountMenu.setAccountMenuOpen}
+                accountMenuRef={accountMenu.accountMenuRef}
+                closeAccountMenu={accountMenu.closeAccountMenu}
+              />
+            </span>
             {showLabels ? (
-              <span className={styles.accountName} title={account.userDisplayName}>
-                {account.userDisplayName}
+              <span className={styles.accountText}>
+                <span className={styles.accountName} title={account.userDisplayName}>
+                  {account.userDisplayName}
+                </span>
+                {(() => {
+                  const email = (account.userEmail ?? account.user.email)?.trim() || '';
+                  if (!email) return null;
+                  if (email.toLowerCase() === account.userDisplayName.trim().toLowerCase()) {
+                    return null;
+                  }
+                  return (
+                    <span className={styles.accountEmail} title={email}>
+                      {email}
+                    </span>
+                  );
+                })()}
               </span>
             ) : null}
           </div>
@@ -249,3 +282,5 @@ export function ZenformedCollapsibleSidebarShell(
 }
 
 export { ZenformedSidebarAppChevrons } from './ZenformedSidebarSections';
+export { ZenformedSidebarAppsTriggerChrome } from './ZenformedSidebarAppsTriggerChrome';
+export { ZenformedSidebarActionRow } from './ZenformedSidebarActionRow';

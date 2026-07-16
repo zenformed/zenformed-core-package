@@ -6,8 +6,14 @@ import type {
   ZenformedDashboardHeaderUser,
 } from '../types';
 
+/** Shared layout tokens for the collapsible sidebar rail. */
 export const ZENFORMED_SIDEBAR_COLLAPSED_WIDTH_REM = 3.75;
-export const ZENFORMED_SIDEBAR_EXPANDED_WIDTH_REM = 15;
+export const ZENFORMED_SIDEBAR_EXPANDED_WIDTH_REM = 17.5;
+export const ZENFORMED_SIDEBAR_ICON_COLUMN_REM = 2.5;
+export const ZENFORMED_SIDEBAR_ROW_HEIGHT_REM = 2.5;
+export const ZENFORMED_SIDEBAR_SECTION_LABEL_HEIGHT_REM = 1;
+/** Collapsed labels longer than this are hidden when `collapsedLabel` is omitted. */
+export const ZENFORMED_SIDEBAR_COLLAPSED_LABEL_SAFE_MAX_CHARS = 5;
 export const ZENFORMED_SIDEBAR_HOVER_OPEN_DELAY_MS = 120;
 export const ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS = 220;
 
@@ -22,17 +28,24 @@ export type ZenformedSidebarNavItem = {
   readonly onSelect: () => void;
 };
 
-export type ZenformedSidebarNavSection = {
+type ZenformedSidebarSectionLabelFields = {
+  readonly label?: string;
+  /**
+   * Compact label for the collapsed rail (e.g. `"ORG"`).
+   * Not auto-derived by slicing — hosts should supply intentional short forms.
+   */
+  readonly collapsedLabel?: string;
+};
+
+export type ZenformedSidebarNavSection = ZenformedSidebarSectionLabelFields & {
   readonly kind: 'nav';
   readonly id: string;
-  readonly label?: string;
   readonly items: readonly ZenformedSidebarNavItem[];
 };
 
-export type ZenformedSidebarCustomSection = {
+export type ZenformedSidebarCustomSection = ZenformedSidebarSectionLabelFields & {
   readonly kind: 'custom';
   readonly id: string;
-  readonly label?: string;
   readonly collapsible?: boolean;
   readonly defaultOpen?: boolean;
   readonly content: ReactNode;
@@ -50,6 +63,8 @@ export type ZenformedSidebarSettingsConfig = {
 export type ZenformedSidebarAccountConfig = {
   readonly user: ZenformedDashboardHeaderUser;
   readonly userDisplayName: string;
+  /** Secondary line under the display name when the rail is expanded (typically email). */
+  readonly userEmail?: string | null;
   readonly avatarUrl?: string | null;
   readonly avatarLoading?: boolean;
   readonly organizationRoleLabel?: string | null;
@@ -69,10 +84,11 @@ export type ZenformedSidebarAccountConfig = {
 export type ZenformedCollapsibleSidebarShellProps = {
   /** Current app icon image URL (preferred). */
   readonly appIconSrc?: string | null;
+  /** Host-resolved app display name (from app registry). Never hardcoded in the package. */
   readonly appName: string;
   /**
    * Host-composed apps launcher (reuse `ZenformedAppsLauncher`).
-   * Prefer passing a launcher whose trigger uses `renderTrigger` for the sidebar chrome.
+   * Prefer `ZenformedSidebarAppsTriggerChrome` inside `renderTrigger` for icon + name + chevrons.
    */
   readonly appsSwitcher: ReactNode;
   readonly organizationName?: string | null;
@@ -87,6 +103,8 @@ export type ZenformedCollapsibleSidebarShellProps = {
   readonly children: ReactNode;
   readonly notificationsLabel?: string;
   readonly otherSectionLabel?: string;
+  /** Compact OTHER label for the collapsed rail (e.g. `"OTHER"`). */
+  readonly otherSectionCollapsedLabel?: string;
   readonly mobileMenuAriaLabel?: string;
   readonly sidebarAriaLabel?: string;
   /**
@@ -108,4 +126,30 @@ export function shouldReserveCollapsedSidebarWidth(): boolean {
  */
 export function shouldOverlayExpandedSidebar(): boolean {
   return true;
+}
+
+/**
+ * Resolves which section label text to show.
+ * Expanded / mobile drawer → full `label`.
+ * Collapsed → `collapsedLabel`, else full label only if short enough, else null (hide).
+ */
+export function resolveSidebarSectionLabelText(input: {
+  readonly label?: string | null;
+  readonly collapsedLabel?: string | null;
+  readonly expanded: boolean;
+}): string | null {
+  const full = input.label?.trim() || null;
+  if (!full) return null;
+  if (input.expanded) return full;
+  const compact = input.collapsedLabel?.trim() || null;
+  if (compact) return compact;
+  if (full.length <= ZENFORMED_SIDEBAR_COLLAPSED_LABEL_SAFE_MAX_CHARS) return full;
+  return null;
+}
+
+/**
+ * App name is only painted in the expanded (or mobile-open) rail.
+ */
+export function shouldShowSidebarAppName(expanded: boolean): boolean {
+  return expanded;
 }

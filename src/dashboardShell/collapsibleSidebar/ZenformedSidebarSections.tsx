@@ -6,6 +6,7 @@ import type {
   ZenformedSidebarNavSection,
   ZenformedSidebarSection,
 } from './types';
+import { resolveSidebarSectionLabelText } from './types';
 import styles from './collapsibleSidebar.module.css';
 
 function CaretIcon({ open }: { open: boolean }): ReactElement {
@@ -23,6 +24,20 @@ function CaretIcon({ open }: { open: boolean }): ReactElement {
   );
 }
 
+function SectionLabelText({
+  label,
+  collapsedLabel,
+  expanded,
+}: {
+  label?: string;
+  collapsedLabel?: string;
+  expanded: boolean;
+}): ReactElement | null {
+  const text = resolveSidebarSectionLabelText({ label, collapsedLabel, expanded });
+  if (!text) return null;
+  return <span>{text}</span>;
+}
+
 function NavSection({
   section,
   expanded,
@@ -32,11 +47,24 @@ function NavSection({
   expanded: boolean;
   onNavigate?: () => void;
 }): ReactElement {
+  const labelText = resolveSidebarSectionLabelText({
+    label: section.label,
+    collapsedLabel: section.collapsedLabel,
+    expanded,
+  });
+
   return (
     <div className={styles.section} data-zenformed-sidebar-section={section.id}>
-      {section.label ? (
-        <div className={styles.sectionLabel} aria-hidden={!expanded}>
-          <span>{section.label}</span>
+      {labelText ? (
+        <div
+          className={`${styles.sectionLabel} ${expanded ? '' : styles.sectionLabelCollapsed}`}
+          role="presentation"
+        >
+          <SectionLabelText
+            label={section.label}
+            collapsedLabel={section.collapsedLabel}
+            expanded={expanded}
+          />
         </div>
       ) : null}
       <ul className={styles.navList}>
@@ -75,11 +103,16 @@ function CustomSection({
 }): ReactElement {
   const [open, setOpen] = useState(section.defaultOpen !== false);
   const collapsible = Boolean(section.collapsible);
+  const labelText = resolveSidebarSectionLabelText({
+    label: section.label,
+    collapsedLabel: section.collapsedLabel,
+    expanded,
+  });
 
   return (
     <div className={styles.section} data-zenformed-sidebar-section={section.id}>
-      {section.label ? (
-        collapsible ? (
+      {labelText ? (
+        collapsible && expanded ? (
           <button
             type="button"
             className={`${styles.sectionLabel} ${styles.sectionLabelButton}`}
@@ -90,12 +123,20 @@ function CustomSection({
             <CaretIcon open={open} />
           </button>
         ) : (
-          <div className={styles.sectionLabel} aria-hidden={!expanded}>
-            <span>{section.label}</span>
+          <div
+            className={`${styles.sectionLabel} ${expanded ? '' : styles.sectionLabelCollapsed}`}
+            role="presentation"
+          >
+            <SectionLabelText
+              label={section.label}
+              collapsedLabel={section.collapsedLabel}
+              expanded={expanded}
+            />
           </div>
         )
       ) : null}
-      {!collapsible || open ? (
+      {/* Custom bodies (e.g. team list) only when expanded — keep collapsed rail icon-only. */}
+      {expanded && (!collapsible || open) ? (
         <div className={styles.customSectionBody}>{section.content}</div>
       ) : null}
     </div>

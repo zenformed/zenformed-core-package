@@ -33,14 +33,22 @@ export {
 
 export { ZenformedCollapsibleSidebarShell } from './collapsibleSidebar/ZenformedCollapsibleSidebarShell';
 export { ZenformedSidebarAppChevrons } from './collapsibleSidebar/ZenformedSidebarSections';
+export { ZenformedSidebarAppsTriggerChrome } from './collapsibleSidebar/ZenformedSidebarAppsTriggerChrome';
+export { ZenformedSidebarActionRow } from './collapsibleSidebar/ZenformedSidebarActionRow';
 export { useZenformedSidebarExpandState } from './collapsibleSidebar/useZenformedSidebarExpandState';
 export {
+  resolveSidebarSectionLabelText,
   shouldOverlayExpandedSidebar,
   shouldReserveCollapsedSidebarWidth,
+  shouldShowSidebarAppName,
+  ZENFORMED_SIDEBAR_COLLAPSED_LABEL_SAFE_MAX_CHARS,
   ZENFORMED_SIDEBAR_COLLAPSED_WIDTH_REM,
   ZENFORMED_SIDEBAR_EXPANDED_WIDTH_REM,
   ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS,
   ZENFORMED_SIDEBAR_HOVER_OPEN_DELAY_MS,
+  ZENFORMED_SIDEBAR_ICON_COLUMN_REM,
+  ZENFORMED_SIDEBAR_ROW_HEIGHT_REM,
+  ZENFORMED_SIDEBAR_SECTION_LABEL_HEIGHT_REM,
 } from './collapsibleSidebar/types';
 export type {
   ZenformedCollapsibleSidebarShellProps,
@@ -51,6 +59,8 @@ export type {
   ZenformedSidebarSection,
   ZenformedSidebarSettingsConfig,
 } from './collapsibleSidebar/types';
+export type { ZenformedSidebarActionRowProps } from './collapsibleSidebar/ZenformedSidebarActionRow';
+export type { ZenformedSidebarAppsTriggerChromeProps } from './collapsibleSidebar/ZenformedSidebarAppsTriggerChrome';
 
 export { ZenformedConfirmSnackbar } from './ZenformedConfirmSnackbar';
 export { pickConfirmSnackbarClassNames } from './pickConfirmSnackbarClassNames';

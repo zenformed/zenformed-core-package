@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -10,6 +11,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { useBodyScrollLock } from '../useBodyScrollLock';
@@ -31,6 +33,9 @@ import {
 } from './types';
 import styles from './collapsibleSidebar.module.css';
 
+const SIDEBAR_DOCK_GAP_PX = 8;
+const SIDEBAR_DOCK_VIEWPORT_PAD_PX = 8;
+
 function resolveOtherLeading(
   otherLeading: ZenformedCollapsibleSidebarShellProps['otherLeading'],
   showLabel: boolean
@@ -38,6 +43,14 @@ function resolveOtherLeading(
   if (otherLeading == null) return null;
   if (typeof otherLeading === 'function') return otherLeading({ showLabel });
   return otherLeading;
+}
+
+function resolveSidebarRailRight(anchor: HTMLElement): number {
+  const rail = anchor.closest('aside');
+  if (rail instanceof HTMLElement) {
+    return rail.getBoundingClientRect().right;
+  }
+  return anchor.getBoundingClientRect().right;
 }
 
 function DesktopRailChrome({
@@ -68,13 +81,56 @@ function DesktopRailChrome({
     otherLeading,
   } = props;
 
-  const accountMenu = useAccountMenuState();
+  const accountPanelPortalRef = useRef<HTMLDivElement>(null);
+  const accountMenu = useAccountMenuState({ extraRoots: [accountPanelPortalRef] });
+  const [accountPortalStyle, setAccountPortalStyle] = useState<CSSProperties | null>(null);
+
   useEffect(() => {
     onAccountOpenChange?.(accountMenu.accountMenuOpen);
   }, [accountMenu.accountMenuOpen, onAccountOpenChange]);
 
-  const openAccountPanel = useCallback(() => {
-    accountMenu.setAccountMenuOpen(true);
+  useEffect(() => {
+    if (!accountMenu.accountMenuOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') accountMenu.closeAccountMenu();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [accountMenu.accountMenuOpen, accountMenu.closeAccountMenu]);
+
+  const updateAccountPortalPosition = useCallback(() => {
+    const anchor = accountMenu.accountMenuRef.current;
+    if (!anchor) {
+      setAccountPortalStyle(null);
+      return;
+    }
+    const left = resolveSidebarRailRight(anchor) + SIDEBAR_DOCK_GAP_PX;
+    setAccountPortalStyle({
+      position: 'fixed',
+      left: `${Math.round(left)}px`,
+      right: 'auto',
+      top: 'auto',
+      bottom: `${SIDEBAR_DOCK_VIEWPORT_PAD_PX}px`,
+      zIndex: 10_000,
+    });
+  }, [accountMenu.accountMenuRef]);
+
+  useLayoutEffect(() => {
+    if (!accountMenu.accountMenuOpen) {
+      setAccountPortalStyle(null);
+      return;
+    }
+    updateAccountPortalPosition();
+    window.addEventListener('resize', updateAccountPortalPosition);
+    window.addEventListener('scroll', updateAccountPortalPosition, true);
+    return () => {
+      window.removeEventListener('resize', updateAccountPortalPosition);
+      window.removeEventListener('scroll', updateAccountPortalPosition, true);
+    };
+  }, [accountMenu.accountMenuOpen, updateAccountPortalPosition]);
+
+  const toggleAccountPanel = useCallback(() => {
+    accountMenu.setAccountMenuOpen((open) => !open);
   }, [accountMenu.setAccountMenuOpen]);
 
   const themeRowRef = useRef<HTMLDivElement>(null);
@@ -100,6 +156,74 @@ function DesktopRailChrome({
   const accountEmail = (account?.userEmail ?? account?.user.email)?.trim() || '';
   const showAccountEmail =
     Boolean(accountEmail) && accountEmail.toLowerCase() !== accountName.toLowerCase();
+  const roleLabel = account?.organizationRoleLabel?.trim() || '';
+
+  const accountPanel =
+    account && accountMenu.accountMenuOpen ? (
+      <div
+        ref={accountPanelPortalRef}
+        className={`${styles.otherAccountPanel} ${styles.otherAccountPanelPortaled}`}
+        style={accountPortalStyle ?? { visibility: 'hidden' }}
+        role="menu"
+        aria-label="Account"
+        data-zenformed-sidebar-dock-popover="account"
+      >
+        <div className={styles.otherAccountHeader}>
+          {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
+          ) : (
+            <span
+              className={styles.otherAccountAvatar}
+              style={{
+                backgroundColor: account.avatarLoading
+                  ? 'var(--color-muted, #f1f5f9)'
+                  : userCircleColor(account.user.email),
+              }}
+              aria-hidden
+            >
+              {!account.avatarLoading ? getUserInitials(account.user, accountName) : null}
+            </span>
+          )}
+          <div className={styles.otherAccountIdentity}>
+            <span className={styles.otherAccountName} title={accountName}>
+              {accountName}
+            </span>
+            {showAccountEmail || roleLabel ? (
+              <div className={styles.otherAccountMetaRow}>
+                {showAccountEmail ? (
+                  <span className={styles.otherAccountEmail} title={accountEmail}>
+                    {accountEmail}
+                  </span>
+                ) : (
+                  <span className={styles.otherAccountEmailSpacer} aria-hidden />
+                )}
+                {roleLabel ? (
+                  <span
+                    className={styles.otherAccountRolePill}
+                    aria-label={`${account.labels.roleAriaLabelPrefix ?? 'Role:'} ${roleLabel}`}
+                  >
+                    {roleLabel}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </div>
+        <div className={styles.otherAccountDivider} aria-hidden />
+        <button
+          type="button"
+          className={styles.otherAccountSignOut}
+          onClick={() => {
+            accountMenu.closeAccountMenu();
+            account.onRequestSignOutConfirm();
+          }}
+        >
+          {account.signOutIcon}
+          {account.labels.signOutButtonLabel}
+        </button>
+      </div>
+    ) : null;
 
   return (
     <div
@@ -128,10 +252,7 @@ function DesktopRailChrome({
         </div>
       </div>
 
-      <div
-        className={`${styles.other} ${styles.railBottom}`}
-        ref={account ? accountMenu.accountMenuRef : undefined}
-      >
+      <div className={`${styles.other} ${styles.railBottom}`}>
         {otherLabel ? (
           <div
             className={`${styles.sectionLabel} ${styles.otherLabel} ${
@@ -199,12 +320,13 @@ function DesktopRailChrome({
 
         {account ? (
           <div
+            ref={accountMenu.accountMenuRef}
             className={`${styles.actionRow} ${styles.accountSlot}`}
-            onClick={openAccountPanel}
+            onClick={toggleAccountPanel}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                openAccountPanel();
+                toggleAccountPanel();
               }
             }}
             role="button"
@@ -258,52 +380,9 @@ function DesktopRailChrome({
           </div>
         ) : null}
 
-        {account && accountMenu.accountMenuOpen ? (
-          <div className={styles.otherAccountPanel} role="menu" aria-label="Account">
-            <div className={styles.otherAccountHeader}>
-              {account.profilePhotoChangeEnabled && account.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
-              ) : (
-                <span
-                  className={styles.otherAccountAvatar}
-                  style={{
-                    backgroundColor: account.avatarLoading
-                      ? 'var(--color-muted, #f1f5f9)'
-                      : userCircleColor(account.user.email),
-                  }}
-                  aria-hidden
-                >
-                  {!account.avatarLoading
-                    ? getUserInitials(account.user, accountName)
-                    : null}
-                </span>
-              )}
-              <div className={styles.otherAccountIdentity}>
-                <span className={styles.otherAccountName} title={accountName}>
-                  {accountName}
-                </span>
-                {showAccountEmail ? (
-                  <span className={styles.otherAccountEmail} title={accountEmail}>
-                    {accountEmail}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-            <div className={styles.otherAccountDivider} aria-hidden />
-            <button
-              type="button"
-              className={styles.otherAccountSignOut}
-              onClick={() => {
-                accountMenu.closeAccountMenu();
-                account.onRequestSignOutConfirm();
-              }}
-            >
-              {account.signOutIcon}
-              {account.labels.signOutButtonLabel}
-            </button>
-          </div>
-        ) : null}
+        {typeof document !== 'undefined' && accountPanel
+          ? createPortal(accountPanel, document.body)
+          : null}
       </div>
     </div>
   );
@@ -381,6 +460,22 @@ export function ZenformedCollapsibleSidebarShell(
     if (isMobile) return;
     drawerRef.current?.removeAttribute('inert');
   }, [isMobile]);
+
+  /** Click outside the rail (and outside docked popovers) collapses the rail. */
+  useEffect(() => {
+    if (isMobile) return;
+    const onClickCapture = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (drawerRef.current?.contains(target)) return;
+      if (target instanceof Element && target.closest('[data-zenformed-sidebar-dock-popover]')) {
+        return;
+      }
+      expand.setExpanded(false);
+    };
+    document.addEventListener('click', onClickCapture, true);
+    return () => document.removeEventListener('click', onClickCapture, true);
+  }, [expand.setExpanded, isMobile]);
 
   const showLabels = isMobile ? drawerOpen : expand.expanded;
 

@@ -29,6 +29,8 @@ export function useZenformedSidebarExpandState({
   const [hoverExpanded, setHoverExpanded] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Pointer left the rail while an overlay was forcing expand — collapse when force ends. */
+  const leftWhileForcedRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     if (openTimer.current) {
@@ -43,8 +45,24 @@ export function useZenformedSidebarExpandState({
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
+  const scheduleCollapse = useCallback(() => {
+    clearTimers();
+    closeTimer.current = setTimeout(
+      () => setHoverExpanded(false),
+      ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS
+    );
+  }, [clearTimers]);
+
+  useEffect(() => {
+    if (forceExpanded) return;
+    if (!leftWhileForcedRef.current) return;
+    leftWhileForcedRef.current = false;
+    scheduleCollapse();
+  }, [forceExpanded, scheduleCollapse]);
+
   const onRailPointerEnter = useCallback(() => {
     if (!hoverEnabled) return;
+    leftWhileForcedRef.current = false;
     clearTimers();
     openTimer.current = setTimeout(() => setHoverExpanded(true), ZENFORMED_SIDEBAR_HOVER_OPEN_DELAY_MS);
   }, [clearTimers, hoverEnabled]);
@@ -52,15 +70,17 @@ export function useZenformedSidebarExpandState({
   const onRailPointerLeave = useCallback(() => {
     if (!hoverEnabled) return;
     clearTimers();
-    if (forceExpanded) return;
-    closeTimer.current = setTimeout(
-      () => setHoverExpanded(false),
-      ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS
-    );
-  }, [clearTimers, forceExpanded, hoverEnabled]);
+    if (forceExpanded) {
+      leftWhileForcedRef.current = true;
+      return;
+    }
+    leftWhileForcedRef.current = false;
+    scheduleCollapse();
+  }, [clearTimers, forceExpanded, hoverEnabled, scheduleCollapse]);
 
   const onRailFocusCapture = useCallback(() => {
     if (!hoverEnabled) return;
+    leftWhileForcedRef.current = false;
     clearTimers();
     setHoverExpanded(true);
   }, [clearTimers, hoverEnabled]);
@@ -71,17 +91,19 @@ export function useZenformedSidebarExpandState({
       const next = e.relatedTarget as Node | null;
       if (next && e.currentTarget.contains(next)) return;
       clearTimers();
-      if (forceExpanded) return;
-      closeTimer.current = setTimeout(
-        () => setHoverExpanded(false),
-        ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS
-      );
+      if (forceExpanded) {
+        leftWhileForcedRef.current = true;
+        return;
+      }
+      leftWhileForcedRef.current = false;
+      scheduleCollapse();
     },
-    [clearTimers, forceExpanded, hoverEnabled]
+    [clearTimers, forceExpanded, hoverEnabled, scheduleCollapse]
   );
 
   const setExpanded = useCallback(
     (open: boolean) => {
+      leftWhileForcedRef.current = false;
       clearTimers();
       setHoverExpanded(open);
     },

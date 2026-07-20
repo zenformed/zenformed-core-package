@@ -760,7 +760,7 @@ button.actionRow:focus-visible {
 
 /*
  * Account / user menu overlay.
- * Slight inset + rounded corners; same border color as the side nav.
+ * Inline (legacy inset) + portaled dock (same as notifications).
  */
 .otherAccountPanel {
   position: absolute;
@@ -790,6 +790,35 @@ button.actionRow:focus-visible {
   box-shadow: none;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.otherAccountPanelPortaled {
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  z-index: 10000;
+  width: min(22.5rem, calc(100vw - 1.5rem));
+  max-height: min(28rem, calc(100vh - 5rem));
+  padding: 1rem;
+  gap: 0;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
+}
+
+.otherAccountPanelPortaled .otherAccountHeader {
+  padding: 0.35rem 0 0.85rem;
+}
+
+.otherAccountPanelPortaled .otherAccountDivider {
+  width: 100%;
+  margin: 0;
+}
+
+.otherAccountPanelPortaled .otherAccountSignOut {
+  margin: 0.85rem 0 0;
+  width: 100%;
+  padding: 0.65rem 0.5rem;
 }
 
 .otherAccountHeader {
@@ -854,8 +883,8 @@ button.actionRow:focus-visible {
 
 .otherAccountEmail {
   display: block;
-  width: 100%;
   min-width: 0;
+  flex: 1 1 auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -863,6 +892,37 @@ button.actionRow:focus-visible {
   font-weight: 500;
   line-height: 1.2;
   color: var(--color-text-muted, #64748b);
+}
+
+.otherAccountEmailSpacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.otherAccountMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.otherAccountRolePill {
+  flex-shrink: 0;
+  max-width: 8rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-on-primary, #ffffff);
+  background: var(--color-primary, #2563eb);
 }
 
 .otherAccountDivider {

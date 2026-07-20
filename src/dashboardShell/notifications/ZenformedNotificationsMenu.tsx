@@ -172,6 +172,7 @@ export function ZenformedNotificationsMenu({
       }}
       role="dialog"
       aria-label="Notifications"
+      data-zenformed-sidebar-dock-popover={dockPopoverToSidebar ? 'notifications' : undefined}
     >
       <div className={styles.popoverHeader}>
         <h2 className={styles.popoverTitle}>Notifications</h2>

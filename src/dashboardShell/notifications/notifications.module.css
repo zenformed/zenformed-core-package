@@ -100,25 +100,6 @@
   flex: 0 1 auto;
 }
 
-/*
- * Portaled fixed panel: right of the rail, pinned near the viewport bottom.
- * Theme tokens match apps/account overlays.
- */
-.popoverFromSidebar {
-  left: auto;
-  right: auto;
-  top: auto;
-  bottom: auto;
-  z-index: 10000;
-  --color-text: var(--theme-nav-sidebar-menu-text, #f1f5f9);
-  --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #94a3b8);
-  --color-border: var(--theme-nav-sidebar-menu-border, rgba(255, 255, 255, 0.14));
-  --theme-surface-hover: var(--theme-nav-sidebar-menu-hover, rgba(255, 255, 255, 0.08));
-  background: var(--theme-nav-sidebar-menu-bg, var(--theme-nav-sidebar-bg, #102741));
-  color: var(--color-text);
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
-}
-
 .badge {
   position: absolute;
   top: 0.2rem;
@@ -161,6 +142,26 @@
   background: var(--color-surface, #ffffff);
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
   color: var(--color-text, #0f172a);
+}
+
+/*
+ * Portaled fixed panel: right of the rail, pinned near the viewport bottom.
+ * Must follow `.popover` so sidebar menu surface tokens win over `--color-surface`.
+ * Matches account popup (`otherAccountPanel`) background.
+ */
+.popover.popoverFromSidebar {
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  z-index: 10000;
+  --color-text: var(--theme-nav-sidebar-menu-text, #f1f5f9);
+  --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #94a3b8);
+  --color-border: var(--theme-nav-sidebar-menu-border, rgba(255, 255, 255, 0.14));
+  --theme-surface-hover: var(--theme-nav-sidebar-menu-hover, rgba(255, 255, 255, 0.08));
+  background: var(--theme-nav-sidebar-menu-bg, var(--theme-nav-sidebar-bg, #102741));
+  color: var(--color-text);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
 }
 
 .popoverHeader {
@@ -377,6 +378,10 @@
   border-radius: 0.45rem;
   background: var(--color-muted, rgba(148, 163, 184, 0.18));
   overflow: hidden;
+}
+
+.popover.popoverFromSidebar .appIconWrap {
+  background: transparent;
 }
 
 .appIconImg {

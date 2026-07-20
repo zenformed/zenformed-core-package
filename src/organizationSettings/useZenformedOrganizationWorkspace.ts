@@ -438,7 +438,8 @@ export function useZenformedOrganizationWorkspace({
 
       const permissions = contextRes.data.permissions;
       const fetches: Promise<SliceResult<unknown>>[] = [];
-      const fetchMembers = permissions.canViewTeamMembers;
+      // Member roster is shared (e.g. sidebar communications) — not an org-admin permission.
+      const fetchMembers = contextRes.data.hasActiveMembership === true;
       const fetchInvites = permissions.canViewTeamMembers;
       const fetchSeats =
         permissions.canViewTeamMembers || permissions.canViewAppsBilling;

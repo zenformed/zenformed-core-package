@@ -79,7 +79,7 @@
   min-height: var(--zenformed-sidebar-row-height, 2.5rem);
   padding: 0;
   gap: var(--zenformed-sidebar-row-gap, 0.65rem);
-  justify-content: center;
+  justify-content: flex-start;
   border-radius: 0.5rem;
   color: inherit;
 }
@@ -97,7 +97,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
 }
 
 /*

@@ -23,7 +23,6 @@ import type { ZenformedDashboardNotificationsConfig } from './types';
 import { useZenformedNotificationsController } from './useZenformedNotificationsController';
 import styles from './notifications.module.css';
 
-const SIDEBAR_HOVER_CLOSE_MS = 220;
 const SIDEBAR_POPOVER_GAP_PX = 8;
 const SIDEBAR_POPOVER_VIEWPORT_PAD_PX = 8;
 
@@ -32,7 +31,7 @@ export type ZenformedNotificationsMenuProps = ZenformedDashboardNotificationsCon
   readonly sidebarLabel?: string;
   /**
    * Sidebar rail placement: popover docks to the right of the rail (bottom-aligned).
-   * Also enables hover-to-open on desktop.
+   * Opens on click (not hover).
    */
   readonly sidebarPlacement?: boolean;
   readonly onOpenChange?: (open: boolean) => void;
@@ -59,7 +58,6 @@ export function ZenformedNotificationsMenu({
   const popoverPortalRef = useRef<HTMLDivElement>(null);
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState({ extraRoots: [popoverPortalRef] });
-  const hoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [portalStyle, setPortalStyle] = useState<CSSProperties | null>(null);
 
   // Controller mounts with the envelope control (not the open dropdown). Unread
@@ -92,21 +90,12 @@ export function ZenformedNotificationsMenu({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [accountMenuOpen, closeAccountMenu]);
 
-  useEffect(() => {
-    return () => {
-      if (hoverCloseTimerRef.current != null) {
-        clearTimeout(hoverCloseTimerRef.current);
-      }
-    };
-  }, []);
-
   const badge = formatUnreadBadgeLabel(controller.unreadCount);
   const triggerLabel = formatNotificationsTriggerAriaLabel(controller.unreadCount);
   const showMarkAll =
     controller.unreadCount > 0 || controller.markingAllRead;
   const presentation = useZenformedSidebarPresentation();
   const navigateOnOpen = presentation === 'mobile';
-  const openOnHover = sidebarPlacement && !navigateOnOpen;
   const dockPopoverToSidebar = sidebarPlacement && !navigateOnOpen;
 
   const updatePortalPosition = useCallback(() => {
@@ -140,22 +129,6 @@ export function ZenformedNotificationsMenu({
     };
   }, [accountMenuOpen, dockPopoverToSidebar, updatePortalPosition]);
 
-  const clearHoverCloseTimer = () => {
-    if (hoverCloseTimerRef.current != null) {
-      clearTimeout(hoverCloseTimerRef.current);
-      hoverCloseTimerRef.current = null;
-    }
-  };
-
-  const scheduleHoverClose = () => {
-    if (!openOnHover) return;
-    clearHoverCloseTimer();
-    hoverCloseTimerRef.current = setTimeout(() => {
-      setAccountMenuOpen(false);
-      hoverCloseTimerRef.current = null;
-    }, SIDEBAR_HOVER_CLOSE_MS);
-  };
-
   const onViewAll = () => {
     closeAccountMenu();
     onNavigate(notificationsPageHref);
@@ -171,27 +144,7 @@ export function ZenformedNotificationsMenu({
       onNavigate(notificationsPageHref);
       return;
     }
-    clearHoverCloseTimer();
     setAccountMenuOpen((open) => !open);
-  };
-
-  const onWrapPointerEnter = () => {
-    if (!openOnHover) return;
-    clearHoverCloseTimer();
-    setAccountMenuOpen(true);
-  };
-
-  const onWrapPointerLeave = () => {
-    scheduleHoverClose();
-  };
-
-  const onPortalPointerEnter = () => {
-    if (!openOnHover) return;
-    clearHoverCloseTimer();
-  };
-
-  const onPortalPointerLeave = () => {
-    scheduleHoverClose();
   };
 
   const triggerClass = [
@@ -219,8 +172,6 @@ export function ZenformedNotificationsMenu({
       }}
       role="dialog"
       aria-label="Notifications"
-      onPointerEnter={dockPopoverToSidebar ? onPortalPointerEnter : undefined}
-      onPointerLeave={dockPopoverToSidebar ? onPortalPointerLeave : undefined}
     >
       <div className={styles.popoverHeader}>
         <h2 className={styles.popoverTitle}>Notifications</h2>
@@ -295,8 +246,6 @@ export function ZenformedNotificationsMenu({
       ref={accountMenuRef}
       data-zenformed-notifications-menu
       data-sidebar-placement={sidebarPlacement ? 'true' : undefined}
-      onPointerEnter={onWrapPointerEnter}
-      onPointerLeave={onWrapPointerLeave}
     >
       <button
         type="button"

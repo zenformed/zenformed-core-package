@@ -1143,8 +1143,18 @@ button.actionRow:focus-visible {
   color: var(--color-text);
 }
 
-.mobileUserEmail {
+.mobileUserMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   width: 100%;
+  min-width: 0;
+}
+
+.mobileUserEmail {
+  min-width: 0;
+  flex: 1 1 auto;
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.2;
@@ -1152,6 +1162,11 @@ button.actionRow:focus-visible {
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--color-text-muted);
+}
+
+.mobileUserEmailSpacer {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .mobileAppsSlot {

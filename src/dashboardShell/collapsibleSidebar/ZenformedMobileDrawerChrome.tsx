@@ -46,6 +46,7 @@ export function ZenformedMobileDrawerChrome({
   const accountEmail = (account?.userEmail ?? account?.user.email)?.trim() || '';
   const showAccountEmail =
     Boolean(accountEmail) && accountEmail.toLowerCase() !== accountName.toLowerCase();
+  const roleLabel = account?.organizationRoleLabel?.trim() || '';
 
   const closeAnd = useCallback(
     (fn?: () => void) => {
@@ -103,9 +104,23 @@ export function ZenformedMobileDrawerChrome({
               <span className={styles.mobileUserName} title={accountName}>
                 {accountName}
               </span>
-              {showAccountEmail ? (
-                <span className={styles.mobileUserEmail} title={accountEmail}>
-                  {accountEmail}
+              {showAccountEmail || roleLabel ? (
+                <span className={styles.mobileUserMetaRow}>
+                  {showAccountEmail ? (
+                    <span className={styles.mobileUserEmail} title={accountEmail}>
+                      {accountEmail}
+                    </span>
+                  ) : (
+                    <span className={styles.mobileUserEmailSpacer} aria-hidden />
+                  )}
+                  {roleLabel ? (
+                    <span
+                      className={styles.otherAccountRolePill}
+                      aria-label={`${account.labels.roleAriaLabelPrefix ?? 'Role:'} ${roleLabel}`}
+                    >
+                      {roleLabel}
+                    </span>
+                  ) : null}
                 </span>
               ) : null}
             </span>

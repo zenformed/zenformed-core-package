@@ -72,13 +72,17 @@ export function ZenformedAppsLauncher({
 }: ZenformedAppsLauncherProps): ReactElement {
   const presentation = useZenformedSidebarPresentation();
   const closeMobileDrawer = useMobileDrawerClose();
-  const inlineInDrawer = presentation === 'mobile' && popoverLayout === 'sidebarList';
-  const isSidebarOverlay = popoverLayout === 'sidebarList' && !inlineInDrawer;
+  const isSidebarList = popoverLayout === 'sidebarList';
+  /** Desktop: dock beside the rail. */
+  const isDesktopDock = isSidebarList && presentation === 'desktop';
+  /** Mobile: top sheet (~1/4 viewport), not inline in the drawer. */
+  const isMobileTopSheet = isSidebarList && presentation === 'mobile';
+  const usesPortal = isDesktopDock || isMobileTopSheet;
 
   const popoverPortalRef = useRef<HTMLDivElement>(null);
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState({
-      extraRoots: isSidebarOverlay ? [popoverPortalRef] : undefined,
+      extraRoots: usesPortal ? [popoverPortalRef] : undefined,
     });
   const [portalStyle, setPortalStyle] = useState<CSSProperties | null>(null);
 
@@ -88,10 +92,27 @@ export function ZenformedAppsLauncher({
 
   const updatePortalPosition = useCallback(() => {
     const anchor = accountMenuRef.current;
-    if (!anchor || !isSidebarOverlay) {
+    if (!anchor || !usesPortal) {
       setPortalStyle(null);
       return;
     }
+
+    if (isMobileTopSheet) {
+      setPortalStyle({
+        position: 'fixed',
+        top: '0.75rem',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        width: 'min(28rem, calc(100vw - 1rem))',
+        height: '25vh',
+        maxHeight: '25vh',
+        transform: 'translateX(-50%)',
+        zIndex: 10_001,
+      });
+      return;
+    }
+
     const railRect = resolveSidebarRailRect(anchor);
     setPortalStyle({
       position: 'fixed',
@@ -101,10 +122,10 @@ export function ZenformedAppsLauncher({
       bottom: 'auto',
       zIndex: 10_000,
     });
-  }, [accountMenuRef, isSidebarOverlay]);
+  }, [accountMenuRef, isMobileTopSheet, usesPortal]);
 
   useLayoutEffect(() => {
-    if (!accountMenuOpen || !isSidebarOverlay) {
+    if (!accountMenuOpen || !usesPortal) {
       setPortalStyle(null);
       return;
     }
@@ -115,7 +136,7 @@ export function ZenformedAppsLauncher({
       window.removeEventListener('resize', updatePortalPosition);
       window.removeEventListener('scroll', updatePortalPosition, true);
     };
-  }, [accountMenuOpen, isSidebarOverlay, updatePortalPosition]);
+  }, [accountMenuOpen, updatePortalPosition, usesPortal]);
 
   const onTriggerClick = () => setAccountMenuOpen((open) => !open);
 
@@ -142,8 +163,9 @@ export function ZenformedAppsLauncher({
     />
   ) : null;
 
-  const dockedPopover =
-    isSidebarOverlay && accountMenuOpen ? (
+  const dockKind = isMobileTopSheet ? 'apps-mobile' : 'apps';
+  const portaledPopover =
+    usesPortal && accountMenuOpen ? (
       <div
         ref={popoverPortalRef}
         className={classNames.appsPopover}
@@ -153,7 +175,7 @@ export function ZenformedAppsLauncher({
         }}
         role="menu"
         aria-label={labels.popoverAriaLabel}
-        data-zenformed-sidebar-dock-popover="apps"
+        data-zenformed-sidebar-dock-popover={dockKind}
       >
         {list}
       </div>
@@ -163,9 +185,7 @@ export function ZenformedAppsLauncher({
     <div
       className={classNames.appsLauncherWrap}
       ref={accountMenuRef}
-      data-zenformed-apps-overlay={isSidebarOverlay && accountMenuOpen ? 'true' : undefined}
-      data-zenformed-apps-inline={inlineInDrawer ? 'true' : undefined}
-      data-zenformed-apps-inline-open={inlineInDrawer && accountMenuOpen ? 'true' : undefined}
+      data-zenformed-apps-overlay={isDesktopDock && accountMenuOpen ? 'true' : undefined}
     >
       {renderTrigger ? (
         renderTrigger({
@@ -180,24 +200,14 @@ export function ZenformedAppsLauncher({
           onClick={onTriggerClick}
           aria-label={labels.triggerAriaLabel}
           aria-expanded={accountMenuOpen}
-          aria-haspopup={inlineInDrawer ? 'true' : 'menu'}
+          aria-haspopup="menu"
         >
           <span className={classNames.appsLauncherIcon} aria-hidden>
             {appsIcon}
           </span>
         </button>
       )}
-      {inlineInDrawer && accountMenuOpen ? (
-        <div
-          className={classNames.appsPopover}
-          data-zenformed-apps-inline-panel=""
-          role="menu"
-          aria-label={labels.popoverAriaLabel}
-        >
-          {list}
-        </div>
-      ) : null}
-      {!inlineInDrawer && !isSidebarOverlay && accountMenuOpen ? (
+      {!usesPortal && accountMenuOpen ? (
         <div
           className={classNames.appsPopover}
           style={ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}
@@ -207,8 +217,8 @@ export function ZenformedAppsLauncher({
           {list}
         </div>
       ) : null}
-      {typeof document !== 'undefined' && dockedPopover
-        ? createPortal(dockedPopover, document.body)
+      {typeof document !== 'undefined' && portaledPopover
+        ? createPortal(portaledPopover, document.body)
         : null}
     </div>
   );

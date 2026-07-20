@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, type ReactElement } from 'react';
+import { useEffect, useRef, type ReactElement } from 'react';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE } from '../dropdownSurfaceBorderStyle';
 import { useZenformedSidebarPresentation } from '../collapsibleSidebar/sidebarPresentationContext';
@@ -14,9 +14,16 @@ import type { ZenformedDashboardNotificationsConfig } from './types';
 import { useZenformedNotificationsController } from './useZenformedNotificationsController';
 import styles from './notifications.module.css';
 
+const SIDEBAR_HOVER_CLOSE_MS = 180;
+
 export type ZenformedNotificationsMenuProps = ZenformedDashboardNotificationsConfig & {
   /** When set, show this label beside the envelope (sidebar expanded). */
   readonly sidebarLabel?: string;
+  /**
+   * Sidebar rail placement: popover docks to the right of the rail (bottom-aligned).
+   * Also enables hover-to-open on desktop.
+   */
+  readonly sidebarPlacement?: boolean;
   readonly onOpenChange?: (open: boolean) => void;
 };
 
@@ -27,10 +34,12 @@ export function ZenformedNotificationsMenu({
   onNavigate,
   unreadPollIntervalMs,
   sidebarLabel,
+  sidebarPlacement = false,
   onOpenChange,
 }: ZenformedNotificationsMenuProps): ReactElement {
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
     useAccountMenuState();
+  const hoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Controller mounts with the envelope control (not the open dropdown). Unread
   // count fetch + 30s polling run independently of `accountMenuOpen`.
@@ -62,12 +71,29 @@ export function ZenformedNotificationsMenu({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [accountMenuOpen, closeAccountMenu]);
 
+  useEffect(() => {
+    return () => {
+      if (hoverCloseTimerRef.current != null) {
+        clearTimeout(hoverCloseTimerRef.current);
+      }
+    };
+  }, []);
+
   const badge = formatUnreadBadgeLabel(controller.unreadCount);
   const triggerLabel = formatNotificationsTriggerAriaLabel(controller.unreadCount);
   const showMarkAll =
     controller.unreadCount > 0 || controller.markingAllRead;
   const presentation = useZenformedSidebarPresentation();
   const navigateOnOpen = presentation === 'mobile';
+  const openOnHover = sidebarPlacement && !navigateOnOpen;
+  const dockPopoverToSidebar = sidebarPlacement && !navigateOnOpen;
+
+  const clearHoverCloseTimer = () => {
+    if (hoverCloseTimerRef.current != null) {
+      clearTimeout(hoverCloseTimerRef.current);
+      hoverCloseTimerRef.current = null;
+    }
+  };
 
   const onViewAll = () => {
     closeAccountMenu();
@@ -84,14 +110,52 @@ export function ZenformedNotificationsMenu({
       onNavigate(notificationsPageHref);
       return;
     }
+    clearHoverCloseTimer();
     setAccountMenuOpen((open) => !open);
   };
 
+  const onWrapPointerEnter = () => {
+    if (!openOnHover) return;
+    clearHoverCloseTimer();
+    setAccountMenuOpen(true);
+  };
+
+  const onWrapPointerLeave = () => {
+    if (!openOnHover) return;
+    clearHoverCloseTimer();
+    hoverCloseTimerRef.current = setTimeout(() => {
+      setAccountMenuOpen(false);
+      hoverCloseTimerRef.current = null;
+    }, SIDEBAR_HOVER_CLOSE_MS);
+  };
+
+  const triggerClass = [
+    styles.trigger,
+    sidebarLabel ? styles.triggerWithLabel : '',
+    sidebarPlacement ? styles.triggerSidebar : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const popoverClass = [
+    styles.popover,
+    dockPopoverToSidebar ? styles.popoverFromSidebar : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className={styles.wrap} ref={accountMenuRef} data-zenformed-notifications-menu>
+    <div
+      className={`${styles.wrap}${sidebarPlacement ? ` ${styles.wrapSidebar}` : ''}`}
+      ref={accountMenuRef}
+      data-zenformed-notifications-menu
+      data-sidebar-placement={sidebarPlacement ? 'true' : undefined}
+      onPointerEnter={onWrapPointerEnter}
+      onPointerLeave={onWrapPointerLeave}
+    >
       <button
         type="button"
-        className={sidebarLabel ? `${styles.trigger} ${styles.triggerWithLabel}` : styles.trigger}
+        className={triggerClass}
         onClick={onTriggerClick}
         aria-label={triggerLabel}
         aria-expanded={navigateOnOpen ? undefined : accountMenuOpen}
@@ -100,8 +164,17 @@ export function ZenformedNotificationsMenu({
         <span className={styles.triggerIcon}>
           <ZenformedNotificationsEnvelopeIcon />
         </span>
-        {sidebarLabel ? <span className={styles.triggerLabelText}>{sidebarLabel}</span> : null}
-        {badge ? (
+        {sidebarLabel ? (
+          <span className={styles.triggerLabelText}>
+            {sidebarLabel}
+            {badge ? (
+              <span className={styles.badgeInline} aria-hidden>
+                {' '}
+                ({badge})
+              </span>
+            ) : null}
+          </span>
+        ) : badge ? (
           <span className={styles.badge} aria-hidden>
             {badge}
           </span>
@@ -110,7 +183,7 @@ export function ZenformedNotificationsMenu({
 
       {!navigateOnOpen && accountMenuOpen ? (
         <div
-          className={sidebarLabel ? `${styles.popover} ${styles.popoverFromSidebar}` : styles.popover}
+          className={popoverClass}
           style={ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}
           role="dialog"
           aria-label="Notifications"

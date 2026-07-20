@@ -9,6 +9,12 @@
   align-items: center;
 }
 
+.wrapSidebar {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
 /* Match BuildCore header icon controls (theme toggle + apps drawer). */
 .trigger {
   position: relative;
@@ -48,6 +54,7 @@
   align-items: center;
   justify-content: center;
   line-height: 0;
+  flex-shrink: 0;
 }
 
 .triggerIcon svg {
@@ -65,19 +72,55 @@
   justify-content: flex-start;
 }
 
+.triggerSidebar {
+  width: 100%;
+  min-width: 0;
+  height: var(--zenformed-sidebar-row-height, 2.5rem);
+  min-height: var(--zenformed-sidebar-row-height, 2.5rem);
+  padding: 0;
+  gap: var(--zenformed-sidebar-row-gap, 0.65rem);
+  justify-content: center;
+  border-radius: 0.5rem;
+  color: inherit;
+}
+
+.triggerSidebar.triggerWithLabel {
+  justify-content: flex-start;
+  padding: 0;
+}
+
 .triggerLabelText {
   font-size: 0.875rem;
   font-weight: 550;
   color: inherit;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
+.badgeInline {
+  font-weight: 650;
+  color: inherit;
+}
+
+/*
+ * Dock to the right of the sidebar rail, bottom-aligned with the trigger.
+ * Uses the same menu surface tokens as the apps/account overlays.
+ */
 .popoverFromSidebar {
-  left: calc(100% + 0.4rem);
+  left: calc(100% + 0.5rem);
   right: auto;
   top: auto;
   bottom: 0;
-  z-index: 200;
+  z-index: 500;
+  --color-text: var(--theme-nav-sidebar-menu-text, #f1f5f9);
+  --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #94a3b8);
+  --color-border: var(--theme-nav-sidebar-menu-border, rgba(255, 255, 255, 0.14));
+  --theme-surface-hover: var(--theme-nav-sidebar-menu-hover, rgba(255, 255, 255, 0.08));
+  background: var(--theme-nav-sidebar-menu-bg, var(--theme-nav-sidebar-bg, #102741));
+  color: var(--color-text);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.35);
 }
 
 .badge {
@@ -531,7 +574,7 @@
 }
 
 @media (max-width: 480px) {
-  .popover {
+  .popover:not(.popoverFromSidebar) {
     right: -0.5rem;
   }
 

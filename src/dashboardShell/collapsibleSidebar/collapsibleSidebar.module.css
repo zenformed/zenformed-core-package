@@ -678,6 +678,60 @@ button.actionRow:focus-visible {
   display: inline-flex;
 }
 
+/* Full-row notifications control (icon-only collapsed, icon+label expanded). */
+.notificationsHitRow {
+  position: relative;
+  overflow: visible;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.notificationsHitRow :global([data-zenformed-notifications-menu]) {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+
+.notificationsHitRow :global([data-zenformed-notifications-menu] > button) {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: var(--zenformed-sidebar-row-height);
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.railExpanded .notificationsHitRow :global([data-zenformed-notifications-menu] > button) {
+  justify-content: flex-start;
+  gap: var(--zenformed-sidebar-row-gap);
+}
+
+.notificationsHitRow :global([data-zenformed-notifications-menu] svg) {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.railExpanded .notificationsHitRow :global([data-zenformed-notifications-menu] svg) {
+  width: var(--zenformed-sidebar-icon-size) !important;
+  height: var(--zenformed-sidebar-icon-size) !important;
+}
+
+/* Whole theme row is the hit target; nested toggle is visual-only. */
+.themeHitRow {
+  cursor: pointer;
+}
+
+.themeHitRow:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 1px;
+}
+
 .accountSlot {
   overflow: visible;
   position: relative;

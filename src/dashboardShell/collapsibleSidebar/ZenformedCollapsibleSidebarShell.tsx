@@ -77,6 +77,18 @@ function DesktopRailChrome({
     accountMenu.setAccountMenuOpen(true);
   }, [accountMenu.setAccountMenuOpen]);
 
+  const themeRowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const btn = themeRowRef.current?.querySelector('button');
+    if (!btn) return;
+    btn.tabIndex = -1;
+    btn.setAttribute('aria-hidden', 'true');
+  }, [themeControl]);
+
+  const onThemeRowActivate = useCallback(() => {
+    themeRowRef.current?.querySelector('button')?.click();
+  }, []);
+
   const org = organizationName?.trim() || null;
   const otherLabel = resolveSidebarSectionLabelText({
     label: otherSectionLabel,
@@ -134,24 +146,42 @@ function DesktopRailChrome({
         {otherLeading ? resolveOtherLeading(otherLeading, showLabels) : null}
 
         {notifications && notifications.organizationId.trim() ? (
-          <ZenformedSidebarActionRow
-            showLabel={showLabels}
-            label={notificationsLabel}
-            icon={
-              <ZenformedNotificationsMenu
-                {...notifications}
-                onOpenChange={onNotificationsOpenChange}
-              />
-            }
-            className={styles.notificationsSlot}
-          />
+          <div
+            className={`${styles.actionRow} ${styles.notificationsSlot} ${styles.notificationsHitRow}`}
+          >
+            <ZenformedNotificationsMenu
+              {...notifications}
+              sidebarPlacement
+              sidebarLabel={showLabels ? notificationsLabel : undefined}
+              onOpenChange={onNotificationsOpenChange}
+            />
+          </div>
         ) : null}
 
-        <ZenformedSidebarActionRow
-          showLabel={showLabels}
-          label={themeLabel}
-          icon={<span className={styles.themeControlWrap}>{themeControl}</span>}
-        />
+        <div
+          ref={themeRowRef}
+          className={`${styles.actionRow} ${styles.themeHitRow}`}
+          role="button"
+          tabIndex={0}
+          aria-label={themeLabel}
+          title={themeLabel}
+          onClick={onThemeRowActivate}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onThemeRowActivate();
+            }
+          }}
+        >
+          <span className={styles.actionIcon} aria-hidden>
+            <span className={styles.themeControlWrap}>{themeControl}</span>
+          </span>
+          {showLabels ? (
+            <span className={styles.actionLabel} title={themeLabel}>
+              {themeLabel}
+            </span>
+          ) : null}
+        </div>
 
         {settings ? (
           <ZenformedSidebarActionRow

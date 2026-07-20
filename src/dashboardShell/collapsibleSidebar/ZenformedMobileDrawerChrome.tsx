@@ -143,6 +143,7 @@ export function ZenformedMobileDrawerChrome({
             <div className={`${styles.actionRow} ${styles.notificationsSlot} ${styles.mobileHitRow}`}>
               <ZenformedNotificationsMenu
                 {...notifications}
+                sidebarPlacement
                 sidebarLabel={notificationsLabel}
                 onNavigate={(destinationUrl) => {
                   notifications.onNavigate(destinationUrl);

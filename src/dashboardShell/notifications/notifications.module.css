@@ -97,23 +97,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-}
-
-.badgeInline {
-  font-weight: 650;
-  color: inherit;
+  flex: 1 1 auto;
 }
 
 /*
- * Dock to the right of the sidebar rail, bottom-aligned with the trigger.
- * Uses the same menu surface tokens as the apps/account overlays.
+ * Portaled fixed panel: right of the rail, pinned near the viewport bottom.
+ * Theme tokens match apps/account overlays.
  */
 .popoverFromSidebar {
-  left: calc(100% + 0.5rem);
+  left: auto;
   right: auto;
   top: auto;
-  bottom: 0;
-  z-index: 500;
+  bottom: auto;
+  z-index: 10000;
   --color-text: var(--theme-nav-sidebar-menu-text, #f1f5f9);
   --color-text-muted: var(--theme-nav-sidebar-menu-text-muted, #94a3b8);
   --color-border: var(--theme-nav-sidebar-menu-border, rgba(255, 255, 255, 0.14));
@@ -139,6 +135,16 @@
   text-align: center;
   pointer-events: none;
   box-shadow: 0 0 0 1.5px var(--color-surface, #ffffff);
+}
+
+/* Expanded sidebar: same blue pill, pinned to the far right of the row. */
+.badgeEnd {
+  position: static;
+  top: auto;
+  right: auto;
+  margin-left: auto;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1.5px var(--theme-nav-sidebar-bg, var(--color-surface, #ffffff));
 }
 
 .popover {

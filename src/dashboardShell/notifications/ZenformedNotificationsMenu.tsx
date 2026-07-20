@@ -1,6 +1,15 @@
 'use client';
 
-import { useEffect, useRef, type ReactElement } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { useAccountMenuState } from '../useAccountMenuState';
 import { ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE } from '../dropdownSurfaceBorderStyle';
 import { useZenformedSidebarPresentation } from '../collapsibleSidebar/sidebarPresentationContext';
@@ -14,7 +23,9 @@ import type { ZenformedDashboardNotificationsConfig } from './types';
 import { useZenformedNotificationsController } from './useZenformedNotificationsController';
 import styles from './notifications.module.css';
 
-const SIDEBAR_HOVER_CLOSE_MS = 180;
+const SIDEBAR_HOVER_CLOSE_MS = 220;
+const SIDEBAR_POPOVER_GAP_PX = 8;
+const SIDEBAR_POPOVER_VIEWPORT_PAD_PX = 8;
 
 export type ZenformedNotificationsMenuProps = ZenformedDashboardNotificationsConfig & {
   /** When set, show this label beside the envelope (sidebar expanded). */
@@ -27,6 +38,14 @@ export type ZenformedNotificationsMenuProps = ZenformedDashboardNotificationsCon
   readonly onOpenChange?: (open: boolean) => void;
 };
 
+function resolveSidebarRailRight(anchor: HTMLElement): number {
+  const rail = anchor.closest('aside');
+  if (rail instanceof HTMLElement) {
+    return rail.getBoundingClientRect().right;
+  }
+  return anchor.getBoundingClientRect().right;
+}
+
 export function ZenformedNotificationsMenu({
   organizationId,
   api,
@@ -37,9 +56,11 @@ export function ZenformedNotificationsMenu({
   sidebarPlacement = false,
   onOpenChange,
 }: ZenformedNotificationsMenuProps): ReactElement {
+  const popoverPortalRef = useRef<HTMLDivElement>(null);
   const { accountMenuOpen, setAccountMenuOpen, accountMenuRef, closeAccountMenu } =
-    useAccountMenuState();
+    useAccountMenuState({ extraRoots: [popoverPortalRef] });
   const hoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [portalStyle, setPortalStyle] = useState<CSSProperties | null>(null);
 
   // Controller mounts with the envelope control (not the open dropdown). Unread
   // count fetch + 30s polling run independently of `accountMenuOpen`.
@@ -88,11 +109,51 @@ export function ZenformedNotificationsMenu({
   const openOnHover = sidebarPlacement && !navigateOnOpen;
   const dockPopoverToSidebar = sidebarPlacement && !navigateOnOpen;
 
+  const updatePortalPosition = useCallback(() => {
+    const anchor = accountMenuRef.current;
+    if (!anchor || !dockPopoverToSidebar) {
+      setPortalStyle(null);
+      return;
+    }
+    const left = resolveSidebarRailRight(anchor) + SIDEBAR_POPOVER_GAP_PX;
+    setPortalStyle({
+      position: 'fixed',
+      left: `${Math.round(left)}px`,
+      right: 'auto',
+      top: 'auto',
+      bottom: `${SIDEBAR_POPOVER_VIEWPORT_PAD_PX}px`,
+      zIndex: 10_000,
+    });
+  }, [accountMenuRef, dockPopoverToSidebar]);
+
+  useLayoutEffect(() => {
+    if (!accountMenuOpen || !dockPopoverToSidebar) {
+      setPortalStyle(null);
+      return;
+    }
+    updatePortalPosition();
+    window.addEventListener('resize', updatePortalPosition);
+    window.addEventListener('scroll', updatePortalPosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePortalPosition);
+      window.removeEventListener('scroll', updatePortalPosition, true);
+    };
+  }, [accountMenuOpen, dockPopoverToSidebar, updatePortalPosition]);
+
   const clearHoverCloseTimer = () => {
     if (hoverCloseTimerRef.current != null) {
       clearTimeout(hoverCloseTimerRef.current);
       hoverCloseTimerRef.current = null;
     }
+  };
+
+  const scheduleHoverClose = () => {
+    if (!openOnHover) return;
+    clearHoverCloseTimer();
+    hoverCloseTimerRef.current = setTimeout(() => {
+      setAccountMenuOpen(false);
+      hoverCloseTimerRef.current = null;
+    }, SIDEBAR_HOVER_CLOSE_MS);
   };
 
   const onViewAll = () => {
@@ -121,12 +182,16 @@ export function ZenformedNotificationsMenu({
   };
 
   const onWrapPointerLeave = () => {
+    scheduleHoverClose();
+  };
+
+  const onPortalPointerEnter = () => {
     if (!openOnHover) return;
     clearHoverCloseTimer();
-    hoverCloseTimerRef.current = setTimeout(() => {
-      setAccountMenuOpen(false);
-      hoverCloseTimerRef.current = null;
-    }, SIDEBAR_HOVER_CLOSE_MS);
+  };
+
+  const onPortalPointerLeave = () => {
+    scheduleHoverClose();
   };
 
   const triggerClass = [
@@ -143,6 +208,86 @@ export function ZenformedNotificationsMenu({
   ]
     .filter(Boolean)
     .join(' ');
+
+  const popover = !navigateOnOpen && accountMenuOpen ? (
+    <div
+      ref={dockPopoverToSidebar ? popoverPortalRef : undefined}
+      className={popoverClass}
+      style={{
+        ...ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE,
+        ...(dockPopoverToSidebar ? portalStyle ?? { visibility: 'hidden' } : null),
+      }}
+      role="dialog"
+      aria-label="Notifications"
+      onPointerEnter={dockPopoverToSidebar ? onPortalPointerEnter : undefined}
+      onPointerLeave={dockPopoverToSidebar ? onPortalPointerLeave : undefined}
+    >
+      <div className={styles.popoverHeader}>
+        <h2 className={styles.popoverTitle}>Notifications</h2>
+        <button
+          type="button"
+          className={styles.markAllBtn}
+          disabled={!showMarkAll || controller.markingAllRead || controller.unreadCount === 0}
+          onClick={() => void controller.markAllRead()}
+        >
+          Mark all as read
+        </button>
+      </div>
+
+      {controller.actionError ? (
+        <p className={styles.actionError} role="status">
+          {controller.actionError}
+        </p>
+      ) : null}
+
+      <div className={styles.popoverBody}>
+        {controller.latestLoading && controller.latest.length === 0 ? (
+          <div className={styles.stateBlock} role="status">
+            <div className={styles.spinner} aria-hidden />
+            <p className={styles.stateCopy}>Loading notifications…</p>
+          </div>
+        ) : controller.latestError && controller.latest.length === 0 ? (
+          <div className={styles.stateBlock} role="alert">
+            <p className={styles.stateTitle}>Couldn’t load notifications</p>
+            <p className={styles.stateCopy}>{controller.latestError}</p>
+            <button type="button" className={styles.retryBtn} onClick={onRetryLatest}>
+              Retry
+            </button>
+          </div>
+        ) : controller.latest.length === 0 ? (
+          <div className={styles.stateBlock}>
+            <p className={styles.stateTitle}>No notifications yet</p>
+            <p className={styles.stateCopy}>
+              New updates from Zenformed apps will appear here.
+            </p>
+          </div>
+        ) : (
+          <ul className={styles.list}>
+            {controller.latest.slice(0, 10).map((n) => (
+              <li key={n.id}>
+                <ZenformedNotificationItem
+                  notification={n}
+                  density="dropdown"
+                  markingRead={controller.markingReadIds.has(n.id)}
+                  onMarkRead={(id) => void controller.markRead(id)}
+                  onNavigate={(url) => {
+                    closeAccountMenu();
+                    onNavigate(url);
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className={styles.popoverFooter}>
+        <button type="button" className={styles.viewAllBtn} onClick={onViewAll}>
+          View all notifications
+        </button>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div
@@ -165,95 +310,23 @@ export function ZenformedNotificationsMenu({
           <ZenformedNotificationsEnvelopeIcon />
         </span>
         {sidebarLabel ? (
-          <span className={styles.triggerLabelText}>
-            {sidebarLabel}
-            {badge ? (
-              <span className={styles.badgeInline} aria-hidden>
-                {' '}
-                ({badge})
-              </span>
-            ) : null}
-          </span>
-        ) : badge ? (
-          <span className={styles.badge} aria-hidden>
+          <span className={styles.triggerLabelText}>{sidebarLabel}</span>
+        ) : null}
+        {badge ? (
+          <span
+            className={sidebarLabel ? `${styles.badge} ${styles.badgeEnd}` : styles.badge}
+            aria-hidden
+          >
             {badge}
           </span>
         ) : null}
       </button>
 
-      {!navigateOnOpen && accountMenuOpen ? (
-        <div
-          className={popoverClass}
-          style={ZENFORMED_DROPDOWN_SURFACE_BORDER_STYLE}
-          role="dialog"
-          aria-label="Notifications"
-        >
-          <div className={styles.popoverHeader}>
-            <h2 className={styles.popoverTitle}>Notifications</h2>
-            <button
-              type="button"
-              className={styles.markAllBtn}
-              disabled={!showMarkAll || controller.markingAllRead || controller.unreadCount === 0}
-              onClick={() => void controller.markAllRead()}
-            >
-              Mark all as read
-            </button>
-          </div>
-
-          {controller.actionError ? (
-            <p className={styles.actionError} role="status">
-              {controller.actionError}
-            </p>
-          ) : null}
-
-          <div className={styles.popoverBody}>
-            {controller.latestLoading && controller.latest.length === 0 ? (
-              <div className={styles.stateBlock} role="status">
-                <div className={styles.spinner} aria-hidden />
-                <p className={styles.stateCopy}>Loading notifications…</p>
-              </div>
-            ) : controller.latestError && controller.latest.length === 0 ? (
-              <div className={styles.stateBlock} role="alert">
-                <p className={styles.stateTitle}>Couldn’t load notifications</p>
-                <p className={styles.stateCopy}>{controller.latestError}</p>
-                <button type="button" className={styles.retryBtn} onClick={onRetryLatest}>
-                  Retry
-                </button>
-              </div>
-            ) : controller.latest.length === 0 ? (
-              <div className={styles.stateBlock}>
-                <p className={styles.stateTitle}>No notifications yet</p>
-                <p className={styles.stateCopy}>
-                  New updates from Zenformed apps will appear here.
-                </p>
-              </div>
-            ) : (
-              <ul className={styles.list}>
-                {controller.latest.slice(0, 10).map((n) => (
-                  <li key={n.id}>
-                    <ZenformedNotificationItem
-                      notification={n}
-                      density="dropdown"
-                      markingRead={controller.markingReadIds.has(n.id)}
-                      onMarkRead={(id) => void controller.markRead(id)}
-                      onNavigate={(url) => {
-                        closeAccountMenu();
-                        onNavigate(url);
-                      }}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className={styles.popoverFooter}>
-            <button type="button" className={styles.viewAllBtn} onClick={onViewAll}>
-              View all notifications
-            </button>
-          </div>
-        </div>
-      ) : null}
+      {dockPopoverToSidebar
+        ? typeof document !== 'undefined' && popover
+          ? createPortal(popover, document.body)
+          : null
+        : popover}
     </div>
   );
 }

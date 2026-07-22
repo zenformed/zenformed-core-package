@@ -61,6 +61,29 @@
   margin-bottom: 0;
 }
 
+.inlineLink {
+  color: var(--legal-accent-light, #15a852);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inlineLink:hover {
+  color: #bbf7d0;
+}
+
+.bulletList {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bulletItem {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--legal-text-soft, #d1d5db);
+}
+
 .footer {
   margin-top: 2.5rem;
   padding-top: 1.5rem;

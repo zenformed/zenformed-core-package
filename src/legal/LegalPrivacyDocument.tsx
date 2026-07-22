@@ -13,7 +13,7 @@ export function LegalPrivacyDocument(): ReactElement {
       <LegalPrivacyMeta />
       <LegalDocumentBody sections={PRIVACY_POLICY_SECTIONS} />
       <div className={styles.document} style={{ paddingTop: 0 }}>
-        <LegalDocumentFooter />
+        <LegalDocumentFooter document="privacy" />
       </div>
     </>
   );

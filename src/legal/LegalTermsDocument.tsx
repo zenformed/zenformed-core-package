@@ -13,7 +13,7 @@ export function LegalTermsDocument(): ReactElement {
       <LegalTermsMeta />
       <LegalDocumentBody sections={TERMS_OF_SERVICE_SECTIONS} />
       <div className={styles.document} style={{ paddingTop: 0 }}>
-        <LegalDocumentFooter />
+        <LegalDocumentFooter document="terms" />
       </div>
     </>
   );

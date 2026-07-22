@@ -1,7 +1,11 @@
-export type LegalDocumentSection = {
-  readonly title: string;
-  readonly paragraphs: readonly string[];
-};
+import { DEFAULT_LEGAL_PRIVACY_PATH } from './constants';
+import type { LegalDocumentSection } from './legalDocumentTypes';
+
+export type {
+  LegalDocumentParagraph,
+  LegalDocumentSection,
+  LegalRichTextPart,
+} from './legalDocumentTypes';
 
 export const TERMS_OF_SERVICE_SECTIONS: readonly LegalDocumentSection[] = [
   {
@@ -50,7 +54,7 @@ export const TERMS_OF_SERVICE_SECTIONS: readonly LegalDocumentSection[] = [
   {
     title: '7. Payment Processing Through Stripe',
     paragraphs: [
-      'Zenformed uses Stripe, Inc. ("Stripe") as its third-party payment processor. By subscribing, you agree to Stripe\'s applicable terms and privacy practices for payment processing.',
+      "Zenformed uses Stripe, Inc. (\"Stripe\") as its third-party payment processor. By subscribing, you agree to Stripe's applicable terms and privacy practices for payment processing.",
       'Zenformed does not store full credit card numbers on its servers. Payment method details are collected and processed by Stripe. Failed payments may result in suspension of paid features after reasonable notice.',
     ],
   },
@@ -58,14 +62,22 @@ export const TERMS_OF_SERVICE_SECTIONS: readonly LegalDocumentSection[] = [
     title: '8. Customer Responsibilities',
     paragraphs: [
       'You are responsible for your use of the Services, the accuracy of data you submit, compliance with applicable laws, and obtaining any consents required for data you upload or process through the Services.',
-      'You must maintain adequate backups of business-critical data where appropriate. While Zenformed implements safeguards, you remain responsible for export and retention decisions for your organization.',
+      'You are responsible for maintaining backups of Customer Data appropriate for your business requirements. While Zenformed implements safeguards, you remain responsible for export and retention decisions for your organization.',
     ],
   },
   {
     title: '9. Ownership of Customer Data',
     paragraphs: [
       'As between you and Zenformed, you retain ownership of data, files, documents, and content you or your users submit to the Services ("Customer Data").',
-      'You grant Zenformed a limited license to host, process, transmit, and display Customer Data solely to provide, maintain, secure, and improve the Services and as otherwise described in our Privacy Policy.',
+      [
+        'You grant Zenformed a limited license to host, process, transmit, and display Customer Data solely to provide, maintain, secure, and improve the Services and as otherwise described in our ',
+        {
+          type: 'link',
+          href: DEFAULT_LEGAL_PRIVACY_PATH,
+          label: 'Privacy Policy',
+        },
+        '.',
+      ],
     ],
   },
   {
@@ -105,49 +117,63 @@ export const TERMS_OF_SERVICE_SECTIONS: readonly LegalDocumentSection[] = [
     ],
   },
   {
-    title: '15. Suspension and Termination',
+    title: '15. Copyright Complaints',
+    paragraphs: [
+      'Zenformed respects intellectual-property rights.',
+      'If you believe content available through the Services infringes your copyright, contact legal@zenformed.com and provide sufficient information for Zenformed to identify and investigate the material.',
+    ],
+  },
+  {
+    title: '16. Export Compliance',
+    paragraphs: [
+      'You may not access or use the Services in violation of applicable United States export-control, trade-sanctions, or embargo laws.',
+      'You represent that you are not prohibited from using the Services under applicable law.',
+    ],
+  },
+  {
+    title: '17. Suspension and Termination',
     paragraphs: [
       'Zenformed may suspend or terminate access for non-payment, breach of these Terms, security risk, or legal requirement. You may stop using the Services at any time.',
       'Upon termination, your right to access the Services ends. Provisions that by nature should survive (including payment obligations accrued, ownership, disclaimers, limitations of liability, and indemnification) will survive termination.',
     ],
   },
   {
-    title: '16. Limitation of Liability',
+    title: '18. Limitation of Liability',
     paragraphs: [
       'To the maximum extent permitted by law, Zenformed and its officers, directors, employees, and suppliers will not be liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for loss of profits, revenue, data, goodwill, or business interruption, arising from or related to the Services or these Terms.',
-      'To the maximum extent permitted by law, Zenformed\'s total aggregate liability for all claims arising out of or relating to the Services or these Terms in any twelve-month period will not exceed the greater of (a) the amounts you paid to Zenformed for the Service giving rise to the claim during that period, or (b) one hundred U.S. dollars (US $100).',
+      "To the maximum extent permitted by law, Zenformed's total aggregate liability for all claims arising out of or relating to the Services or these Terms in any twelve-month period will not exceed the greater of (a) the amounts you paid to Zenformed for the Service giving rise to the claim during that period, or (b) one hundred U.S. dollars (US $100).",
       'Some jurisdictions do not allow certain limitations; in those jurisdictions, liability is limited to the fullest extent permitted by law.',
     ],
   },
   {
-    title: '17. No Warranty / As-Is Service',
+    title: '19. No Warranty / As-Is Service',
     paragraphs: [
       'The Services are provided "as is" and "as available" without warranties of any kind, whether express, implied, or statutory, including implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.',
       'Zenformed does not warrant that the Services will meet your requirements, operate without interruption, or be free of errors or harmful components.',
     ],
   },
   {
-    title: '18. Indemnification',
+    title: '20. Indemnification',
     paragraphs: [
       'You will defend, indemnify, and hold harmless Zenformed and its affiliates, officers, directors, employees, and agents from claims, damages, liabilities, and expenses (including reasonable attorneys\' fees) arising from your Customer Data, your use of the Services, or your violation of these Terms or applicable law.',
     ],
   },
   {
-    title: '19. Governing Law',
+    title: '21. Governing Law',
     paragraphs: [
       'These Terms are governed by the laws of the State of Tennessee, United States, without regard to conflict-of-law principles.',
       'Except where prohibited, the exclusive venue for disputes arising from these Terms or the Services will be state or federal courts located in Tennessee, and you consent to personal jurisdiction in those courts.',
     ],
   },
   {
-    title: '20. Changes to Terms',
+    title: '22. Changes to Terms',
     paragraphs: [
       'Zenformed may update these Terms from time to time. When we make material changes, we will update the effective date and version shown on this page and may provide additional notice where appropriate.',
       'Continued use of the Services after updated Terms take effect constitutes acceptance. If you do not agree to updated Terms, you must stop using the Services and cancel applicable subscriptions.',
     ],
   },
   {
-    title: '21. Contact Information',
+    title: '23. Contact Information',
     paragraphs: [
       'Questions about these Terms may be sent to legal@zenformed.com.',
       'Zenformed LLC, Murfreesboro, Tennessee, USA.',

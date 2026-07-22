@@ -19,12 +19,17 @@ export {
   CHECKOUT_LEGAL_ACCEPTANCE_VALIDATION_MESSAGE,
 } from './checkoutLegalPayload';
 
-export type { LegalDocumentSection } from './termsOfServiceContent';
+export type {
+  LegalDocumentParagraph,
+  LegalDocumentSection,
+  LegalRichTextPart,
+} from './legalDocumentTypes';
 export { TERMS_OF_SERVICE_SECTIONS } from './termsOfServiceContent';
 export { PRIVACY_POLICY_SECTIONS } from './privacyPolicyContent';
 
 export { LegalDocumentMeta, LegalTermsMeta, LegalPrivacyMeta } from './LegalDocumentMeta';
 export { LegalDocumentFooter } from './LegalDocumentFooter';
+export type { LegalDocumentFooterProps } from './LegalDocumentFooter';
 export { LegalDocumentBody } from './LegalDocumentBody';
 export { LegalTermsDocument } from './LegalTermsDocument';
 export { LegalPrivacyDocument } from './LegalPrivacyDocument';

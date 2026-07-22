@@ -1,5 +1,5 @@
 import type { AuthEntryQueryParams } from './authEntryQueryParams';
-import { sanitizeAuthReturnPath } from './sanitizeAuthReturnPath';
+import { sanitizePostAuthDestination } from './sanitizeAuthReturnPath';
 
 export const ZENFORMED_OAUTH_INTENT_STORAGE_KEY = 'zenformed-oauth-intent';
 export const ZENFORMED_OAUTH_INTENT_TTL_MS = 10 * 60 * 1000;
@@ -38,8 +38,9 @@ export function buildZenformedOAuthIntent(
   return {
     app: readOptionalTrimmed(input.app),
     plan: readOptionalTrimmed(input.plan),
-    returnTo: sanitizeAuthReturnPath(input.returnTo),
-    redirect: sanitizeAuthReturnPath(input.redirect),
+    // Drop auth-entry pages so stale `/register` / `/login` intents never resume.
+    returnTo: sanitizePostAuthDestination(input.returnTo),
+    redirect: sanitizePostAuthDestination(input.redirect),
     inviteToken: readOptionalTrimmed(input.inviteToken),
     checkoutContinuation: readOptionalTrimmed(input.checkoutContinuation),
     createdAt: nowMs,

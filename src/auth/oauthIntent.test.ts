@@ -7,7 +7,11 @@ import {
   saveZenformedOAuthIntent,
   ZENFORMED_OAUTH_INTENT_STORAGE_KEY,
 } from './oauthIntent';
-import { sanitizeAuthReturnPath } from './sanitizeAuthReturnPath';
+import {
+  isAuthEntryReturnPath,
+  sanitizeAuthReturnPath,
+  sanitizePostAuthDestination,
+} from './sanitizeAuthReturnPath';
 import { extractGoogleProfileNames, mergeProfileNamesFromGoogle } from './googleProfileMetadata';
 import { resolvePostAuthRedirectTarget } from './authEntryQueryParams';
 
@@ -22,6 +26,29 @@ describe('sanitizeAuthReturnPath', () => {
     assert.equal(sanitizeAuthReturnPath('//evil.example'), null);
     assert.equal(sanitizeAuthReturnPath('/\\evil'), null);
     assert.equal(sanitizeAuthReturnPath('dashboard'), null);
+  });
+});
+
+describe('sanitizePostAuthDestination', () => {
+  it('rejects auth-entry pages', () => {
+    assert.equal(sanitizePostAuthDestination('/login'), null);
+    assert.equal(sanitizePostAuthDestination('/register'), null);
+    assert.equal(sanitizePostAuthDestination('/register?plan=pro'), null);
+    assert.equal(sanitizePostAuthDestination('/auth/google'), null);
+    assert.equal(sanitizePostAuthDestination('/auth/callback'), null);
+    assert.equal(sanitizePostAuthDestination('/forgot-password'), null);
+    assert.equal(sanitizePostAuthDestination('/reset-password'), null);
+    assert.equal(isAuthEntryReturnPath('/login'), true);
+  });
+
+  it('keeps business destinations', () => {
+    assert.equal(sanitizePostAuthDestination('/dashboard'), '/dashboard');
+    assert.equal(sanitizePostAuthDestination('/cart'), '/cart');
+    assert.equal(sanitizePostAuthDestination('/checkout/success'), '/checkout/success');
+    assert.equal(
+      sanitizePostAuthDestination('/accept-invite?token=abc'),
+      '/accept-invite?token=abc'
+    );
   });
 });
 
@@ -44,6 +71,15 @@ describe('oauth intent', () => {
       checkoutContinuation: 'cart-1',
       createdAt: 1_000,
     });
+  });
+
+  it('drops auth-entry returnTo when building intent', () => {
+    const intent = buildZenformedOAuthIntent({
+      returnTo: '/register',
+      redirect: '/login',
+    });
+    assert.equal(intent.returnTo, null);
+    assert.equal(intent.redirect, null);
   });
 
   it('expires after the TTL', () => {
@@ -77,6 +113,26 @@ describe('oauth intent', () => {
     assert.equal(consumed?.app, 'buildcore');
     assert.equal(consumed?.returnTo, '/accept-invite?token=t1');
     assert.equal(consumed?.redirect, null);
+    assert.equal(store.has(ZENFORMED_OAUTH_INTENT_STORAGE_KEY), false);
+  });
+
+  it('clears malformed intent and yields null', () => {
+    const store = new Map<string, string>();
+    (globalThis as { sessionStorage?: Storage }).sessionStorage = {
+      getItem: (key) => store.get(key) ?? null,
+      setItem: (key, value) => {
+        store.set(key, value);
+      },
+      removeItem: (key) => {
+        store.delete(key);
+      },
+      clear: () => store.clear(),
+      key: () => null,
+      length: 0,
+    };
+
+    store.set(ZENFORMED_OAUTH_INTENT_STORAGE_KEY, '{not-json');
+    assert.equal(consumeZenformedOAuthIntent(), null);
     assert.equal(store.has(ZENFORMED_OAUTH_INTENT_STORAGE_KEY), false);
   });
 });
@@ -118,6 +174,84 @@ describe('resolvePostAuthRedirectTarget', () => {
         '/dashboard'
       ),
       '/dashboard'
+    );
+  });
+
+  it('login Google with no continuation → dashboard', () => {
+    assert.equal(
+      resolvePostAuthRedirectTarget(
+        { app: null, plan: null, returnTo: null, redirect: null },
+        '/dashboard'
+      ),
+      '/dashboard'
+    );
+  });
+
+  it('register Google with no continuation → dashboard', () => {
+    assert.equal(
+      resolvePostAuthRedirectTarget(
+        { app: null, plan: null, returnTo: null, redirect: null },
+        '/dashboard'
+      ),
+      '/dashboard'
+    );
+  });
+
+  it('stale intent containing /register → dashboard', () => {
+    assert.equal(
+      resolvePostAuthRedirectTarget(
+        { app: null, plan: null, returnTo: '/register', redirect: null },
+        '/dashboard'
+      ),
+      '/dashboard'
+    );
+  });
+
+  it('malformed intent paths → dashboard', () => {
+    assert.equal(
+      resolvePostAuthRedirectTarget(
+        { app: null, plan: null, returnTo: '//evil', redirect: '/login' },
+        '/dashboard'
+      ),
+      '/dashboard'
+    );
+  });
+
+  it('BuildCore handoff params keep app and business returnTo', () => {
+    const target = resolvePostAuthRedirectTarget(
+      {
+        app: 'buildcore',
+        plan: null,
+        returnTo: '/reports/map',
+        redirect: null,
+      },
+      '/dashboard'
+    );
+    assert.equal(target, '/reports/map');
+  });
+
+  it('invite continuation path is preserved', () => {
+    assert.equal(
+      resolvePostAuthRedirectTarget(
+        {
+          app: 'buildcore',
+          plan: null,
+          returnTo: '/accept-invite?token=abc',
+          redirect: null,
+        },
+        '/dashboard'
+      ),
+      '/accept-invite?token=abc'
+    );
+  });
+
+  it('cart continuation is preserved', () => {
+    assert.equal(
+      resolvePostAuthRedirectTarget(
+        { app: null, plan: null, returnTo: '/cart', redirect: null },
+        '/dashboard'
+      ),
+      '/cart'
     );
   });
 });

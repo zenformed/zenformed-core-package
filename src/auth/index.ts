@@ -47,6 +47,9 @@ export {
 export { signInWithGoogle, type SignInWithGoogleOptions, type SignInWithGoogleResult } from './signInWithGoogle';
 export {
   sanitizeAuthReturnPath,
+  sanitizePostAuthDestination,
+  isAuthEntryReturnPath,
+  AUTH_ENTRY_PATH_PREFIXES,
 } from './sanitizeAuthReturnPath';
 export {
   ZENFORMED_OAUTH_INTENT_STORAGE_KEY,

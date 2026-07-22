@@ -75,7 +75,7 @@ export function ZenformedAppsLauncher({
   const isSidebarList = popoverLayout === 'sidebarList';
   /** Desktop: dock beside the rail. */
   const isDesktopDock = isSidebarList && presentation === 'desktop';
-  /** Mobile: top sheet (~1/4 viewport), not inline in the drawer. */
+  /** Mobile: centered modal sheet (~70% viewport), not inline in the drawer. */
   const isMobileTopSheet = isSidebarList && presentation === 'mobile';
   const usesPortal = isDesktopDock || isMobileTopSheet;
 
@@ -100,14 +100,14 @@ export function ZenformedAppsLauncher({
     if (isMobileTopSheet) {
       setPortalStyle({
         position: 'fixed',
-        top: '0.75rem',
+        top: '50%',
         left: '50%',
         right: 'auto',
         bottom: 'auto',
         width: 'min(28rem, calc(100vw - 1rem))',
-        height: '25vh',
-        maxHeight: '25vh',
-        transform: 'translateX(-50%)',
+        height: '70vh',
+        maxHeight: '70vh',
+        transform: 'translate(-50%, -50%)',
         zIndex: 10_001,
       });
       return;

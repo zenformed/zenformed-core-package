@@ -1,47 +1,35 @@
 import type {
   PresenceClientState,
   PresenceEffectiveStatus,
-  PresenceStatusMode,
 } from './types';
+import { deriveEffectiveStatusFromPreference } from './types';
+
+function lastActiveMs(client: PresenceClientState): number {
+  const ms = Date.parse(client.lastActiveAt);
+  return Number.isFinite(ms) ? ms : 0;
+}
 
 /**
  * Aggregate every connected client for one user into a single effective status.
  *
- * Rules (in order):
- * 1. No connections → offline
- * 2. appear_offline (any client) → offline
- * 3. busy (any connection) → busy
- * 4. manual online (any connection) → online
- * 5. manual away (any connection) → away
- * 6. automatic with any active (online) client → online
- * 7. automatic with only away clients → away
+ * Uses the newest `lastActiveAt` client as source of truth so switching to
+ * Automatic (or any mode) on the active window immediately beats a stale
+ * Busy/Online track from another tab or app.
  */
 export function aggregateUserPresence(
   clients: readonly PresenceClientState[]
 ): PresenceEffectiveStatus {
   if (clients.length === 0) return 'offline';
 
-  const modes = new Set(clients.map((client) => client.statusMode));
-
-  if (modes.has('appear_offline')) return 'offline';
-  if (modes.has('busy')) return 'busy';
-  if (modes.has('online')) return 'online';
-  if (modes.has('away')) return 'away';
-
-  // Remaining clients should be automatic (or unknown treated as automatic).
-  const automaticClients = clients.filter(
-    (client) => client.statusMode === 'automatic' || !isManualMode(client.statusMode)
-  );
-  if (automaticClients.some((client) => client.automaticState === 'online')) {
-    return 'online';
+  let newest = clients[0]!;
+  for (let i = 1; i < clients.length; i += 1) {
+    const candidate = clients[i]!;
+    if (lastActiveMs(candidate) >= lastActiveMs(newest)) {
+      newest = candidate;
+    }
   }
-  if (automaticClients.length > 0) return 'away';
 
-  return 'offline';
-}
-
-function isManualMode(mode: PresenceStatusMode): boolean {
-  return mode === 'online' || mode === 'away' || mode === 'busy' || mode === 'appear_offline';
+  return deriveEffectiveStatusFromPreference(newest.statusMode, newest.automaticState);
 }
 
 /**

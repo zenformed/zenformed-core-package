@@ -116,6 +116,10 @@ export function ZenformedPresenceProvider({
   const trackedRef = useRef(false);
   const lastTrackAtRef = useRef(0);
   const lastPayloadRef = useRef<PresenceClientState | null>(null);
+  const lastSentRef = useRef<{
+    statusMode: PresenceStatusMode;
+    automaticState: PresenceAutomaticState;
+  } | null>(null);
   const clearGraceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const statusModeRef = useRef<PresenceStatusMode>('automatic');
   const automaticStateRef = useRef<PresenceAutomaticState>('online');
@@ -213,18 +217,22 @@ export function ZenformedPresenceProvider({
       }
 
       const now = Date.now();
-      const prevTracked = lastPayloadRef.current;
+      const lastSent = lastSentRef.current;
       if (
         !force &&
         now - lastTrackAtRef.current < PRESENCE_TRACK_THROTTLE_MS &&
-        prevTracked != null &&
-        prevTracked.automaticState === payload.automaticState &&
-        prevTracked.statusMode === payload.statusMode
+        lastSent != null &&
+        lastSent.automaticState === payload.automaticState &&
+        lastSent.statusMode === payload.statusMode
       ) {
         return;
       }
 
       lastTrackAtRef.current = now;
+      lastSentRef.current = {
+        statusMode: payload.statusMode,
+        automaticState: payload.automaticState,
+      };
       applyPresenceClients(
         flattenPresenceState(
           (channel.presenceState() as Record<string, unknown>) ?? {}
@@ -387,7 +395,8 @@ export function ZenformedPresenceProvider({
       channel = supabase.channel(topic, {
         config: {
           private: usePrivate,
-          presence: { key: clientIdRef.current },
+          // One presence slot per user so the latest statusMode/automaticState wins.
+          presence: { key: normalizedUserId },
         },
       });
       channelRef.current = channel;

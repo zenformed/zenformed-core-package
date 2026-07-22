@@ -30,23 +30,40 @@ describe('aggregateUserPresence', () => {
     assert.equal(aggregateUserPresence([]), 'offline');
   });
 
-  it('returns offline for appear_offline even if another mode is present', () => {
+  it('uses the newest lastActiveAt client as source of truth', () => {
     assert.equal(
       aggregateUserPresence([
-        client({ clientId: 'a', statusMode: 'appear_offline', automaticState: 'online' }),
-        client({ clientId: 'b', statusMode: 'online', automaticState: 'online' }),
+        client({
+          clientId: 'stale-busy',
+          statusMode: 'busy',
+          lastActiveAt: '2026-07-22T15:00:00.000Z',
+        }),
+        client({
+          clientId: 'fresh-automatic',
+          statusMode: 'automatic',
+          automaticState: 'online',
+          lastActiveAt: '2026-07-22T15:01:00.000Z',
+        }),
       ]),
-      'offline'
+      'online'
     );
   });
 
-  it('returns busy when any client is busy', () => {
+  it('appear_offline on the newest client wins', () => {
     assert.equal(
       aggregateUserPresence([
-        client({ clientId: 'a', statusMode: 'busy' }),
-        client({ clientId: 'b', statusMode: 'automatic', automaticState: 'online' }),
+        client({
+          clientId: 'a',
+          statusMode: 'online',
+          lastActiveAt: '2026-07-22T15:00:00.000Z',
+        }),
+        client({
+          clientId: 'b',
+          statusMode: 'appear_offline',
+          lastActiveAt: '2026-07-22T15:02:00.000Z',
+        }),
       ]),
-      'busy'
+      'offline'
     );
   });
 
@@ -64,11 +81,21 @@ describe('aggregateUserPresence', () => {
     );
   });
 
-  it('automatic: any active client → online', () => {
+  it('automatic: newest active client → online', () => {
     assert.equal(
       aggregateUserPresence([
-        client({ clientId: 'a', statusMode: 'automatic', automaticState: 'away' }),
-        client({ clientId: 'b', statusMode: 'automatic', automaticState: 'online' }),
+        client({
+          clientId: 'a',
+          statusMode: 'automatic',
+          automaticState: 'away',
+          lastActiveAt: '2026-07-22T15:00:00.000Z',
+        }),
+        client({
+          clientId: 'b',
+          statusMode: 'automatic',
+          automaticState: 'online',
+          lastActiveAt: '2026-07-22T15:01:00.000Z',
+        }),
       ]),
       'online'
     );

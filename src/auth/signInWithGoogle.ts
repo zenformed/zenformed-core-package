@@ -34,6 +34,9 @@ export async function signInWithGoogle(
     provider: 'google',
     options: {
       redirectTo,
+      // Always show Google's account picker so users can switch Google accounts
+      // after app sign-out (browser Google session is otherwise reused silently).
+      queryParams: { prompt: 'select_account' },
       ...(options.scopes?.trim() ? { scopes: options.scopes.trim() } : {}),
     },
   });

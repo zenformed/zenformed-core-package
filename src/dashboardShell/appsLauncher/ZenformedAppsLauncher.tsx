@@ -164,6 +164,27 @@ export function ZenformedAppsLauncher({
   ) : null;
 
   const dockKind = isMobileTopSheet ? 'apps-mobile' : 'apps';
+  const portaledMobileBackdrop =
+    isMobileTopSheet && accountMenuOpen ? (
+      <button
+        type="button"
+        aria-label="Dismiss apps menu"
+        data-zenformed-sidebar-dock-popover-backdrop="apps-mobile"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 10_000,
+          margin: 0,
+          padding: 0,
+          border: 'none',
+          cursor: 'pointer',
+          background: 'rgba(15, 23, 42, 0.5)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+        }}
+        onClick={closeAccountMenu}
+      />
+    ) : null;
   const portaledPopover =
     usesPortal && accountMenuOpen ? (
       <div
@@ -179,6 +200,14 @@ export function ZenformedAppsLauncher({
       >
         {list}
       </div>
+    ) : null;
+
+  const portaledLayer =
+    portaledMobileBackdrop != null || portaledPopover != null ? (
+      <>
+        {portaledMobileBackdrop}
+        {portaledPopover}
+      </>
     ) : null;
 
   return (
@@ -217,8 +246,8 @@ export function ZenformedAppsLauncher({
           {list}
         </div>
       ) : null}
-      {typeof document !== 'undefined' && portaledPopover
-        ? createPortal(portaledPopover, document.body)
+      {typeof document !== 'undefined' && portaledLayer
+        ? createPortal(portaledLayer, document.body)
         : null}
     </div>
   );

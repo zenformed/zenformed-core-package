@@ -176,63 +176,60 @@ function DesktopRailChrome({
         aria-label="Account"
         data-zenformed-sidebar-dock-popover="account"
       >
-        <div className={styles.otherAccountHeader}>
-          <span className={presenceStyles.avatarWithDot}>
-            {account.profilePhotoChangeEnabled && account.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
-            ) : (
-              <span
-                className={styles.otherAccountAvatar}
-                style={{
-                  backgroundColor: account.avatarLoading
-                    ? 'var(--color-muted, #f1f5f9)'
-                    : userCircleColor(account.user.email),
-                }}
-                aria-hidden
-              >
-                {!account.avatarLoading ? getUserInitials(account.user, accountName) : null}
-              </span>
-            )}
-            {presence ? (
-              <ZenformedPresenceDot
-                status={accountPresenceStatus}
-                className={presenceStyles.avatarDot}
-              />
-            ) : null}
-          </span>
-          <div className={styles.otherAccountIdentity}>
-            <span className={styles.otherAccountName} title={accountName}>
-              {accountName}
+        <div className={styles.otherAccountUserSection}>
+          <div className={styles.otherAccountHeader}>
+            <span className={presenceStyles.avatarWithDot}>
+              {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
+              ) : (
+                <span
+                  className={styles.otherAccountAvatar}
+                  style={{
+                    backgroundColor: account.avatarLoading
+                      ? 'var(--color-muted, #f1f5f9)'
+                      : userCircleColor(account.user.email),
+                  }}
+                  aria-hidden
+                >
+                  {!account.avatarLoading ? getUserInitials(account.user, accountName) : null}
+                </span>
+              )}
+              {presence ? (
+                <ZenformedPresenceDot
+                  status={accountPresenceStatus}
+                  className={presenceStyles.avatarDot}
+                />
+              ) : null}
             </span>
-            {showAccountEmail || roleLabel ? (
-              <div className={styles.otherAccountMetaRow}>
-                {showAccountEmail ? (
-                  <span className={styles.otherAccountEmail} title={accountEmail}>
-                    {accountEmail}
-                  </span>
-                ) : (
-                  <span className={styles.otherAccountEmailSpacer} aria-hidden />
-                )}
-                {roleLabel ? (
-                  <span
-                    className={styles.otherAccountRolePill}
-                    aria-label={`${account.labels.roleAriaLabelPrefix ?? 'Role:'} ${roleLabel}`}
-                  >
-                    {roleLabel}
-                  </span>
-                ) : null}
-              </div>
-            ) : null}
+            <div className={styles.otherAccountIdentity}>
+              <span className={styles.otherAccountName} title={accountName}>
+                {accountName}
+              </span>
+              {showAccountEmail || roleLabel ? (
+                <div className={styles.otherAccountMetaRow}>
+                  {showAccountEmail ? (
+                    <span className={styles.otherAccountEmail} title={accountEmail}>
+                      {accountEmail}
+                    </span>
+                  ) : (
+                    <span className={styles.otherAccountEmailSpacer} aria-hidden />
+                  )}
+                  {roleLabel ? (
+                    <span
+                      className={styles.otherAccountRolePill}
+                      aria-label={`${account.labels.roleAriaLabelPrefix ?? 'Role:'} ${roleLabel}`}
+                    >
+                      {roleLabel}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           </div>
+          {presence ? <ZenformedPresenceStatusSelector /> : null}
         </div>
         <div className={styles.otherAccountDivider} aria-hidden />
-        {presence ? (
-          <>
-            <ZenformedPresenceStatusSelector />
-            <div className={styles.otherAccountDivider} aria-hidden />
-          </>
-        ) : null}
         <button
           type="button"
           className={styles.otherAccountSignOut}

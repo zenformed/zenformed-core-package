@@ -85,6 +85,7 @@ export function ZenformedMobileDrawerChrome({
     >
       <div className={styles.mobileDrawerIdentity}>
         {account ? (
+          <>
           <div
             className={styles.mobileUserBar}
             data-zenformed-mobile-user-bar
@@ -141,6 +142,12 @@ export function ZenformedMobileDrawerChrome({
               ) : null}
             </span>
           </div>
+          {presence ? (
+            <div className={styles.mobilePresenceStatus}>
+              <ZenformedPresenceStatusSelector />
+            </div>
+          ) : null}
+        </>
         ) : null}
 
         <div className={styles.mobileAppsSlot}>{appsSwitcher}</div>
@@ -222,11 +229,6 @@ export function ZenformedMobileDrawerChrome({
 
       {account ? (
         <div className={styles.mobileDrawerFooter}>
-          {presence ? (
-            <div className={styles.mobilePresenceStatus}>
-              <ZenformedPresenceStatusSelector />
-            </div>
-          ) : null}
           <button
             type="button"
             className={styles.mobileSignOut}

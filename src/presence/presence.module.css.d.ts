@@ -7,7 +7,12 @@ declare const classes: {
   readonly avatarWithDot: string;
   readonly avatarDot: string;
   readonly statusSelector: string;
+  readonly statusTrigger: string;
+  readonly statusTriggerMain: string;
+  readonly statusTriggerChevron: string;
+  readonly statusMenu: string;
   readonly statusOption: string;
+  readonly statusOptionMain: string;
   readonly statusOptionSelected: string;
   readonly statusOptionLabel: string;
   readonly statusOptionCheck: string;

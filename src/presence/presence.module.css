@@ -39,10 +39,70 @@
 }
 
 .statusSelector {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.15rem 0;
+  gap: 0.25rem;
+  padding: 0.15rem 0 0;
+  width: 100%;
+}
+
+.statusTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem 0.5rem;
+  border: none;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.statusTrigger:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.statusTrigger[aria-expanded='true'] {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.statusTrigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.statusTriggerMain,
+.statusOptionMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.statusTriggerChevron {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  opacity: 0.75;
+  line-height: 1;
+}
+
+.statusMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.2rem;
+  border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--theme-nav-sidebar-bg, #102741) 92%, #000);
+  box-shadow: 0 8px 24px color-mix(in srgb, #000 35%, transparent);
 }
 
 .statusOption {
@@ -52,9 +112,9 @@
   gap: 0.75rem;
   width: 100%;
   margin: 0;
-  padding: 0.45rem 0.65rem;
+  padding: 0.45rem 0.55rem;
   border: none;
-  border-radius: 0.4rem;
+  border-radius: 0.35rem;
   background: transparent;
   color: inherit;
   font: inherit;

@@ -59,6 +59,21 @@ export function parsePresenceStatusMode(
   return isPresenceStatusMode(value) ? value : fallback;
 }
 
+/**
+ * Effective status for the local client from preference + activity.
+ * Used for the logged-in avatar even when Realtime Presence has not echoed yet.
+ */
+export function deriveEffectiveStatusFromPreference(
+  statusMode: PresenceStatusMode,
+  automaticState: PresenceAutomaticState
+): PresenceEffectiveStatus {
+  if (statusMode === 'appear_offline') return 'offline';
+  if (statusMode === 'busy') return 'busy';
+  if (statusMode === 'online') return 'online';
+  if (statusMode === 'away') return 'away';
+  return automaticState === 'online' ? 'online' : 'away';
+}
+
 export function organizationPresenceTopic(organizationId: string): string {
   return `organization-presence:${organizationId.trim()}`;
 }

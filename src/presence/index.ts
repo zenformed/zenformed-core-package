@@ -9,6 +9,7 @@ export {
   PRESENCE_EFFECTIVE_STATUS_LABELS,
   isPresenceStatusMode,
   parsePresenceStatusMode,
+  deriveEffectiveStatusFromPreference,
   organizationPresenceTopic,
   createPresenceClientId,
 } from './types';

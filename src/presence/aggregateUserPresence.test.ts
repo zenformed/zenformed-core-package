@@ -5,7 +5,11 @@ import {
   aggregateUserPresence,
   parsePresenceClientState,
 } from './aggregateUserPresence';
-import { isPresenceStatusMode, parsePresenceStatusMode } from './types';
+import {
+  deriveEffectiveStatusFromPreference,
+  isPresenceStatusMode,
+  parsePresenceStatusMode,
+} from './types';
 import type { PresenceClientState } from './types';
 
 function client(
@@ -113,5 +117,16 @@ describe('status mode validation', () => {
     assert.equal(isPresenceStatusMode('nope'), false);
     assert.equal(parsePresenceStatusMode('busy'), 'busy');
     assert.equal(parsePresenceStatusMode('nope'), 'automatic');
+  });
+});
+
+describe('deriveEffectiveStatusFromPreference', () => {
+  it('maps manual modes and automatic activity', () => {
+    assert.equal(deriveEffectiveStatusFromPreference('online', 'away'), 'online');
+    assert.equal(deriveEffectiveStatusFromPreference('away', 'online'), 'away');
+    assert.equal(deriveEffectiveStatusFromPreference('busy', 'online'), 'busy');
+    assert.equal(deriveEffectiveStatusFromPreference('appear_offline', 'online'), 'offline');
+    assert.equal(deriveEffectiveStatusFromPreference('automatic', 'online'), 'online');
+    assert.equal(deriveEffectiveStatusFromPreference('automatic', 'away'), 'away');
   });
 });

@@ -24,6 +24,7 @@ import {
 } from './presencePreferenceApi';
 import {
   createPresenceClientId,
+  deriveEffectiveStatusFromPreference,
   organizationPresenceTopic,
   PRESENCE_RECONNECT_GRACE_MS,
   PRESENCE_TRACK_THROTTLE_MS,
@@ -140,7 +141,17 @@ export function ZenformedPresenceProvider({
               local,
             ]
           : [...clients];
-      const next = aggregatePresenceByUserId(merged);
+      const next = new Map(aggregatePresenceByUserId(merged));
+      // Always publish local preference for self — dots must not wait on Realtime echo.
+      if (normalizedUserId) {
+        next.set(
+          normalizedUserId,
+          deriveEffectiveStatusFromPreference(
+            statusModeRef.current,
+            automaticStateRef.current
+          )
+        );
+      }
       presenceDebug('aggregated status by userId', mapToObject(next), {
         clientCount: merged.length,
         soft,
@@ -150,20 +161,32 @@ export function ZenformedPresenceProvider({
         return next;
       });
     },
-    []
+    [normalizedUserId]
   );
+
+  const publishLocalSelfStatus = useCallback(() => {
+    if (!normalizedUserId) return;
+    const selfStatus = deriveEffectiveStatusFromPreference(
+      statusModeRef.current,
+      automaticStateRef.current
+    );
+    presenceDebug('publishLocalSelfStatus', {
+      userId: normalizedUserId,
+      statusMode: statusModeRef.current,
+      automaticState: automaticStateRef.current,
+      selfStatus,
+    });
+    setEffectiveByUserId((prev) => {
+      if (prev.get(normalizedUserId) === selfStatus && prev.size > 0) return prev;
+      const next = new Map(prev);
+      next.set(normalizedUserId, selfStatus);
+      return next;
+    });
+  }, [normalizedUserId]);
 
   const trackPresence = useCallback(
     async (force = false): Promise<void> => {
-      const channel = channelRef.current;
-      if (!channel || !trackedRef.current || !normalizedUserId) {
-        presenceDebug('track skipped', {
-          hasChannel: !!channel,
-          tracked: trackedRef.current,
-          userId: normalizedUserId,
-        });
-        return;
-      }
+      if (!normalizedUserId) return;
 
       const payload: PresenceClientState = {
         userId: normalizedUserId,
@@ -174,19 +197,34 @@ export function ZenformedPresenceProvider({
         lastActiveAt: new Date().toISOString(),
       };
 
+      // Always update local self status from preference (avatar must follow selector/DB).
+      lastPayloadRef.current = payload;
+      publishLocalSelfStatus();
+
+      const channel = channelRef.current;
+      if (!channel || !trackedRef.current) {
+        presenceDebug('track skipped (local status published)', {
+          hasChannel: !!channel,
+          tracked: trackedRef.current,
+          userId: normalizedUserId,
+          statusMode: payload.statusMode,
+        });
+        return;
+      }
+
       const now = Date.now();
-      const prev = lastPayloadRef.current;
-      const unchanged =
-        prev != null &&
-        prev.automaticState === payload.automaticState &&
-        prev.statusMode === payload.statusMode;
-      if (!force && unchanged && now - lastTrackAtRef.current < PRESENCE_TRACK_THROTTLE_MS) {
+      const prevTracked = lastPayloadRef.current;
+      if (
+        !force &&
+        now - lastTrackAtRef.current < PRESENCE_TRACK_THROTTLE_MS &&
+        prevTracked != null &&
+        prevTracked.automaticState === payload.automaticState &&
+        prevTracked.statusMode === payload.statusMode
+      ) {
         return;
       }
 
       lastTrackAtRef.current = now;
-      lastPayloadRef.current = payload;
-      // Optimistic self status so the logged-in avatar updates before sync echoes.
       applyPresenceClients(
         flattenPresenceState(
           (channel.presenceState() as Record<string, unknown>) ?? {}
@@ -202,26 +240,30 @@ export function ZenformedPresenceProvider({
           userId: payload.userId,
           clientId: payload.clientId,
         });
-        if (trackResult === 'ok' || trackResult == null || trackResult === 'timed out') {
-          // 'timed out' can still eventually land; keep optimistic payload.
-          applyPresenceClients(
-            flattenPresenceState(
-              (channel.presenceState() as Record<string, unknown>) ?? {}
-            ),
-            false
-          );
-        }
+        applyPresenceClients(
+          flattenPresenceState(
+            (channel.presenceState() as Record<string, unknown>) ?? {}
+          ),
+          false
+        );
       } catch (error) {
         presenceDebug('channel.track error', error);
       }
     },
-    [applyPresenceClients, normalizedAppSlug, normalizedUserId]
+    [
+      applyPresenceClients,
+      normalizedAppSlug,
+      normalizedUserId,
+      publishLocalSelfStatus,
+    ]
   );
 
   useEffect(() => {
-    if (!active || !supabase || !normalizedUserId) {
-      setStatusModeState('automatic');
-      setReady(false);
+    if (!enabled || !supabase || !normalizedUserId) {
+      if (!normalizedUserId) {
+        setStatusModeState('automatic');
+        setReady(false);
+      }
       return;
     }
 
@@ -246,10 +288,16 @@ export function ZenformedPresenceProvider({
     return () => {
       cancelled = true;
     };
-  }, [active, normalizedUserId, supabase]);
+  }, [enabled, normalizedUserId, supabase]);
+
+  // Preference → avatar: never wait on Realtime for the logged-in user.
+  useEffect(() => {
+    if (!normalizedUserId) return;
+    publishLocalSelfStatus();
+  }, [normalizedUserId, statusMode, automaticState, publishLocalSelfStatus]);
 
   useEffect(() => {
-    if (!active) return;
+    if (!enabled || !normalizedUserId) return;
     const controller = createPresenceActivityController({
       onAutomaticStateChange: (state) => {
         setAutomaticState(state);
@@ -257,7 +305,7 @@ export function ZenformedPresenceProvider({
     });
     setAutomaticState(controller.getAutomaticState());
     return () => controller.dispose();
-  }, [active]);
+  }, [enabled, normalizedUserId]);
 
   useEffect(() => {
     if (!active || !supabase || !normalizedOrgId || !normalizedUserId) {
@@ -387,7 +435,7 @@ export function ZenformedPresenceProvider({
       });
     };
 
-    void startChannel(true);
+    void startChannel(false);
 
     return () => {
       cancelled = true;
@@ -438,15 +486,18 @@ export function ZenformedPresenceProvider({
     (id: string): PresenceEffectiveStatus => {
       const key = id.trim();
       if (!key) return 'offline';
+      if (normalizedUserId && key === normalizedUserId) {
+        return deriveEffectiveStatusFromPreference(statusMode, automaticState);
+      }
       return effectiveByUserId.get(key) ?? 'offline';
     },
-    [effectiveByUserId]
+    [automaticState, effectiveByUserId, normalizedUserId, statusMode]
   );
 
   const currentEffectiveStatus = useMemo((): PresenceEffectiveStatus => {
     if (!normalizedUserId) return 'offline';
-    return getEffectiveStatus(normalizedUserId);
-  }, [getEffectiveStatus, normalizedUserId]);
+    return deriveEffectiveStatusFromPreference(statusMode, automaticState);
+  }, [automaticState, normalizedUserId, statusMode]);
 
   useEffect(() => {
     if (!PRESENCE_DEBUG) return;
@@ -459,7 +510,7 @@ export function ZenformedPresenceProvider({
 
   const value = useMemo<ZenformedPresenceContextValue>(
     () => ({
-      ready: active && ready,
+      ready,
       statusMode,
       setStatusMode,
       effectiveByUserId,
@@ -468,7 +519,6 @@ export function ZenformedPresenceProvider({
       currentEffectiveStatus,
     }),
     [
-      active,
       ready,
       statusMode,
       setStatusMode,

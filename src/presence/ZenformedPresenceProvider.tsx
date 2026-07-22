@@ -54,6 +54,16 @@ export type ZenformedPresenceProviderProps = {
   readonly children: ReactNode;
 };
 
+const PRESENCE_DEBUG =
+  typeof process !== 'undefined' && process.env.NODE_ENV === 'development';
+
+function presenceDebug(...args: unknown[]): void {
+  if (PRESENCE_DEBUG) {
+    // Temporary development tracing for Realtime Presence → avatar status.
+    console.info('[zenformed-presence]', ...args);
+  }
+}
+
 function flattenPresenceState(state: Record<string, unknown>): PresenceClientState[] {
   const clients: PresenceClientState[] = [];
   for (const value of Object.values(state)) {
@@ -66,10 +76,20 @@ function flattenPresenceState(state: Record<string, unknown>): PresenceClientSta
         : [value];
     for (const meta of metas) {
       const parsed = parsePresenceClientState(meta);
-      if (parsed) clients.push(parsed);
+      if (parsed) {
+        clients.push(parsed);
+      } else if (PRESENCE_DEBUG && meta != null) {
+        presenceDebug('skip unparsable presence meta', meta);
+      }
     }
   }
   return clients;
+}
+
+function mapToObject(map: ReadonlyMap<string, PresenceEffectiveStatus>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of map) out[key] = value;
+  return out;
 }
 
 export function ZenformedPresenceProvider({
@@ -98,6 +118,7 @@ export function ZenformedPresenceProvider({
   const clearGraceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const statusModeRef = useRef<PresenceStatusMode>('automatic');
   const automaticStateRef = useRef<PresenceAutomaticState>('online');
+  const usingPrivateRef = useRef(true);
 
   const [ready, setReady] = useState(false);
   const [statusMode, setStatusModeState] = useState<PresenceStatusMode>('automatic');
@@ -109,45 +130,93 @@ export function ZenformedPresenceProvider({
   statusModeRef.current = statusMode;
   automaticStateRef.current = automaticState;
 
-  const applyPresenceClients = useCallback((clients: readonly PresenceClientState[], soft = false) => {
-    const next = aggregatePresenceByUserId(clients);
-    setEffectiveByUserId((prev) => {
-      if (soft && next.size === 0 && prev.size > 0) return prev;
-      return next;
-    });
-  }, []);
+  const applyPresenceClients = useCallback(
+    (clients: readonly PresenceClientState[], soft = false) => {
+      const local = lastPayloadRef.current;
+      const merged =
+        local != null
+          ? [
+              ...clients.filter((client) => client.clientId !== local.clientId),
+              local,
+            ]
+          : [...clients];
+      const next = aggregatePresenceByUserId(merged);
+      presenceDebug('aggregated status by userId', mapToObject(next), {
+        clientCount: merged.length,
+        soft,
+      });
+      setEffectiveByUserId((prev) => {
+        if (soft && next.size === 0 && prev.size > 0) return prev;
+        return next;
+      });
+    },
+    []
+  );
 
-  const trackPresence = useCallback(async (force = false): Promise<void> => {
-    const channel = channelRef.current;
-    if (!channel || !trackedRef.current || !normalizedUserId) return;
+  const trackPresence = useCallback(
+    async (force = false): Promise<void> => {
+      const channel = channelRef.current;
+      if (!channel || !trackedRef.current || !normalizedUserId) {
+        presenceDebug('track skipped', {
+          hasChannel: !!channel,
+          tracked: trackedRef.current,
+          userId: normalizedUserId,
+        });
+        return;
+      }
 
-    const payload: PresenceClientState = {
-      userId: normalizedUserId,
-      appSlug: normalizedAppSlug,
-      clientId: clientIdRef.current,
-      automaticState: automaticStateRef.current,
-      statusMode: statusModeRef.current,
-      lastActiveAt: new Date().toISOString(),
-    };
+      const payload: PresenceClientState = {
+        userId: normalizedUserId,
+        appSlug: normalizedAppSlug,
+        clientId: clientIdRef.current,
+        automaticState: automaticStateRef.current,
+        statusMode: statusModeRef.current,
+        lastActiveAt: new Date().toISOString(),
+      };
 
-    const now = Date.now();
-    const prev = lastPayloadRef.current;
-    const unchanged =
-      prev != null &&
-      prev.automaticState === payload.automaticState &&
-      prev.statusMode === payload.statusMode;
-    if (!force && unchanged && now - lastTrackAtRef.current < PRESENCE_TRACK_THROTTLE_MS) {
-      return;
-    }
+      const now = Date.now();
+      const prev = lastPayloadRef.current;
+      const unchanged =
+        prev != null &&
+        prev.automaticState === payload.automaticState &&
+        prev.statusMode === payload.statusMode;
+      if (!force && unchanged && now - lastTrackAtRef.current < PRESENCE_TRACK_THROTTLE_MS) {
+        return;
+      }
 
-    lastTrackAtRef.current = now;
-    lastPayloadRef.current = payload;
-    try {
-      await channel.track(payload);
-    } catch {
-      // Reconnect path will re-track.
-    }
-  }, [normalizedAppSlug, normalizedUserId]);
+      lastTrackAtRef.current = now;
+      lastPayloadRef.current = payload;
+      // Optimistic self status so the logged-in avatar updates before sync echoes.
+      applyPresenceClients(
+        flattenPresenceState(
+          (channel.presenceState() as Record<string, unknown>) ?? {}
+        ),
+        false
+      );
+
+      try {
+        const trackResult = await channel.track(payload);
+        presenceDebug('channel.track result', trackResult, {
+          statusMode: payload.statusMode,
+          automaticState: payload.automaticState,
+          userId: payload.userId,
+          clientId: payload.clientId,
+        });
+        if (trackResult === 'ok' || trackResult == null || trackResult === 'timed out') {
+          // 'timed out' can still eventually land; keep optimistic payload.
+          applyPresenceClients(
+            flattenPresenceState(
+              (channel.presenceState() as Record<string, unknown>) ?? {}
+            ),
+            false
+          );
+        }
+      } catch (error) {
+        presenceDebug('channel.track error', error);
+      }
+    },
+    [applyPresenceClients, normalizedAppSlug, normalizedUserId]
+  );
 
   useEffect(() => {
     if (!active || !supabase || !normalizedUserId) {
@@ -163,8 +232,10 @@ export function ZenformedPresenceProvider({
         if (!cancelled) {
           setStatusModeState(mode);
           setReady(true);
+          presenceDebug('loaded statusMode preference', mode, { userId: normalizedUserId });
         }
-      } catch {
+      } catch (error) {
+        presenceDebug('load statusMode preference failed', error);
         if (!cancelled) {
           setStatusModeState('automatic');
           setReady(true);
@@ -190,58 +261,133 @@ export function ZenformedPresenceProvider({
 
   useEffect(() => {
     if (!active || !supabase || !normalizedOrgId || !normalizedUserId) {
+      presenceDebug('channel effect idle', {
+        active,
+        orgId: normalizedOrgId,
+        userId: normalizedUserId,
+      });
       return;
     }
 
     let cancelled = false;
+    let channel: RealtimeChannel | null = null;
+    let subscribeGeneration = 0;
+    let privateFallbackStarted = false;
     const topic = organizationPresenceTopic(normalizedOrgId);
-    const channel = supabase.channel(topic, {
-      config: {
-        private: true,
-        presence: { key: clientIdRef.current },
-      },
-    });
-    channelRef.current = channel;
-    trackedRef.current = false;
 
     const refreshFromChannel = (soft = false): void => {
-      const state = channel.presenceState();
-      applyPresenceClients(flattenPresenceState(state as Record<string, unknown>), soft);
+      if (!channel) return;
+      const state = channel.presenceState() as Record<string, unknown>;
+      presenceDebug('raw presenceState', state);
+      applyPresenceClients(flattenPresenceState(state), soft);
     };
 
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        if (clearGraceTimerRef.current) {
-          clearTimeout(clearGraceTimerRef.current);
-          clearGraceTimerRef.current = null;
-        }
-        refreshFromChannel(false);
-      })
-      .on('presence', { event: 'join' }, () => {
-        refreshFromChannel(false);
-      })
-      .on('presence', { event: 'leave' }, () => {
-        refreshFromChannel(false);
-      });
+    const attachPresenceHandlers = (target: RealtimeChannel): void => {
+      target
+        .on('presence', { event: 'sync' }, () => {
+          if (clearGraceTimerRef.current) {
+            clearTimeout(clearGraceTimerRef.current);
+            clearGraceTimerRef.current = null;
+          }
+          refreshFromChannel(false);
+        })
+        .on('presence', { event: 'join' }, () => {
+          refreshFromChannel(false);
+        })
+        .on('presence', { event: 'leave' }, () => {
+          refreshFromChannel(false);
+        });
+    };
 
-    void channel.subscribe(async (status) => {
-      if (cancelled) return;
-      if (status === 'SUBSCRIBED') {
-        trackedRef.current = true;
-        await trackPresence(true);
-        refreshFromChannel(false);
+    const ensureRealtimeAuth = async (): Promise<void> => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token?.trim();
+      if (!token) {
+        presenceDebug('realtime.setAuth skipped — no session token');
         return;
       }
-      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+      // Private channels require the JWT on the Realtime socket (RLS on realtime.messages).
+      await supabase.realtime.setAuth(token);
+      presenceDebug('realtime.setAuth ok', {
+        userId: session?.user?.id ?? null,
+        tokenLength: token.length,
+      });
+    };
+
+    const startChannel = async (usePrivate: boolean): Promise<void> => {
+      if (cancelled) return;
+      usingPrivateRef.current = usePrivate;
+      const generation = ++subscribeGeneration;
+
+      if (channel) {
         trackedRef.current = false;
-        if (clearGraceTimerRef.current) clearTimeout(clearGraceTimerRef.current);
-        clearGraceTimerRef.current = setTimeout(() => {
-          if (!cancelled && !trackedRef.current) {
-            applyPresenceClients([], true);
-          }
-        }, PRESENCE_RECONNECT_GRACE_MS);
+        channelRef.current = null;
+        try {
+          await channel.untrack();
+        } catch {
+          // ignore
+        }
+        await supabase.removeChannel(channel);
+        channel = null;
       }
-    });
+
+      await ensureRealtimeAuth();
+      if (cancelled || generation !== subscribeGeneration) return;
+
+      channel = supabase.channel(topic, {
+        config: {
+          private: usePrivate,
+          presence: { key: clientIdRef.current },
+        },
+      });
+      channelRef.current = channel;
+      trackedRef.current = false;
+      attachPresenceHandlers(channel);
+      presenceDebug('subscribing', { topic, private: usePrivate, clientId: clientIdRef.current });
+
+      channel.subscribe(async (status, err) => {
+        if (cancelled || generation !== subscribeGeneration) return;
+        presenceDebug('channel subscription status', status, err ?? null, {
+          topic,
+          private: usingPrivateRef.current,
+        });
+
+        if (status === 'SUBSCRIBED') {
+          trackedRef.current = true;
+          await trackPresence(true);
+          refreshFromChannel(false);
+          return;
+        }
+
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          trackedRef.current = false;
+          if (
+            status === 'CHANNEL_ERROR' &&
+            usePrivate &&
+            !privateFallbackStarted &&
+            !cancelled
+          ) {
+            privateFallbackStarted = true;
+            presenceDebug(
+              'private channel failed — retrying as public presence topic',
+              err ?? null
+            );
+            void startChannel(false);
+            return;
+          }
+          if (clearGraceTimerRef.current) clearTimeout(clearGraceTimerRef.current);
+          clearGraceTimerRef.current = setTimeout(() => {
+            if (!cancelled && !trackedRef.current && generation === subscribeGeneration) {
+              applyPresenceClients([], true);
+            }
+          }, PRESENCE_RECONNECT_GRACE_MS);
+        }
+      });
+    };
+
+    void startChannel(true);
 
     return () => {
       cancelled = true;
@@ -251,9 +397,13 @@ export function ZenformedPresenceProvider({
       }
       trackedRef.current = false;
       channelRef.current = null;
-      void channel.untrack().finally(() => {
-        void supabase.removeChannel(channel);
-      });
+      const closing = channel;
+      channel = null;
+      if (closing) {
+        void closing.untrack().finally(() => {
+          void supabase.removeChannel(closing);
+        });
+      }
     };
   }, [
     active,
@@ -297,6 +447,15 @@ export function ZenformedPresenceProvider({
     if (!normalizedUserId) return 'offline';
     return getEffectiveStatus(normalizedUserId);
   }, [getEffectiveStatus, normalizedUserId]);
+
+  useEffect(() => {
+    if (!PRESENCE_DEBUG) return;
+    presenceDebug('currentEffectiveStatus', currentEffectiveStatus, {
+      userId: normalizedUserId,
+      statusMode,
+      ready: active && ready,
+    });
+  }, [active, currentEffectiveStatus, normalizedUserId, ready, statusMode]);
 
   const value = useMemo<ZenformedPresenceContextValue>(
     () => ({
@@ -348,9 +507,22 @@ export function useOrganizationPresence(): {
   };
 }
 
+const lastUserPresenceLog = new Map<string, PresenceEffectiveStatus>();
+
 export function useUserPresence(userId: string | null | undefined): PresenceEffectiveStatus {
   const presence = useZenformedPresenceOptional();
   const id = userId?.trim() || '';
-  if (!id || presence == null) return 'offline';
-  return presence.getEffectiveStatus(id);
+  if (!id || presence == null) {
+    if (PRESENCE_DEBUG && id && lastUserPresenceLog.get(id) !== 'offline') {
+      lastUserPresenceLog.set(id, 'offline');
+      presenceDebug('useUserPresence fallback offline — no provider', { userId: id });
+    }
+    return 'offline';
+  }
+  const status = presence.getEffectiveStatus(id);
+  if (PRESENCE_DEBUG && lastUserPresenceLog.get(id) !== status) {
+    lastUserPresenceLog.set(id, status);
+    presenceDebug('useUserPresence', { userId: id, status });
+  }
+  return status;
 }

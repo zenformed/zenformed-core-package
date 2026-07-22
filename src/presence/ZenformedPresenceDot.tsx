@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactElement } from 'react';
+import { useEffect, type ReactElement } from 'react';
 import {
   PRESENCE_EFFECTIVE_STATUS_LABELS,
   type PresenceEffectiveStatus,
@@ -14,6 +14,9 @@ export type ZenformedPresenceDotProps = {
   /** When false, omit accessible label (parent provides it). Default true. */
   readonly announce?: boolean;
 };
+
+const PRESENCE_DEBUG =
+  typeof process !== 'undefined' && process.env.NODE_ENV === 'development';
 
 export function ZenformedPresenceDot({
   status,
@@ -31,12 +34,24 @@ export function ZenformedPresenceDot({
           ? styles.dotBusy
           : styles.dotOffline;
 
+  useEffect(() => {
+    if (!PRESENCE_DEBUG) return;
+    console.info('[zenformed-presence] PresenceDot', {
+      status,
+      statusClass,
+      hasDotBase: Boolean(styles.dot),
+      hasOnlineClass: Boolean(styles.dotOnline),
+      className,
+    });
+  }, [className, status, statusClass]);
+
   return (
     <span
       className={[styles.dot, statusClass, className].filter(Boolean).join(' ')}
       title={label}
       aria-label={announce ? label : undefined}
       aria-hidden={announce ? undefined : true}
+      data-presence-status={status}
     />
   );
 }

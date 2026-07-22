@@ -69,26 +69,49 @@ export function aggregatePresenceByUserId(
 export function parsePresenceClientState(raw: unknown): PresenceClientState | null {
   if (raw == null || typeof raw !== 'object') return null;
   const row = raw as Record<string, unknown>;
-  const userId = typeof row.userId === 'string' ? row.userId.trim() : '';
-  const appSlug = typeof row.appSlug === 'string' ? row.appSlug.trim() : '';
-  const clientId = typeof row.clientId === 'string' ? row.clientId.trim() : '';
+  // Some Realtime payloads nest custom fields; unwrap a single level if needed.
+  const nested =
+    row.payload != null && typeof row.payload === 'object'
+      ? (row.payload as Record<string, unknown>)
+      : null;
+  const source = nested ?? row;
+
+  const userId =
+    typeof source.userId === 'string'
+      ? source.userId.trim()
+      : typeof source.user_id === 'string'
+        ? source.user_id.trim()
+        : '';
+  const appSlug =
+    typeof source.appSlug === 'string'
+      ? source.appSlug.trim()
+      : typeof source.app_slug === 'string'
+        ? source.app_slug.trim()
+        : '';
+  const clientId =
+    typeof source.clientId === 'string'
+      ? source.clientId.trim()
+      : typeof source.client_id === 'string'
+        ? source.client_id.trim()
+        : '';
+  const automaticStateRaw = source.automaticState ?? source.automatic_state;
   const automaticState =
-    row.automaticState === 'online' || row.automaticState === 'away'
-      ? row.automaticState
-      : null;
+    automaticStateRaw === 'online' || automaticStateRaw === 'away' ? automaticStateRaw : null;
+  const statusModeRaw = source.statusMode ?? source.status_mode;
   const statusMode =
-    row.statusMode === 'automatic' ||
-    row.statusMode === 'online' ||
-    row.statusMode === 'away' ||
-    row.statusMode === 'busy' ||
-    row.statusMode === 'appear_offline'
-      ? row.statusMode
+    statusModeRaw === 'automatic' ||
+    statusModeRaw === 'online' ||
+    statusModeRaw === 'away' ||
+    statusModeRaw === 'busy' ||
+    statusModeRaw === 'appear_offline'
+      ? statusModeRaw
       : null;
+  const lastActiveRaw = source.lastActiveAt ?? source.last_active_at;
   const lastActiveAt =
-    typeof row.lastActiveAt === 'string'
-      ? row.lastActiveAt
-      : typeof row.lastActiveAt === 'number'
-        ? new Date(row.lastActiveAt).toISOString()
+    typeof lastActiveRaw === 'string'
+      ? lastActiveRaw
+      : typeof lastActiveRaw === 'number'
+        ? new Date(lastActiveRaw).toISOString()
         : '';
 
   if (!userId || !appSlug || !clientId || !automaticState || !statusMode || !lastActiveAt) {

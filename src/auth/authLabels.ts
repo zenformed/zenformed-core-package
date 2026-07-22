@@ -30,6 +30,9 @@ export const DEFAULT_AUTH_LABELS = {
   backToSignIn: 'Back to sign in',
   registerEmailVerificationSuccess:
     'Check your email to verify your account. After verifying, return to login.',
+  continueWithGoogle: 'Continue with Google',
+  continuingWithGoogle: 'Continuing with Google…',
+  authDividerOr: 'or',
 } as const;
 
 export type ZenformedAuthLabels = {

@@ -17,6 +17,21 @@ export type ZenformedAuthSupabaseClient = {
       data: { session: Session | null; user: User | null };
       error: { message: string } | null;
     }>;
+    signInWithOAuth(credentials: {
+      provider: 'google';
+      options?: {
+        redirectTo?: string;
+        scopes?: string;
+        queryParams?: Record<string, string>;
+      };
+    }): Promise<{
+      data: { provider: string; url: string | null };
+      error: { message: string } | null;
+    }>;
+    exchangeCodeForSession(code: string): Promise<{
+      data: { session: Session | null; user: User | null };
+      error: { message: string } | null;
+    }>;
     signUp(credentials: {
       email: string;
       password: string;

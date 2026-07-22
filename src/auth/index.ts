@@ -44,6 +44,35 @@ export {
   type SignUpWithPasswordOptions,
   type SignUpWithPasswordResult,
 } from './signUpWithPassword';
+export { signInWithGoogle, type SignInWithGoogleOptions, type SignInWithGoogleResult } from './signInWithGoogle';
+export {
+  sanitizeAuthReturnPath,
+} from './sanitizeAuthReturnPath';
+export {
+  ZENFORMED_OAUTH_INTENT_STORAGE_KEY,
+  ZENFORMED_OAUTH_INTENT_TTL_MS,
+  buildZenformedOAuthIntent,
+  isZenformedOAuthIntentExpired,
+  saveZenformedOAuthIntent,
+  saveZenformedOAuthIntentFromAuthEntry,
+  consumeZenformedOAuthIntent,
+  clearZenformedOAuthIntent,
+  authEntryParamsFromOAuthIntent,
+  type ZenformedOAuthIntent,
+  type SaveZenformedOAuthIntentInput,
+} from './oauthIntent';
+export {
+  extractGoogleProfileNames,
+  mergeProfileNamesFromGoogle,
+  type GoogleProfileNameFields,
+} from './googleProfileMetadata';
+export {
+  ZenformedGoogleSignInButton,
+  ZenformedAuthMethodDivider,
+  type ZenformedGoogleSignInButtonProps,
+  type ZenformedGoogleSignInHandler,
+  type ZenformedAuthMethodDividerProps,
+} from './ZenformedGoogleSignInButton';
 export {
   useZenformedPasswordRecoveryStatus,
   type PasswordRecoveryStatus,

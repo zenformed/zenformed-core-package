@@ -1,3 +1,5 @@
+import { sanitizeAuthReturnPath } from './sanitizeAuthReturnPath';
+
 export type AuthEntryQueryParams = {
   readonly app: string | null;
   readonly plan: string | null;
@@ -50,14 +52,14 @@ export function buildAuthEntryHref(
 /**
  * Resolves the post-auth in-app redirect target.
  * Prefers `returnTo`, then legacy `redirect`, then `defaultPath`.
+ * Rejects absolute / protocol-relative / backslash paths.
  */
 export function resolvePostAuthRedirectTarget(
   params: AuthEntryQueryParams,
   defaultPath: string
 ): string {
-  const candidate = params.returnTo ?? params.redirect;
-  if (candidate?.startsWith('/')) {
-    return candidate;
-  }
-  return defaultPath.startsWith('/') ? defaultPath : `/${defaultPath}`;
+  const candidate = sanitizeAuthReturnPath(params.returnTo ?? params.redirect);
+  if (candidate) return candidate;
+  const fallback = defaultPath.startsWith('/') ? defaultPath : `/${defaultPath}`;
+  return sanitizeAuthReturnPath(fallback) ?? '/dashboard';
 }

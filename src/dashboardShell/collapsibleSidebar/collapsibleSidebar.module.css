@@ -1379,6 +1379,10 @@ button.actionRow:focus-visible {
   background: var(--theme-nav-sidebar-bg, inherit);
 }
 
+.mobilePresenceStatus {
+  margin-bottom: 0.35rem;
+}
+
 .mobileSignOut {
   display: flex;
   align-items: center;

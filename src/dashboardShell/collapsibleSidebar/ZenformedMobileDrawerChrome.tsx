@@ -3,6 +3,12 @@
 import { useCallback, useEffect, useRef, type ReactElement } from 'react';
 import { getUserInitials, userCircleColor } from '../accountMenuUtils';
 import { ZenformedNotificationsMenu } from '../notifications/ZenformedNotificationsMenu';
+import {
+  ZenformedPresenceDot,
+  ZenformedPresenceStatusSelector,
+  useZenformedPresenceOptional,
+} from '../../presence';
+import presenceStyles from '../../presence/presence.module.css';
 import { ZenformedSidebarActionRow } from './ZenformedSidebarActionRow';
 import { ZenformedSidebarSections } from './ZenformedSidebarSections';
 import { resolveSidebarSectionLabelText, type ZenformedCollapsibleSidebarShellProps } from './types';
@@ -68,6 +74,9 @@ export function ZenformedMobileDrawerChrome({
     themeRowRef.current?.querySelector('button')?.click();
   }, []);
 
+  const presence = useZenformedPresenceOptional();
+  const accountPresenceStatus = presence?.currentEffectiveStatus ?? 'offline';
+
   return (
     <div
       className={styles.mobileDrawerInner}
@@ -81,7 +90,7 @@ export function ZenformedMobileDrawerChrome({
             data-zenformed-mobile-user-bar
             // Reserved for a future profile destination; no click for now.
           >
-            <span className={styles.mobileUserAvatar} aria-hidden>
+            <span className={`${styles.mobileUserAvatar} ${presenceStyles.avatarWithDot}`} aria-hidden>
               {account.profilePhotoChangeEnabled && account.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={account.avatarUrl} alt="" className={styles.mobileUserAvatarImg} />
@@ -99,6 +108,13 @@ export function ZenformedMobileDrawerChrome({
                     : null}
                 </span>
               )}
+              {presence ? (
+                <ZenformedPresenceDot
+                  status={accountPresenceStatus}
+                  className={presenceStyles.avatarDot}
+                  announce={false}
+                />
+              ) : null}
             </span>
             <span className={styles.mobileUserText}>
               <span className={styles.mobileUserName} title={accountName}>
@@ -206,6 +222,11 @@ export function ZenformedMobileDrawerChrome({
 
       {account ? (
         <div className={styles.mobileDrawerFooter}>
+          {presence ? (
+            <div className={styles.mobilePresenceStatus}>
+              <ZenformedPresenceStatusSelector />
+            </div>
+          ) : null}
           <button
             type="button"
             className={styles.mobileSignOut}

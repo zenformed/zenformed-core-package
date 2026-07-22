@@ -17,6 +17,12 @@ import { useAccountMenuState } from '../useAccountMenuState';
 import { useBodyScrollLock } from '../useBodyScrollLock';
 import { useZenformedMobileShellLayout } from '../useZenformedMobileShellLayout';
 import { ZenformedNotificationsMenu } from '../notifications/ZenformedNotificationsMenu';
+import {
+  ZenformedPresenceDot,
+  ZenformedPresenceStatusSelector,
+  useZenformedPresenceOptional,
+} from '../../presence';
+import presenceStyles from '../../presence/presence.module.css';
 import { useZenformedSidebarExpandState } from './useZenformedSidebarExpandState';
 import { ZenformedSidebarActionRow } from './ZenformedSidebarActionRow';
 import {
@@ -84,6 +90,8 @@ function DesktopRailChrome({
   const accountPanelPortalRef = useRef<HTMLDivElement>(null);
   const accountMenu = useAccountMenuState({ extraRoots: [accountPanelPortalRef] });
   const [accountPortalStyle, setAccountPortalStyle] = useState<CSSProperties | null>(null);
+  const presence = useZenformedPresenceOptional();
+  const accountPresenceStatus = presence?.currentEffectiveStatus ?? 'offline';
 
   useEffect(() => {
     onAccountOpenChange?.(accountMenu.accountMenuOpen);
@@ -169,22 +177,30 @@ function DesktopRailChrome({
         data-zenformed-sidebar-dock-popover="account"
       >
         <div className={styles.otherAccountHeader}>
-          {account.profilePhotoChangeEnabled && account.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
-          ) : (
-            <span
-              className={styles.otherAccountAvatar}
-              style={{
-                backgroundColor: account.avatarLoading
-                  ? 'var(--color-muted, #f1f5f9)'
-                  : userCircleColor(account.user.email),
-              }}
-              aria-hidden
-            >
-              {!account.avatarLoading ? getUserInitials(account.user, accountName) : null}
-            </span>
-          )}
+          <span className={presenceStyles.avatarWithDot}>
+            {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={account.avatarUrl} alt="" className={styles.otherAccountAvatar} />
+            ) : (
+              <span
+                className={styles.otherAccountAvatar}
+                style={{
+                  backgroundColor: account.avatarLoading
+                    ? 'var(--color-muted, #f1f5f9)'
+                    : userCircleColor(account.user.email),
+                }}
+                aria-hidden
+              >
+                {!account.avatarLoading ? getUserInitials(account.user, accountName) : null}
+              </span>
+            )}
+            {presence ? (
+              <ZenformedPresenceDot
+                status={accountPresenceStatus}
+                className={presenceStyles.avatarDot}
+              />
+            ) : null}
+          </span>
           <div className={styles.otherAccountIdentity}>
             <span className={styles.otherAccountName} title={accountName}>
               {accountName}
@@ -211,6 +227,12 @@ function DesktopRailChrome({
           </div>
         </div>
         <div className={styles.otherAccountDivider} aria-hidden />
+        {presence ? (
+          <>
+            <ZenformedPresenceStatusSelector />
+            <div className={styles.otherAccountDivider} aria-hidden />
+          </>
+        ) : null}
         <button
           type="button"
           className={styles.otherAccountSignOut}
@@ -336,27 +358,36 @@ function DesktopRailChrome({
             aria-haspopup="menu"
           >
             <span className={styles.actionIcon} aria-hidden>
-              {account.profilePhotoChangeEnabled && account.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={account.avatarUrl}
-                  alt=""
-                  className={styles.otherAccountAvatar}
-                />
-              ) : (
-                <span
-                  className={styles.otherAccountAvatar}
-                  style={{
-                    backgroundColor: account.avatarLoading
-                      ? 'var(--color-muted, #f1f5f9)'
-                      : userCircleColor(account.user.email),
-                  }}
-                >
-                  {!account.avatarLoading
-                    ? getUserInitials(account.user, account.userDisplayName)
-                    : null}
-                </span>
-              )}
+              <span className={presenceStyles.avatarWithDot}>
+                {account.profilePhotoChangeEnabled && account.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={account.avatarUrl}
+                    alt=""
+                    className={styles.otherAccountAvatar}
+                  />
+                ) : (
+                  <span
+                    className={styles.otherAccountAvatar}
+                    style={{
+                      backgroundColor: account.avatarLoading
+                        ? 'var(--color-muted, #f1f5f9)'
+                        : userCircleColor(account.user.email),
+                    }}
+                  >
+                    {!account.avatarLoading
+                      ? getUserInitials(account.user, account.userDisplayName)
+                      : null}
+                  </span>
+                )}
+                {presence ? (
+                  <ZenformedPresenceDot
+                    status={accountPresenceStatus}
+                    className={presenceStyles.avatarDot}
+                    announce={false}
+                  />
+                ) : null}
+              </span>
             </span>
             {showLabels ? (
               <span className={styles.accountText}>

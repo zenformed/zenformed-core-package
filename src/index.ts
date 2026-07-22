@@ -62,6 +62,24 @@ export {
 } from './saasProfileAuthSync';
 
 export {
+  classifySupabaseAuthInvalidation,
+  getSessionEndMessage,
+  saveSessionEndReason,
+  markVoluntarySignOut,
+  clearSessionEndReason,
+  consumeSessionEndReason,
+  peekSessionEndReason,
+  parseSessionEndReasonParam,
+  resolveSessionEndMessageForLogin,
+  appendSessionEndToLoginUrl,
+  recordSessionInvalidation,
+  recordUnexpectedSignedOut,
+  ZENFORMED_SESSION_END_STORAGE_KEY,
+  ZENFORMED_SESSION_END_QUERY_PARAM,
+  type SessionEndReason,
+} from './auth/sessionInvalidation';
+
+export {
   queryPlatformAppMirrorResolutionDetail,
   type PlatformAppMirrorQueryResult,
   type PlatformAppMirrorResolutionDetailInput,

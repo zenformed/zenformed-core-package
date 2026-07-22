@@ -44,7 +44,28 @@ export {
   type SignUpWithPasswordOptions,
   type SignUpWithPasswordResult,
 } from './signUpWithPassword';
-export { signInWithGoogle, type SignInWithGoogleOptions, type SignInWithGoogleResult } from './signInWithGoogle';
+export {
+  signInWithGoogle,
+  type SignInWithGoogleOptions,
+  type SignInWithGoogleResult,
+} from './signInWithGoogle';
+export {
+  classifySupabaseAuthInvalidation,
+  getSessionEndMessage,
+  saveSessionEndReason,
+  markVoluntarySignOut,
+  clearSessionEndReason,
+  consumeSessionEndReason,
+  peekSessionEndReason,
+  parseSessionEndReasonParam,
+  resolveSessionEndMessageForLogin,
+  appendSessionEndToLoginUrl,
+  recordSessionInvalidation,
+  recordUnexpectedSignedOut,
+  ZENFORMED_SESSION_END_STORAGE_KEY,
+  ZENFORMED_SESSION_END_QUERY_PARAM,
+  type SessionEndReason,
+} from './sessionInvalidation';
 export {
   sanitizeAuthReturnPath,
   sanitizePostAuthDestination,

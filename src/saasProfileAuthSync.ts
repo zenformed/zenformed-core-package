@@ -61,6 +61,11 @@ export function resolveSaasProfileAuthReaction(
     return 'sign_out';
   }
 
+  // Some GoTrue builds emit user-deletion as SIGNED_OUT only; keep string check for forwards-compat.
+  if ((event as string) === 'USER_DELETED') {
+    return 'sign_out';
+  }
+
   const stableUserId = profileUserId ?? bootstrappedUserId ?? null;
   const sameUserWithProfile =
     userId != null && hasProfile && stableUserId != null && userId === stableUserId;

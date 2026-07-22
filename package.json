@@ -57,7 +57,7 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/platformAppMirrorResolution.test.ts src/dashboardShell/accountMenuUtils.test.ts src/dashboardShell/notifications/notifications.test.ts src/dashboardShell/collapsibleSidebar/collapsibleSidebar.test.ts src/organizationSettings/organizationWorkspaceMemberUtils.test.ts src/organizationSettings/billingAppEntitlements.test.ts src/auth/oauthIntent.test.ts",
+    "test": "node --import tsx --test src/platformAppMirrorResolution.test.ts src/dashboardShell/accountMenuUtils.test.ts src/dashboardShell/notifications/notifications.test.ts src/dashboardShell/collapsibleSidebar/collapsibleSidebar.test.ts src/organizationSettings/organizationWorkspaceMemberUtils.test.ts src/organizationSettings/billingAppEntitlements.test.ts src/auth/oauthIntent.test.ts src/auth/sessionInvalidation.test.ts",
     "pack:local": "npm pack --pack-destination ."
   },
   "peerDependencies": {

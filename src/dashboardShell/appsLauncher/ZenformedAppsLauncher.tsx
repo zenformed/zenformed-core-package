@@ -169,6 +169,7 @@ export function ZenformedAppsLauncher({
       <button
         type="button"
         aria-label="Dismiss apps menu"
+        className={classNames.appsMobileBackdrop}
         data-zenformed-sidebar-dock-popover-backdrop="apps-mobile"
         style={{
           position: 'fixed',

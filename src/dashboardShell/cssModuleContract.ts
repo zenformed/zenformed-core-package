@@ -92,6 +92,7 @@ export const ZENFORMED_APPS_LAUNCHER_CSS_KEYS = [
   'appsLauncherTrigger',
   'appsLauncherIcon',
   'appsPopover',
+  'appsMobileBackdrop',
   'appsPopoverList',
   'appsPopoverAppsPanel',
   'appsPopoverSection',

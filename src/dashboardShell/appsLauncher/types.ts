@@ -28,6 +28,8 @@ export type ZenformedAppsLauncherClassNames = {
   appsLauncherTrigger: string;
   appsLauncherIcon: string;
   appsPopover: string;
+  /** Full-screen dim/blur behind the mobile apps modal. */
+  appsMobileBackdrop: string;
   appsPopoverList: string;
   appsPopoverAppsPanel: string;
   appsPopoverSection: string;

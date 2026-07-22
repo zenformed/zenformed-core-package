@@ -108,7 +108,7 @@ export function ZenformedAppsLauncher({
         height: '70vh',
         maxHeight: '70vh',
         transform: 'translate(-50%, -50%)',
-        zIndex: 10_001,
+        zIndex: 10_051,
       });
       return;
     }
@@ -174,14 +174,14 @@ export function ZenformedAppsLauncher({
         style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 10_000,
+          zIndex: 10_050,
           margin: 0,
           padding: 0,
           border: 'none',
           cursor: 'pointer',
-          background: 'rgba(15, 23, 42, 0.5)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
+          background: 'rgba(8, 15, 30, 0.62)',
+          backdropFilter: 'blur(14px) saturate(1.1)',
+          WebkitBackdropFilter: 'blur(14px) saturate(1.1)',
         }}
         onClick={closeAccountMenu}
       />

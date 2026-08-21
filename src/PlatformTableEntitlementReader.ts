@@ -6,6 +6,21 @@ import {
   type PlatformAppMirrorResolutionQueryFn,
 } from './queryPlatformAppMirrorResolutionDetail';
 
+function preferredOrganizationIdFromAccessToken(accessToken: string | null | undefined): string | null {
+  if (!accessToken) return null;
+  try {
+    const payload = accessToken.split('.')[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    const claims = JSON.parse(atob(padded)) as { app_metadata?: { tenant_id?: unknown } };
+    const tenantId = claims.app_metadata?.tenant_id;
+    return typeof tenantId === 'string' && tenantId.trim() !== '' ? tenantId.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Non-authoritative entitlement reader over mirrored platform tables (`platform_*`).
  *
@@ -33,6 +48,7 @@ export class PlatformTableEntitlementReader implements ISaaSEntitlementReader {
       const detail = await this.queryMirrorResolution(supabase, {
         userId: input.userId,
         appSlug: input.appSlug,
+        preferredOrganizationId: preferredOrganizationIdFromAccessToken(input.accessToken),
       });
       return detail.snapshot;
     } catch {

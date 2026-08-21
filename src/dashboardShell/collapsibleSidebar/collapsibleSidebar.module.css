@@ -308,6 +308,41 @@
   display: block;
 }
 
+.orgSwitcherWrap {
+  overflow: visible;
+  max-width: none;
+}
+
+.orgSwitcherSelect {
+  width: 100%;
+  border: 0;
+  border-radius: 0.35rem;
+  padding: 0.2rem 1.5rem 0.2rem 0.15rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+
+.orgSwitcherSelect:hover,
+.orgSwitcherSelect:focus-visible {
+  background: var(--color-muted, #f1f5f9);
+  outline: none;
+}
+
+.orgSwitcherSelect:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-primary, #2563eb);
+}
+
+.orgSwitcherError {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--color-danger, #dc2626);
+  font-size: 0.6875rem;
+  white-space: normal;
+}
+
 .orgSeparator {
   display: none;
   height: 1px;

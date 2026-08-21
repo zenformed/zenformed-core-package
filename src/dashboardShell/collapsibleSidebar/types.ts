@@ -5,6 +5,7 @@ import type {
   ZenformedDashboardHeaderClassNames,
   ZenformedDashboardHeaderUser,
 } from '../types';
+import type { ZenformedOrganizationSwitcherState } from './ZenformedOrganizationSwitcher';
 
 /** Shared layout tokens for the collapsible sidebar rail. */
 export const ZENFORMED_SIDEBAR_COLLAPSED_WIDTH_REM = 3.75;
@@ -16,6 +17,10 @@ export const ZENFORMED_SIDEBAR_SECTION_LABEL_HEIGHT_REM = 1;
 export const ZENFORMED_SIDEBAR_COLLAPSED_LABEL_SAFE_MAX_CHARS = 5;
 export const ZENFORMED_SIDEBAR_HOVER_OPEN_DELAY_MS = 120;
 export const ZENFORMED_SIDEBAR_HOVER_CLOSE_DELAY_MS = 220;
+
+export function shouldEnableOrganizationSwitching(activeMembershipCount: number): boolean {
+  return activeMembershipCount > 1;
+}
 
 export type ZenformedSidebarNavItem = {
   readonly id: string;
@@ -92,6 +97,8 @@ export type ZenformedCollapsibleSidebarShellProps = {
    */
   readonly appsSwitcher: ReactNode;
   readonly organizationName?: string | null;
+  /** Shared active-organization selector state. Single-org users remain non-interactive. */
+  readonly organizationSwitcher?: ZenformedOrganizationSwitcherState | null;
   readonly sections?: readonly ZenformedSidebarSection[];
   readonly notifications?: ZenformedDashboardNotificationsConfig | null;
   /**

@@ -5,6 +5,7 @@ import {
   resolveSidebarSectionLabelText,
   shouldOpenAccountPopoverOnUserBar,
   shouldOpenNotificationsAsPage,
+  shouldEnableOrganizationSwitching,
   shouldOverlayExpandedSidebar,
   shouldReserveCollapsedSidebarWidth,
   shouldShowSidebarAppName,
@@ -30,6 +31,14 @@ describe('sidebar app name visibility', () => {
   it('shows app name only when expanded', () => {
     assert.equal(shouldShowSidebarAppName(true), true);
     assert.equal(shouldShowSidebarAppName(false), false);
+  });
+});
+
+describe('organization switching visibility', () => {
+  it('keeps single-organization users non-interactive', () => {
+    assert.equal(shouldEnableOrganizationSwitching(0), false);
+    assert.equal(shouldEnableOrganizationSwitching(1), false);
+    assert.equal(shouldEnableOrganizationSwitching(2), true);
   });
 });
 

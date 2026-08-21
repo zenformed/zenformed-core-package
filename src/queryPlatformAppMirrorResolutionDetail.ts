@@ -16,6 +16,7 @@ export type PlatformAppMirrorQueryResult = PlatformAppMirrorResolutionDetail & {
 export type PlatformAppMirrorResolutionDetailInput = {
   userId: string;
   appSlug: string;
+  preferredOrganizationId?: string | null;
 };
 
 /** Injectable mirror prefetch + resolution (default: {@link queryPlatformAppMirrorResolutionDetail}). */
@@ -29,6 +30,7 @@ export async function queryPlatformAppMirrorResolutionDetail(
   input: PlatformAppMirrorResolutionDetailInput
 ): Promise<PlatformAppMirrorQueryResult> {
   const { userId, appSlug } = input;
+  const preferredOrganizationId = input.preferredOrganizationId;
 
   const { data: appRow, error: appErr } = await supabase
     .from('platform_apps')
@@ -87,6 +89,7 @@ export async function queryPlatformAppMirrorResolutionDetail(
 
   const resolved = resolvePlatformAppEntitlementFromPrefetched({
     userId,
+    preferredOrganizationId,
     appSlug,
     appId,
     memberRows: memberRows ?? [],

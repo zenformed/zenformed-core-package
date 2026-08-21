@@ -11,6 +11,7 @@ import {
 import presenceStyles from '../../presence/presence.module.css';
 import { ZenformedSidebarActionRow } from './ZenformedSidebarActionRow';
 import { ZenformedSidebarSections } from './ZenformedSidebarSections';
+import { ZenformedOrganizationSwitcher } from './ZenformedOrganizationSwitcher';
 import { resolveSidebarSectionLabelText, type ZenformedCollapsibleSidebarShellProps } from './types';
 import styles from './collapsibleSidebar.module.css';
 
@@ -31,6 +32,7 @@ export function ZenformedMobileDrawerChrome({
   const {
     appsSwitcher,
     organizationName,
+    organizationSwitcher,
     sections = [],
     notifications,
     themeControl,
@@ -153,9 +155,11 @@ export function ZenformedMobileDrawerChrome({
         <div className={styles.mobileAppsSlot}>{appsSwitcher}</div>
 
         {org ? (
-          <p className={styles.mobileOrgName} title={org}>
-            {org}
-          </p>
+          <ZenformedOrganizationSwitcher
+            organizationName={org}
+            state={organizationSwitcher}
+            mobile
+          />
         ) : null}
       </div>
 

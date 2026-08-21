@@ -115,6 +115,7 @@ export type PlatformAppEntitlementPrefetchedRow = {
 
 export function resolvePlatformAppEntitlementFromPrefetched(params: {
   userId: string;
+  preferredOrganizationId?: string | null;
   appSlug: string;
   appId: string | null;
   memberRows: { organization_id: string }[] | null;
@@ -151,7 +152,16 @@ export function resolvePlatformAppEntitlementFromPrefetched(params: {
     return { snapshot: null, failureDetail: 'organizations_query_failed_or_empty' };
   }
 
-  const sortedOrgIds = resolvePlatformOrganizationPreferenceOrder(orgRows, userId);
+  const preferredOrganizationId = params.preferredOrganizationId?.trim() || null;
+  const preferenceOrder = resolvePlatformOrganizationPreferenceOrder(
+    orgRows,
+    userId,
+    preferredOrganizationId
+  );
+  const sortedOrgIds =
+    preferredOrganizationId != null && preferenceOrder.includes(preferredOrganizationId)
+      ? [preferredOrganizationId]
+      : preferenceOrder;
   if (sortedOrgIds.length === 0) {
     return { snapshot: null, failureDetail: 'no_active_organizations_after_sort' };
   }

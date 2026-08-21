@@ -4,6 +4,7 @@ import {
   isPlatformAppEntitlementCurrentlyActive,
   isPlatformEntitlementStatusGrantingAccess,
   mapPlatformEntitlementRowToSnapshot,
+  resolvePlatformAppEntitlementFromPrefetched,
 } from './platformAppMirrorResolution';
 
 test('trial and active entitlement statuses grant access', () => {
@@ -36,4 +37,45 @@ test('effective window still gates active entitlements', () => {
     }),
     false
   );
+});
+
+test('selected organization cannot inherit another organization entitlement', () => {
+  const result = resolvePlatformAppEntitlementFromPrefetched({
+    userId: 'user-1',
+    preferredOrganizationId: 'org-a',
+    appSlug: 'buildcore',
+    appId: 'app-1',
+    memberRows: [{ organization_id: 'org-a' }, { organization_id: 'org-b' }],
+    orgRows: [
+      { id: 'org-a', status: 'active', created_for_user_id: 'user-1' },
+      { id: 'org-b', status: 'active', created_for_user_id: null },
+    ],
+    entitlementRows: [
+      { id: 'ent-a', organization_id: 'org-a', entitlement_status: 'inactive', plan_code: 'starter' },
+      { id: 'ent-b', organization_id: 'org-b', entitlement_status: 'active', plan_code: 'pro' },
+    ],
+  });
+
+  assert.equal(result.snapshot?.subscriptionActive, false);
+  assert.equal(result.resolvedSpine?.organization_id, 'org-a');
+});
+
+test('selected organization with no entitlement row does not use another organization row', () => {
+  const result = resolvePlatformAppEntitlementFromPrefetched({
+    userId: 'user-1',
+    preferredOrganizationId: 'org-a',
+    appSlug: 'buildcore',
+    appId: 'app-1',
+    memberRows: [{ organization_id: 'org-a' }, { organization_id: 'org-b' }],
+    orgRows: [
+      { id: 'org-a', status: 'active', created_for_user_id: 'user-1' },
+      { id: 'org-b', status: 'active', created_for_user_id: null },
+    ],
+    entitlementRows: [
+      { id: 'ent-b', organization_id: 'org-b', entitlement_status: 'active', plan_code: 'pro' },
+    ],
+  });
+
+  assert.equal(result.snapshot, null);
+  assert.equal(result.failureDetail, 'no_entitlement_row_for_preferred_org_chain');
 });

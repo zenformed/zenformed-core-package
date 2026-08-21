@@ -35,6 +35,15 @@ export { ZenformedCollapsibleSidebarShell } from './collapsibleSidebar/Zenformed
 export { ZenformedSidebarAppChevrons } from './collapsibleSidebar/ZenformedSidebarSections';
 export { ZenformedSidebarAppsTriggerChrome } from './collapsibleSidebar/ZenformedSidebarAppsTriggerChrome';
 export { ZenformedSidebarActionRow } from './collapsibleSidebar/ZenformedSidebarActionRow';
+export {
+  ZenformedOrganizationSwitcher,
+  parseZenformedOrganizationContext,
+  useZenformedOrganizationSwitcher,
+} from './collapsibleSidebar/ZenformedOrganizationSwitcher';
+export type {
+  ZenformedOrganizationOption,
+  ZenformedOrganizationSwitcherState,
+} from './collapsibleSidebar/ZenformedOrganizationSwitcher';
 export { useZenformedSidebarExpandState } from './collapsibleSidebar/useZenformedSidebarExpandState';
 export { useMobileDrawerClose } from './collapsibleSidebar/mobileDrawerCloseContext';
 export { useBodyScrollLock } from './useBodyScrollLock';
@@ -42,6 +51,7 @@ export {
   resolveMobileDrawerWidthCss,
   resolveSidebarSectionLabelText,
   shouldOpenAccountPopoverOnUserBar,
+  shouldEnableOrganizationSwitching,
   shouldOpenNotificationsAsPage,
   shouldOverlayExpandedSidebar,
   shouldReserveCollapsedSidebarWidth,

@@ -30,6 +30,7 @@ import {
   ZenformedSidebarSections,
 } from './ZenformedSidebarSections';
 import { ZenformedMobileDrawerChrome } from './ZenformedMobileDrawerChrome';
+import { ZenformedOrganizationSwitcher } from './ZenformedOrganizationSwitcher';
 import { ZenformedSidebarPresentationProvider } from './sidebarPresentationContext';
 import { MobileDrawerCloseProvider } from './mobileDrawerCloseContext';
 import {
@@ -75,6 +76,7 @@ function DesktopRailChrome({
   const {
     appsSwitcher,
     organizationName,
+    organizationSwitcher,
     sections = [],
     notifications,
     themeControl,
@@ -254,9 +256,7 @@ function DesktopRailChrome({
           <div className={styles.appsSwitcherSlot}>{appsSwitcher}</div>
           {org ? (
             <>
-              <p className={styles.orgName} title={org}>
-                {org}
-              </p>
+              <ZenformedOrganizationSwitcher organizationName={org} state={organizationSwitcher} />
               <div className={styles.orgSeparator} aria-hidden />
             </>
           ) : null}

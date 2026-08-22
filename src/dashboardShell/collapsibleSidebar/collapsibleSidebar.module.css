@@ -28,6 +28,84 @@
   color: var(--color-text, #0f172a);
 }
 
+/*
+ * A 1920×1080 laptop viewport has considerably less vertical room than the
+ * 2K/4K displays the shell also supports. Keep the collapsed rail equivalent
+ * to its 80% browser-zoom footprint so its navigation remains visible without
+ * making the rail itself scroll. Larger-display rules deliberately do not
+ * inherit this compact scale.
+ */
+@media (min-width: 1870px) and (max-width: 2199px) and (min-height: 900px) and (max-height: 1100px) {
+  .shell {
+    --zenformed-sidebar-collapsed-width: 3rem;
+    --zenformed-sidebar-icon-column: 2rem;
+    --zenformed-sidebar-row-height: 2rem;
+    --zenformed-sidebar-section-label-height: 0.8rem;
+    --zenformed-sidebar-pad-x: 0.6rem;
+    --zenformed-sidebar-row-pad-x: 0.4rem;
+    --zenformed-sidebar-row-gap: 0.52rem;
+    --zenformed-sidebar-icon-size: 1rem;
+  }
+
+  .topBlock {
+    gap: 0.28rem;
+    padding: 0.52rem 0 0.4rem;
+  }
+
+  .appTriggerIcon,
+  .appTriggerIcon :global(img),
+  .appTriggerIcon :global(svg),
+  .appIcon,
+  .appIconFallback {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .appIconFallback {
+    font-size: 0.56rem;
+  }
+
+  .scrollRegion {
+    padding: 0.28rem 0 0.4rem;
+  }
+
+  .section {
+    margin-bottom: 0.92rem;
+  }
+
+  .section:last-child {
+    margin-bottom: 0.4rem;
+  }
+
+  .sectionLabel {
+    margin: 0.12rem 0 0.32rem;
+    font-size: 0.52rem;
+  }
+
+  .sectionLabelCollapsed {
+    font-size: 0.44rem;
+  }
+
+  .navList {
+    gap: 0.12rem;
+  }
+
+  .otherLabel {
+    margin-bottom: 0.2rem;
+  }
+
+  .actionIcon :global(svg) {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .accountSlot .otherAccountAvatar {
+    width: 1.4rem !important;
+    height: 1.4rem !important;
+    font-size: 0.52rem !important;
+  }
+}
+
 .gutter {
   position: relative;
   flex-shrink: 0;

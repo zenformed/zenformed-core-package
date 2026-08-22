@@ -551,7 +551,7 @@
   padding: 0.875rem;
   border: 1px solid var(--theme-border-main, var(--color-border));
   border-radius: 0.75rem;
-  background: var(--theme-surface-main, var(--color-surface));
+  background: var(--theme-surface-inset, var(--color-muted));
 }
 
 .accountPanel .group {

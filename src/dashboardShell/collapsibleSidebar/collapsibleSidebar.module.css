@@ -35,7 +35,9 @@
  * making the rail itself scroll. Larger-display rules deliberately do not
  * inherit this compact scale.
  */
-@media (min-width: 1870px) and (max-width: 2199px) and (min-height: 900px) and (max-height: 1100px) {
+@media
+  (min-width: 1870px) and (max-width: 2199px) and (min-height: 900px) and (max-height: 1100px),
+  (min-width: 1500px) and (max-width: 1720px) and (min-resolution: 1.2dppx) and (max-resolution: 1.3dppx) {
   .shell {
     --zenformed-sidebar-collapsed-width: 3rem;
     --zenformed-sidebar-icon-column: 2rem;

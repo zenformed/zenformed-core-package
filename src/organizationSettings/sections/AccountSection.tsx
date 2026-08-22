@@ -5,6 +5,7 @@ import { AccountPasswordGroup } from '../components/AccountPasswordGroup';
 import { SettingsSaveStatusLine } from '../components/SettingsSaveStatusLine';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
+import orgStyles from '../organizationSettings.module.css';
 import type {
   OrganizationSettingsClassNames,
   OrganizationSettingsLabels,
@@ -53,7 +54,7 @@ export function AccountSection({
   const savingAccount = accountSaveStatus === 'saving';
 
   return (
-    <>
+    <div className={orgStyles.accountPanel}>
       <ZenformedSettingsGroup title={labels.profile} classNames={classNames}>
         <ZenformedSettingsField
           label={labels.firstName}
@@ -114,6 +115,6 @@ export function AccountSection({
         formKey={passwordFormKey}
         forgotPasswordHref={persistence?.forgotPasswordHref}
       />
-    </>
+    </div>
   );
 }

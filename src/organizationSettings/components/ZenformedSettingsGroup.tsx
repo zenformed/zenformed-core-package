@@ -9,6 +9,7 @@ type Props = {
   readonly classNames: OrganizationSettingsClassNames;
   readonly children: ReactNode;
   readonly defaultOpen?: boolean;
+  readonly collapsible?: boolean;
 };
 
 export function ZenformedSettingsGroup({
@@ -16,9 +17,25 @@ export function ZenformedSettingsGroup({
   classNames,
   children,
   defaultOpen = true,
+  collapsible = true,
 }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const panelId = useId();
+
+  if (!collapsible) {
+    return (
+      <div className={`${classNames.group} ${classNames.groupOpen}`}>
+        <div className={classNames.groupHeader}>
+          <span className={classNames.groupTitle}>{title}</span>
+        </div>
+        <div className={classNames.groupBody}>
+          <div className={orgStyles.groupBodyInner}>
+            <div className={orgStyles.groupBodyContent}>{children}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

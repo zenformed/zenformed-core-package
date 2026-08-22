@@ -55,7 +55,7 @@ export function AccountSection({
 
   return (
     <div className={orgStyles.accountPanel}>
-      <ZenformedSettingsGroup title={labels.profile} classNames={classNames}>
+      <ZenformedSettingsGroup title={labels.profile} classNames={classNames} collapsible={false}>
         <ZenformedSettingsField
           label={labels.firstName}
           classNames={classNames}

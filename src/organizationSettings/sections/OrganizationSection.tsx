@@ -6,6 +6,7 @@ import { SettingsSaveStatusLine } from '../components/SettingsSaveStatusLine';
 import { ZenformedSettingsField } from '../components/ZenformedSettingsField';
 import { ZenformedSettingsGroup } from '../components/ZenformedSettingsGroup';
 import { ZenformedTimezoneSelect } from '../components/ZenformedTimezoneSelect';
+import orgStyles from '../organizationSettings.module.css';
 import { resolveDefaultTimezone } from '../timezoneData';
 import type {
   OrganizationSettingsBrandingPersistence,
@@ -75,8 +76,8 @@ export function OrganizationSection({
     Boolean(branding?.onUploadLogoClick && branding?.onLogoFileChange);
 
   return (
-    <>
-      <ZenformedSettingsGroup title={labels.orgProfile} classNames={classNames}>
+    <div className={orgStyles.organizationPanel}>
+      <ZenformedSettingsGroup title={labels.orgProfile} classNames={classNames} collapsible={false}>
         <ZenformedSettingsField
           label={labels.legalName}
           classNames={classNames}
@@ -93,7 +94,7 @@ export function OrganizationSection({
           readOnly={namesReadOnly}
         />
         <p className={classNames.hint}>{labels.displayNameHint}</p>
-        <div className={classNames.field}>
+        <div className={`${classNames.field} ${orgStyles.organizationLogoField}`}>
           <span className={classNames.fieldLabel}>{labels.logo}</span>
           <div className={classNames.logoPreview}>
             {logoUrl ? (
@@ -173,6 +174,6 @@ export function OrganizationSection({
           </button>
         </div>
       </ZenformedSettingsGroup>
-    </>
+    </div>
   );
 }

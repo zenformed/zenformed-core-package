@@ -34,7 +34,7 @@ export function AccountPasswordGroup({
   }, [formKey]);
 
   return (
-    <ZenformedSettingsGroup title={labels.password} classNames={classNames} defaultOpen={false}>
+    <ZenformedSettingsGroup title={labels.password} classNames={classNames} collapsible={false}>
       <p className={classNames.hint}>{labels.passwordChangeComingSoon}</p>
       <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
         <div className={classNames.field}>
